@@ -1,0 +1,46 @@
+:root {
+  /* Colors */
+  --bg-color: #F9F9F7;
+  /* Warmer, softer off-white */
+  --bg-gradient: linear-gradient(180deg, #F9F9F7 0%, #ECECE8 100%);
+  /* Subtle depth */
+  --text-main: #111111;
+  /* Deeper black for higher contrast */
+  --text-muted: #555555;
+  --accent-color: #3D4F40;
+  /* Deep forest green */
+  --accent-hover: #2C3A2E;
+  --border-color: #E0E0E0;
+  --white: #FFFFFF;
+
+  /* Typography */
+  --font-heading: 'DM Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Font Scale (Major Third) */
+  --text-xs: 0.8rem;
+  --text-sm: 1rem;
+  --text-base: 1.25rem;
+  /* Larger base size */
+  --text-lg: 1.563rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-3xl: 3.052rem;
+
+  /* Spacing (Editorial) */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1.5rem;
+  /* Increased base spacing */
+  --spacing-md: 3rem;
+  --spacing-lg: 6rem;
+  --spacing-xl: 12rem;
+  /* Massive section spacing */
+
+  /* Container */
+  --container-width: 1400px;
+  --header-height: 80px;
+
+  /* Animation Easing */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}

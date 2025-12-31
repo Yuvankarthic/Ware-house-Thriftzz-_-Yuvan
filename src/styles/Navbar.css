@@ -1,0 +1,140 @@
+.navbar {
+    position: fixed;
+    top: 40px;
+    /* Offset for Marquee */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 2rem 0;
+    /* Increased initial padding */
+    transition: all 0.5s var(--ease-out-expo);
+    background-color: transparent;
+}
+
+.navbar.scrolled {
+    background-color: rgba(249, 249, 247, 0.85);
+    /* Matches new bg-color */
+    /* Off-white with opacity */
+    backdrop-filter: blur(12px);
+    padding: 1.25rem 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    /* Soft, expensive shadow */
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-logo a {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    /* Extra bold */
+    font-size: 2.25rem;
+    /* Large dominating logo */
+    letter-spacing: -0.04em;
+    color: var(--text-main);
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 3rem;
+}
+
+.navbar-links a {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    /* Start muted */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+    color: var(--text-main);
+}
+
+.navbar-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--accent-color);
+    transition: width 0.3s var(--ease-out-expo);
+}
+
+.navbar-links a:hover::after {
+    width: 100%;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.icon-btn {
+    color: var(--text-main);
+    padding: 0;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+    transform: translateY(-2px);
+    color: var(--accent-color);
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--accent-color);
+    color: var(--white);
+    font-size: 0.7rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.mobile-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .navbar-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 70%;
+        height: 100vh;
+        background-color: var(--bg-color);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform: translateX(100%);
+        transition: transform 0.4s var(--ease-out-expo);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-links.active {
+        transform: translateX(0);
+    }
+
+    .mobile-toggle {
+        display: block;
+        z-index: 1001;
+    }
+}

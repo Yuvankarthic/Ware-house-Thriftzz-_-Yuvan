@@ -1,0 +1,116 @@
+.about-section {
+    background-color: #F4F4F2;
+    /* Slightly darker off-white for contrast */
+    position: relative;
+    overflow: hidden;
+}
+
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 6rem;
+}
+
+.about-image-wrapper {
+    flex: 1;
+    position: relative;
+    height: 700px;
+    /* Taller editorial height */
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+.about-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s ease;
+}
+
+.about-section:hover .about-image {
+    transform: scale(1.03);
+}
+
+.about-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.05);
+    /* Very subtle tint */
+    pointer-events: none;
+}
+
+.about-content {
+    flex: 1;
+    padding-left: 2rem;
+}
+
+.about-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    line-height: 0.95;
+    margin-bottom: 2.5rem;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.underline-anim {
+    position: relative;
+    display: inline-block;
+}
+
+.underline-anim::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background-color: var(--accent-color);
+    transition: width 0.8s var(--ease-out-expo);
+}
+
+.section:hover .underline-anim::after,
+.underline-anim:hover::after {
+    width: 100%;
+}
+
+.about-text p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    max-width: 500px;
+}
+
+.btn-link {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--text-main);
+    padding-bottom: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+@media (max-width: 900px) {
+    .about-container {
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .about-image-wrapper {
+        width: 100%;
+        height: 400px;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+    }
+}
