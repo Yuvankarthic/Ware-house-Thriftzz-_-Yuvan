@@ -1,12 +1,10 @@
 .navbar {
-    position: fixed;
-    top: 40px;
-    /* Offset for Marquee */
+    position: sticky;
+    top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
     padding: 2rem 0;
-    /* Increased initial padding */
     transition: all 0.5s var(--ease-out-expo);
     background-color: transparent;
 }

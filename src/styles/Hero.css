@@ -5,7 +5,7 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
-    padding-top: var(--header-height);
+    /* padding-top removed for sticky navbar */
 }
 
 .hero-grid {

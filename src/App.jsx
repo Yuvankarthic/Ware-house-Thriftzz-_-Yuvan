@@ -6,6 +6,7 @@ import LatestDrop from './components/LatestDrop'
 import CartDrawer from './components/CartDrawer'
 import ProductPage from './components/ProductPage'
 import AboutSection from './components/AboutSection'
+import ContactPage from './components/ContactPage'
 
 function HomePage() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </div>
   )

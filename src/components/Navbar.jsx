@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import '../styles/Navbar.css';
@@ -24,9 +25,9 @@ const Navbar = () => {
                 </div>
 
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
-                    <a href="#latest-drop" onClick={() => setMenuOpen(false)}>Latest Drop</a>
-                    <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
-                    <a href="#info" onClick={() => setMenuOpen(false)}>Info</a>
+                    <a href="/#latest-drop" onClick={() => setMenuOpen(false)}>Latest Drop</a>
+                    <a href="/#about" onClick={() => setMenuOpen(false)}>About</a>
+                    <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
                 </div>
 
                 <div className="navbar-actions">

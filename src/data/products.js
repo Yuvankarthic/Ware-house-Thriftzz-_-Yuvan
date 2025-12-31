@@ -95,5 +95,32 @@ export const products = [
       "/images/classic-trench-view4.png"
     ],
     soldOut: false
+  },
+  {
+    id: 108,
+    name: "Premium Suede Jacket",
+    price: 599,
+    size: "M",
+    fit: "Regular",
+    condition: "Vintage",
+    images: [
+      "/images/premium-suede-view1.png",
+      "/images/premium-suede-view2.jpg"
+    ],
+    soldOut: false
+  },
+  {
+    id: 109,
+    name: "Cozy Suede Winter Jacket",
+    price: 699,
+    size: "S",
+    fit: "Regular",
+    condition: "Vintage",
+    images: [
+      "/images/cozy-suede-view1.png",
+      "/images/cozy-suede-view2.jpg",
+      "/images/cozy-suede-view3.png"
+    ],
+    soldOut: false
   }
 ];

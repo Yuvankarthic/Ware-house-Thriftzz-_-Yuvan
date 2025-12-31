@@ -8,8 +8,8 @@ const AboutSection = () => {
             <div className="container about-container">
                 <div className="about-image-wrapper fade-in">
                     <img
-                        src="/images/cropped-black-jacket.png"
-                        alt="Vintage Streetwear Sourcing"
+                        src="/images/wht-orange-logo.png"
+                        alt="WHT Vintage Logo"
                         className="about-image"
                     />
                     <div className="about-overlay"></div>
