@@ -42,8 +42,11 @@ const CartDrawer = () => {
                                 cartItems.map(item => (
                                     <div key={item.id} className="cart-item">
                                         <div className="cart-item-image">
-                                            {/* Using flat image for cart */}
-                                            <span className="cart-placeholder">{item.name[0]}</span>
+                                            {item.image ? (
+                                                <img src={item.image} alt={item.name} />
+                                            ) : (
+                                                <span className="cart-placeholder">{item.name[0]}</span>
+                                            )}
                                         </div>
                                         <div className="cart-item-details">
                                             <h4>{item.name}</h4>
