@@ -1,0 +1,116 @@
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform;
+}
+
+/* The small snapper dot */
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    /* This won't work well inside flex, better structure differently or just rely on outer div centering */
+    /* Revised structure approach: outer div moves, inner elements center themselves */
+}
+
+/* Correcting alignment */
+.custom-cursor {
+    /* Reset from previous thought */
+    display: block;
+}
+
+.cursor-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background-color: white;
+    /* In difference mode, white on black = white, white on white = black */
+    border-radius: 50%;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.cursor-outline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transition: all 0.3s ease-out;
+}
+
+/* Hover State - Expansion */
+.custom-cursor.hovered .cursor-outline {
+    transform: scale(3.5);
+    background-color: rgba(255, 255, 255, 1);
+    border-color: transparent;
+    opacity: 0.1;
+    /* Subtle highlight */
+}
+
+.custom-cursor.hovered .cursor-dot {
+    width: 4px;
+    height: 4px;
+    /* Dot shrinks slightly to focus */
+}
+
+/* Click State */
+.custom-cursor.clicked .cursor-outline {
+    transform: scale(0.8);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Optional Text Text (e.g. "VIEW" when hovering products) */
+.cursor-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: black;
+    /* Inverted */
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+/* Specific component overrides could go here, e.g. .product-card:hover ~ cursor with text */
+
+/* Ensure default cursor is hidden globally when this is active */
+body,
+a,
+button,
+input {
+    cursor: none !important;
+}
+
+/* Mobile check: Hide custom cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .custom-cursor {
+        display: none;
+    }
+
+    body,
+    a,
+    button,
+    input {
+        cursor: auto !important;
+    }
+}

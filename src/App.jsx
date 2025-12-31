@@ -7,6 +7,7 @@ import CartDrawer from './components/CartDrawer'
 import ProductPage from './components/ProductPage'
 import AboutSection from './components/AboutSection'
 import ContactPage from './components/ContactPage'
+import CustomCursor from './components/CustomCursor'
 
 function HomePage() {
   return (
@@ -23,6 +24,7 @@ function HomePage() {
 function App() {
   return (
     <div className="app-container">
+      <CustomCursor />
       <Marquee />
       <Navbar />
       <CartDrawer />
