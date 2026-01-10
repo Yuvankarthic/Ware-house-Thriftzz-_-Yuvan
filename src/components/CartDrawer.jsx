@@ -76,7 +76,37 @@ const CartDrawer = () => {
                                     <span>₹{cartTotal}</span>
                                 </div>
                                 <p className="shipping-note">Shipping calculated at checkout</p>
-                                <button className="btn-primary checkout-btn">
+                                <button
+                                    className="btn-primary checkout-btn"
+                                    onClick={() => {
+                                        const options = {
+                                            key: "rzp_live_S28xdLIyICaX2m",
+                                            amount: cartTotal * 100, // Amount in paise
+                                            currency: "INR",
+                                            name: "WHT",
+                                            description: "Streetwear Order",
+                                            image: "/vite.svg", // Optional logo
+                                            handler: function (response) {
+                                                // Handle successful payment
+                                                /* eslint-disable-next-line no-console */
+                                                console.log("Payment Successful", response);
+                                                clearCart();
+                                                setIsCartOpen(false);
+                                                alert("Payment Successful! Your order has been placed.");
+                                            },
+                                            prefill: {
+                                                name: "",
+                                                email: "",
+                                                contact: ""
+                                            },
+                                            theme: {
+                                                color: "#000000"
+                                            }
+                                        };
+                                        const rzp1 = new window.Razorpay(options);
+                                        rzp1.open();
+                                    }}
+                                >
                                     Checkout
                                 </button>
                             </div>
