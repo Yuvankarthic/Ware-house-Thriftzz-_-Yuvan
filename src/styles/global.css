@@ -96,3 +96,27 @@ img {
     background-color: var(--accent-color);
     transform: translateY(-2px);
 }
+
+@media (max-width: 768px) {
+    :root {
+        /* Mobile Spacing */
+        --spacing-sm: 1rem;
+        --spacing-md: 2rem;
+        --spacing-lg: 4rem;
+        --spacing-xl: 6rem;
+
+        /* Mobile Typography Scale */
+        --text-base: 1rem;
+        --text-3xl: 2.25rem;
+        /* Smaller hero title */
+    }
+
+    .container {
+        padding: 0 16px;
+        /* Safe padding */
+    }
+
+    .section {
+        padding: var(--spacing-lg) 0;
+    }
+}

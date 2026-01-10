@@ -118,7 +118,8 @@
         position: fixed;
         top: 0;
         right: 0;
-        width: 70%;
+        width: 100%;
+        /* Full width for modern feel */
         height: 100vh;
         background-color: var(--bg-color);
         flex-direction: column;
@@ -126,15 +127,28 @@
         align-items: center;
         transform: translateX(100%);
         transition: transform 0.4s var(--ease-out-expo);
-        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        /* Ensure it's below the actions but above content */
+        z-index: 999;
     }
 
     .navbar-links.active {
         transform: translateX(0);
     }
 
+    .navbar-links a {
+        font-size: 2rem;
+        /* Larger mobile type */
+        margin-bottom: 2rem;
+    }
+
     .mobile-toggle {
         display: block;
         z-index: 1001;
+    }
+
+    .navbar-actions {
+        z-index: 1001;
+        /* Keep cart and toggle above menu */
+        gap: 1rem;
     }
 }

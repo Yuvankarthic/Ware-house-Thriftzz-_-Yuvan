@@ -185,3 +185,29 @@
 .checkout-btn {
     width: 100%;
 }
+
+@media (max-width: 768px) {
+    .cart-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .qty-controls button {
+        padding: 0.5rem;
+        /* Larger touch target */
+    }
+
+    .qty-controls {
+        gap: 0.75rem;
+    }
+
+    .close-btn {
+        padding: 0.5rem;
+        /* Easier to close */
+    }
+
+    .checkout-btn {
+        padding: 1.25rem;
+        /* Fat button */
+    }
+}

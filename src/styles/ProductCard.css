@@ -178,3 +178,38 @@
     opacity: 1;
     transform: translateY(0);
 }
+
+@media (max-width: 768px) {
+    .product-name {
+        font-size: 0.9rem;
+    }
+
+    .product-price {
+        font-size: 0.9rem;
+    }
+
+    /* Remove metadata clutter on mobile */
+    .product-meta {
+        display: none;
+    }
+
+    /* Ensure Quick Add is visible and large enough on mobile */
+    .quick-add-btn {
+        opacity: 1;
+        transform: translateY(0);
+        width: 44px;
+        height: 44px;
+        bottom: 0.5rem;
+        right: 0.5rem;
+    }
+
+    /* Make badges visible */
+    .status-badge {
+        opacity: 1;
+        transform: translateY(0);
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+        bottom: 0.5rem;
+        left: 0.5rem;
+    }
+}

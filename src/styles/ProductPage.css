@@ -348,4 +348,21 @@
     .slider-dots {
         bottom: 15px;
     }
+
+    /* Sticky Add to Cart for Mobile */
+    .btn-add-to-cart {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        border-radius: 0;
+        padding: 1.25rem;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Add padding to prevent content from being hidden behind sticky button */
+    .product-page {
+        padding-bottom: 8rem;
+    }
 }
