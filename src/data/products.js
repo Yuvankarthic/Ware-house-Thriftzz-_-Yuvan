@@ -2,7 +2,7 @@ export const products = [
   {
     id: 101,
     name: "Women's Cropped Black Jacket",
-    price: 1, // Estimated as price wasn't clearly visible in screenshot snippet
+    price: 599, // Estimated as price wasn't clearly visible in screenshot snippet
     size: "XS",
     fit: "Cropped",
     condition: "A",
