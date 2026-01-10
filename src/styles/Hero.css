@@ -10,8 +10,8 @@
 
 .hero-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2rem;
     align-items: center;
     height: 100%;
 }
@@ -52,17 +52,34 @@
 
 .image-wrapper {
     position: relative;
-    width: 80%;
-    height: 100%;
+    width: 100%;
+    /* Use aspect ratio to enforce the shape */
+    aspect-ratio: 3/4;
+    max-height: 82vh;
     overflow: hidden;
+    border-radius: 16px;
     /* Editorial tilt or shadow can go here */
 }
 
-.hero-main-image {
+.hero-collage-grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+    transition: transform 0.6s var(--ease-out-expo);
+}
+
+.hero-collage-grid:hover {
+    transform: scale(1.02);
+}
+
+.collage-item {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Optional: filter: grayscale(20%); for mood */
+    display: block;
 }
 
 .image-badge {
@@ -163,9 +180,23 @@
 
     .image-wrapper {
         width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        height: auto;
+        aspect-ratio: 3/4;
+        border-radius: 16px;
     }
 
     .hero-subtext p {
         margin: 0 auto 2rem;
+    }
+
+    .hero-collage-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+    }
+
+    .collage-item:not(:first-child) {
+        display: none;
     }
 }

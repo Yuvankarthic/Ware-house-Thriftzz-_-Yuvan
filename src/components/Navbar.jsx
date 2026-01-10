@@ -21,7 +21,7 @@ const Navbar = () => {
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
             <div className="navbar-container container">
                 <div className="navbar-logo">
-                    <a href="/">WHT</a>
+                    <a href="/" style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 400 }}>WHT</a>
                 </div>
 
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>

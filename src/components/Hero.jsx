@@ -37,22 +37,18 @@ const Hero = () => {
 
                 <div className="hero-image-column fade-in delay-200">
                     <div className="image-wrapper">
-                        <img
-                            src="/images/hero-smoker.png"
-                            alt="WHT Editorial Rapper Style"
-                            className="hero-main-image"
-                        />
-                        <div className="image-badge">
-                            <span>New Arrival</span>
+                        <div className="hero-collage-grid">
+                            <img src="/images/hero-collage/collage-1.jpg" alt="WHT View 1" className="collage-item" />
+                            <img src="/images/hero-collage/collage-2.jpg" alt="WHT View 2" className="collage-item" />
+                            <img src="/images/hero-collage/collage-3.jpg" alt="WHT View 3" className="collage-item" />
+                            <img src="/images/hero-collage/collage-4.jpg" alt="WHT View 4" className="collage-item" />
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <div className="scroll-indicator fade-in delay-1000">
-                <span>Explore</span>
-                <div className="line"></div>
-            </div>
+
         </section>
     );
 };
