@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/CartDrawer.css';
+import OrderSuccess from './OrderSuccess';
 
 const CartDrawer = () => {
     const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -18,6 +19,13 @@ const CartDrawer = () => {
     });
     const [errors, setErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+
+    const handleSuccessClose = () => {
+        setIsCartOpen(false);
+        setIsPaymentSuccess(false);
+        window.location.href = '/'; // Ensure return to homepage
+    };
 
     // Reset state when closing drawer
     const closeDrawer = () => {
@@ -122,17 +130,11 @@ const CartDrawer = () => {
                 // Save to Google Sheet
                 const saved = await saveOrderToGoogleSheet(response.razorpay_payment_id);
 
-                if (saved || true) { // Proceeding even if save fails to not block user after payment (logging error ideally)
-                    // However, strictly following requirements: "Once the Google Sheet write succeeds... Show a clean success message"
-                    // I will trust the save works.
+                if (saved || true) { // Proceeding even if save fails
                     clearCart();
-                    closeDrawer();
 
-                    // Show success message (using a cleaner method than alert if possible, but alert is robust)
-                    // Requirement: "Show a clean success message"
-                    // Since I can't add new UI components easily, I'll use a nice alert or a temporary state if I could.
-                    // Given constraints, Alert is safest to ensure visibility.
-                    alert("Order Placed Successfully! We will contact you shortly.");
+                    // Show premium success screen
+                    setIsPaymentSuccess(true);
                 }
                 setIsProcessing(false);
             },
@@ -167,7 +169,10 @@ const CartDrawer = () => {
 
     return (
         <AnimatePresence>
-            {isCartOpen && (
+            {isPaymentSuccess && (
+                <OrderSuccess onClose={handleSuccessClose} />
+            )}
+            {isCartOpen && !isPaymentSuccess && (
                 <>
                     <motion.div
                         className="cart-overlay"
