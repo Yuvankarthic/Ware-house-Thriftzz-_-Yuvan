@@ -186,6 +186,66 @@
     width: 100%;
 }
 
+/* Checkout Form Styles */
+.checkout-form {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-group input {
+    padding: 0.85rem;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--text-main);
+    outline: none;
+}
+
+.form-error {
+    color: #e53935;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.checkout-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    color: var(--text-main);
+}
+
 @media (max-width: 768px) {
     .cart-drawer {
         width: 100%;
