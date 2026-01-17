@@ -12,7 +12,7 @@
     aspect-ratio: 3 / 4;
     overflow: hidden;
     background-color: #f0f0f0;
-    border-radius: 2px;
+    border-radius: 16px;
     transition: box-shadow 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
 }
 
@@ -25,6 +25,8 @@
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    border-radius: 18px;
 }
 
 .product-img {
@@ -40,10 +42,14 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 1rem;
+    /* Placeholder centering removed for image fix */
+    /* padding: 1rem; */
     color: var(--text-muted);
     font-size: 0.8rem;
     text-transform: uppercase;
+    border-radius: 18px;
+    overflow: hidden;
+    display: block;
 }
 
 .placeholder-text {

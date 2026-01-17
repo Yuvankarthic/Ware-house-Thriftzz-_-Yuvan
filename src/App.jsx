@@ -7,6 +7,7 @@ import CartDrawer from './components/CartDrawer'
 import ProductPage from './components/ProductPage'
 import AboutSection from './components/AboutSection'
 import ContactPage from './components/ContactPage'
+import WelcomeOverlay from './components/WelcomeOverlay'
 
 
 function HomePage() {
@@ -24,6 +25,7 @@ function HomePage() {
 function App() {
   return (
     <div className="app-container">
+      <WelcomeOverlay />
 
       <Marquee />
       <Navbar />

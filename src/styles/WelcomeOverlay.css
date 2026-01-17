@@ -1,0 +1,112 @@
+/* Welcome Overlay Styles */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    /* Solid white background */
+    z-index: 9999;
+    /* Ensure it's on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    /* Let clicks pass through once fading/gone, though we remove it from DOM anyway */
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.welcome-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+    /* Block interactions while visible */
+}
+
+.welcome-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.welcome-content {
+    text-align: center;
+    color: #000;
+    padding: 20px;
+    animation: contentFadeIn 1s ease-out forwards;
+}
+
+.welcome-title {
+    font-size: 3.5rem;
+    /* Very large hero scale */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    /* Slight negative letter spacing for modern feel */
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.welcome-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 0.75rem;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 0.6s forwards;
+}
+
+.welcome-micro {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 1s forwards;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 1rem;
+    }
+
+    .welcome-micro {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-title {
+        font-size: 2rem;
+        letter-spacing: -0.01em;
+    }
+}
