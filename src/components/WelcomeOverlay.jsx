@@ -4,52 +4,53 @@ import '../styles/WelcomeOverlay.css';
 const WelcomeOverlay = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(true);
-    const [showUfo, setShowUfo] = useState(false);
-    const [isFlying, setIsFlying] = useState(false);
+    const [startAnimation, setStartAnimation] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
 
-    // Audio ref
+    // Audio ref (optional, per requirements "No sound changes")
     const audioRef = useRef(null);
     const touchStartY = useRef(0);
+
+    // Check system preference for motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     useEffect(() => {
         // Check if user has visited in this session
         const hasVisited = sessionStorage.getItem('wht_has_visited');
 
         if (!hasVisited) {
-            setIsVisible(true);
+            setShouldRender(true);
+            // Slight delay to ensure paint before fading in
+            const startTimer = setTimeout(() => {
+                setIsVisible(true);
+                setStartAnimation(true);
+            }, 100);
 
-            // Show UFO after 2 seconds
-            const ufoTimer = setTimeout(() => {
-                setShowUfo(true);
-            }, 2000);
-
-            return () => clearTimeout(ufoTimer);
+            return () => clearTimeout(startTimer);
         } else {
             setShouldRender(false);
         }
     }, []);
 
     const triggerEntry = () => {
-        if (isFlying) return;
+        if (isExiting) return;
 
-        setIsFlying(true);
+        setIsExiting(true);
         sessionStorage.setItem('wht_has_visited', 'true');
 
-        // Play sound if available
+        // Play sound if available (subtle)
         if (audioRef.current) {
-            audioRef.current.volume = 0.2;
-            audioRef.current.play().catch(e => console.log('Audio play failed', e));
+            audioRef.current.volume = 0.1;
+            audioRef.current.play().catch(e => { /* Ignore autoplay blocks */ });
         }
 
-        // Wait for UFO flight (approx 800ms) then fade out overlay
+        // Wait for exit animation (approx 2s) then unmount
         setTimeout(() => {
-            setIsVisible(false); // Start overlay fade out
-
-            // Remove from DOM
+            setIsVisible(false); // Fades out via CSS
             setTimeout(() => {
                 setShouldRender(false);
-            }, 800);
-        }, 600);
+            }, 2000); // 2s transition duration
+        }, 100);
     };
 
     const handleTouchStart = (e) => {
@@ -60,7 +61,7 @@ const WelcomeOverlay = () => {
         const touchEndY = e.changedTouches[0].clientY;
         const diff = touchStartY.current - touchEndY; // Positive if swipe up
 
-        if (diff > 50) { // Threshold for swipe up
+        if (diff > 40) { // Threshold for swipe up
             triggerEntry();
         }
     };
@@ -68,31 +69,51 @@ const WelcomeOverlay = () => {
     if (!shouldRender) return null;
 
     return (
-        <div className={`welcome-overlay ${isVisible ? 'visible' : 'hidden'}`}>
+        <div
+            className={`welcome-overlay ${isVisible ? 'visible' : ''} ${isExiting ? 'exiting' : ''}`}
+            onClick={triggerEntry}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+        >
             <div className="background-noise"></div>
 
-            <div className="welcome-content">
-                <h1 className="welcome-title">WELCOME TO WHT</h1>
-                <p className="welcome-subtitle">Curated thrift. Built for the street. 🖤</p>
-                <p className="welcome-micro">One-of-one pieces. No mass production.</p>
+            <div className="welcome-content-wrapper">
+                {/* 
+                   The Image: Contains the WHT Abstract Art.
+                   We use mix-blend-mode to integrate it.
+                */}
+                <div className={`graphic-container ${startAnimation && !prefersReducedMotion ? 'animate' : ''}`}>
+                    <img
+                        src="/welcome_graphic.png"
+                        alt="WHT Abstract"
+                        className="welcome-graphic"
+                    />
+                </div>
+
+                {/* 
+                   The Text Mask: A solid block color that sits ON TOP of the image's bottom half 
+                   to hide the baked-in text/UFO, but BEHIND our new HTML text.
+                */}
+                <div className="text-mask-patch"></div>
+
+                {/* 
+                   HTML Typography: Replaces the baked text for sharpness and optimization.
+                */}
+                <div className={`text-container ${startAnimation && !prefersReducedMotion ? 'animate' : ''}`}>
+                    <h2 className="tagline-primary">CURATED THRIFT. BUILT FOR THE STREET.</h2>
+                    <p className="tagline-secondary">One-of-one pieces. No mass production.</p>
+                </div>
             </div>
 
-            {/* Micro Brand Tag */}
-            <div className="micro-brand-tag">WHT / 2025</div>
-
-            {/* UFO Interaction */}
+            {/* UFO Interaction - Bottom Right */}
             <div
-                className={`ufo-container ${showUfo ? 'visible' : ''} ${isFlying ? 'flying' : ''}`}
-                onClick={triggerEntry}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
+                className={`ufo-container ${startAnimation ? 'visible' : ''} ${isExiting && !prefersReducedMotion ? 'flying' : ''}`}
             >
                 <svg
                     className="ufo-icon"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                 >
@@ -102,10 +123,10 @@ const WelcomeOverlay = () => {
                     <path d="M12 12v-6a4 4 0 0 1 4 4" />
                     <line x1="12" y1="2" x2="12" y2="4" />
                 </svg>
-                <span className="ufo-hint">SWIPE UP</span>
+                <span className="ufo-hint">Swipe up</span>
             </div>
 
-            {/* Hidden Audio Element - ideally add a real file to public folder */}
+            {/* Hidden Audio */}
             <audio ref={audioRef} src="/sounds/woosh.mp3" preload="auto" />
         </div>
     );

@@ -1,259 +1,264 @@
 /* Welcome Overlay Styles */
-/* Welcome Overlay Styles */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+
 .welcome-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #FAFAF8;
-    /* Subtle warm off-white */
+    /* Clean, flat white/off-white background - NO NOISE */
+    background-color: #FAFAF9;
     z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
     overflow: hidden;
-}
-
-/* Background Noise & Light */
-.background-noise {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Noise texture simulation using a repeating radial gradient pattern or URL if available. 
-       Using a CSS trick for noise or just a subtle gradient for now + opacity. */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.welcome-overlay::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60vw;
-    height: 60vh;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
-    z-index: -1;
-    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.8s cubic-bezier(0.45, 0, 0.55, 1);
+    cursor: default;
+    /* Force GPU rendering for sharpness */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .welcome-overlay.visible {
     opacity: 1;
-    pointer-events: auto;
 }
 
-.welcome-overlay.hidden {
+.welcome-overlay.exiting {
     opacity: 0;
+    transform: translateY(-20px);
     pointer-events: none;
 }
 
-.welcome-content {
+/* REMOVED .background-noise entirely for clarity */
+.background-noise {
+    display: none;
+}
+
+.welcome-content-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Graphic Container */
+.graphic-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(1);
+    will-change: transform;
+    /* Optimize for performance */
+}
+
+.graphic-container.animate {
+    /* Subtle breathing, ensuring no blur on scale */
+    animation: breathing 8s ease-in-out infinite alternate;
+}
+
+.welcome-graphic {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    mix-blend-mode: multiply;
+    /* 
+       SHARPNESS OPTIMIZATION:
+       No blur filters. 
+       Slight contrast boost to define edges of the line art.
+       Brightness adjustment to match page white.
+    */
+    filter: contrast(1.05) brightness(1.02);
+    opacity: 0;
+    animation: fadeInGraphic 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    transform: scale(1.02);
+}
+
+/* Mask Patch - Clean solid cover */
+.text-mask-patch {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 38vh;
+    background-color: #FAFAF9;
+    /* Match bg */
+    z-index: 2;
+    /* Smooth gradient mask */
+    mask-image: linear-gradient(to bottom, transparent, black 15%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%);
+}
+
+/* Typography Container */
+.text-container {
+    position: absolute;
+    bottom: 14vh;
+    /* Increased bottom spacing for "Open" feel */
+    left: 0;
+    width: 100%;
     text-align: center;
-    color: #111;
-    /* Slightly softer black */
-    padding: 20px;
-    animation: contentFadeIn 1s ease-out forwards;
+    z-index: 5;
+    opacity: 0;
+    /* Start without blur */
+    transform: translateY(15px);
 }
 
-.welcome-title {
-    font-size: 3.5rem;
+.text-container.animate {
+    animation: fadeInUpText 1.8s ease-out 0.6s forwards;
+}
+
+/* Primary Tagline - Bold, Trippy, Readable */
+.tagline-primary {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    /* Increased size */
     font-weight: 800;
-    /* Stronger */
-    letter-spacing: -0.04em;
-    /* Tighter for modern feel */
-    text-transform: uppercase;
-    margin-bottom: 1.25rem;
-    /* More breathing room */
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+    /* Extra bold */
     color: #000;
-}
-
-.welcome-subtitle {
-    font-size: 1.15rem;
-    /* Slightly smaller for contrast */
-    font-weight: 300;
-    /* Lighter */
-    color: #444;
-    margin-bottom: 0.75rem;
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out 0.6s forwards;
-    letter-spacing: 0.02em;
-}
-
-.welcome-micro {
-    font-size: 0.75rem;
-    color: #888;
-    font-weight: 300;
-    letter-spacing: 0.1em;
-    /* Increased spacing */
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out 1s forwards;
+    letter-spacing: -0.02em;
+    /* Tighter for Syne style */
+    line-height: 1.1;
+    margin: 0 0 1rem 0;
     text-transform: uppercase;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Secondary Tagline - Clean, Soft */
+.tagline-secondary {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(0.75rem, 1.3vw, 1rem);
+    /* Increased size */
+    font-weight: 500;
+    color: #555;
+    letter-spacing: 0.02em;
+    /* Slight breathing room */
+    margin: 0;
+    opacity: 1;
+    /* Crisp */
 }
 
-@keyframes contentFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .welcome-title {
-        font-size: 2.5rem;
-    }
-
-    .welcome-subtitle {
-        font-size: 1rem;
-    }
-
-    .welcome-micro {
-        font-size: 0.75rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .welcome-title {
-        font-size: 2rem;
-        letter-spacing: -0.01em;
-    }
-}
-
-/* UFO Elements */
+/* UFO Interaction */
 .ufo-container {
     position: fixed;
     bottom: 40px;
     right: 40px;
     z-index: 10001;
-    cursor: grab;
-    transition: transform 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     opacity: 0;
-    transform: translateY(20px);
+    transition: opacity 1s ease 1.5s;
 }
 
 .ufo-container.visible {
     opacity: 1;
-    transform: translateY(0);
-    animation: ufoFloat 3s ease-in-out infinite;
 }
 
 .ufo-container.flying {
-    animation: ufoFlyUp 1.2s ease-in-out forwards;
-    cursor: grabbing;
+    transform: translateY(-50px) scale(0.95);
+    opacity: 0;
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
 }
 
 .ufo-icon {
-    width: 48px;
+    width: 40px;
+    /* Larger icon for clarity */
     height: auto;
     color: #000;
+    stroke-width: 1.5px;
+    /* REMOVED all glow filters for sharpness */
+    filter: none;
+    transition: transform 0.3s ease;
+}
+
+.ufo-hint {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #000;
+    margin-top: 10px;
+    text-transform: uppercase;
     opacity: 1;
+    /* Crisp */
 }
 
-.micro-brand-tag {
-    position: absolute;
-    bottom: 40px;
-    left: 40px;
-    font-size: 0.65rem;
-    color: #999;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    opacity: 0.15;
-    /* Low opacity as requested */
-    pointer-events: none;
-    writing-mode: vertical-rl;
-    /* Vertical street aesthetic */
-    transform: rotate(180deg);
+.ufo-container:hover .ufo-icon {
+    /* Crisp sharp movement, no blur */
+    transform: translateY(-4px);
 }
 
-.ufo-icon {
-    width: 48px;
-    height: auto;
-    color: #111;
-    /* Soft green ambient glow */
-    filter: drop-shadow(0 0 10px rgba(0, 255, 100, 0.15));
-    transition: filter 0.3s ease;
-}
+/* Animations - REMOVED BLUR */
+@keyframes breathing {
+    0% {
+        transform: scale(1);
+    }
 
-.ufo-container.visible .ufo-hint {
-    opacity: 0.4;
-    /* Opacity < 50% */
-}
-
-.ufo-container.visible:hover .ufo-icon {
-    /* Slightly stronger glow on hover */
-    filter: drop-shadow(0 0 15px rgba(0, 255, 100, 0.3));
-}
-
-/* Animations */
-@keyframes ufoFloat {
-
-    0%,
     100% {
+        transform: scale(1.02);
+    }
+
+    /* Reduced scale range for sharpness */
+}
+
+@keyframes fadeInGraphic {
+    from {
+        opacity: 0;
+        transform: scale(0.98) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.02) translateY(0);
+    }
+}
+
+@keyframes fadeInUpText {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        /* No filter: blur() */
+    }
+
+    to {
+        opacity: 1;
         transform: translateY(0);
     }
-
-    50% {
-        transform: translateY(-10px);
-    }
 }
 
-@keyframes ufoFlyUp {
-    0% {
-        transform: translateY(0) scale(1);
-    }
-
-    20% {
-        transform: translateY(20px) scale(0.9);
-    }
-
-    /* Anticipation */
-    100% {
-        transform: translateY(-120vh) scale(0.5);
-        opacity: 0;
-    }
-}
-
+/* Mobile Adjustments */
 @media (max-width: 768px) {
+    .text-mask-patch {
+        height: 32vh;
+    }
+
+    .text-container {
+        bottom: 16vh;
+        /* Raise text slightly */
+        padding: 0 24px;
+    }
+
+    .tagline-primary {
+        font-size: 1.1rem;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.6rem;
+    }
+
+    .tagline-secondary {
+        font-size: 0.85rem;
+    }
+
     .ufo-container {
         bottom: 30px;
         right: 30px;
     }
 
     .ufo-icon {
-        width: 40px;
-    }
-
-    /* Always show hint on mobile after delay */
-    .ufo-hint {
-        opacity: 0.6;
-        bottom: -20px;
-        font-size: 0.6rem;
+        width: 32px;
     }
 }
