@@ -13,12 +13,9 @@
 
 .navbar.scrolled {
     background-color: rgba(249, 249, 247, 0.85);
-    /* Matches new bg-color */
-    /* Off-white with opacity */
     backdrop-filter: blur(12px);
     padding: 1.25rem 0;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-    /* Soft, expensive shadow */
 }
 
 .navbar-container {
@@ -30,9 +27,7 @@
 .navbar-logo a {
     font-family: 'Pixelify Sans', sans-serif !important;
     font-weight: 400;
-    /* Extra bold */
     font-size: 3rem;
-    /* Large dominating logo */
     letter-spacing: -0.04em;
     color: var(--text-main);
     text-transform: uppercase;
@@ -49,7 +44,6 @@
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-muted);
-    /* Start muted */
     text-transform: uppercase;
     letter-spacing: 0.1em;
     position: relative;
@@ -81,32 +75,120 @@
     gap: 1.5rem;
 }
 
+/* Force Button Visibility */
 .icon-btn {
-    color: var(--text-main);
+    color: #111111 !important;
+    /* Force Black */
     padding: 0;
     position: relative;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    /* Explicit button size */
+    height: 40px;
 }
 
 .icon-btn:hover {
     transform: translateY(-2px);
-    color: var(--accent-color);
+    color: #3D4F40 !important;
 }
 
-.cart-count {
+/* HEART ICON FORCE VISIBILITY */
+.nav-icon {
+    width: 24px !important;
+    height: 24px !important;
+    stroke: currentColor;
+    stroke-width: 2px !important;
+    /* Bold stroke */
+    display: block !important;
+    transition: fill 0.3s ease, transform 0.2s ease;
+    transform-origin: center;
+}
+
+/* FILLED STATE (Active) */
+.nav-icon.filled {
+    fill: #e63946;
+    /* RED HEART */
+    stroke: #e63946;
+    /* Match stroke to fill for solid look */
+    color: #e63946;
+}
+
+/* BREAKING STATE (Remove) */
+.nav-icon.breaking {
+    stroke: #e63946;
+    /* RED CRACKS */
+    color: #e63946;
+}
+
+/* Pulse Animation (Add to Cart) */
+.cart-btn.pulse .nav-icon {
+    animation: heartPulse 0.4s ease-out forwards;
+}
+
+@keyframes heartPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+
+    /* Stronger Pulse */
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Break/Shake Animation (Remove from Cart) */
+.cart-btn.break .nav-icon.breaking {
+    animation: heartShake 0.4s ease-in-out forwards;
+}
+
+@keyframes heartShake {
+    0% {
+        transform: translateX(0) rotate(0);
+    }
+
+    25% {
+        transform: translateX(-4px) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateX(4px) rotate(5deg);
+    }
+
+    75% {
+        transform: translateX(-4px) rotate(-5deg);
+    }
+
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+}
+
+.cart-count-dot {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: var(--accent-color);
-    color: var(--white);
-    font-size: 0.7rem;
-    width: 16px;
-    height: 16px;
+    top: 6px;
+    right: 4px;
+    background-color: #111111;
+    color: #F9F9F7;
+    font-size: 0.6rem;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 700;
+    pointer-events: none;
+    border: 1px solid #F9F9F7;
 }
 
 .mobile-toggle {
@@ -119,7 +201,6 @@
         top: 0;
         right: 0;
         width: 100%;
-        /* Full width for modern feel */
         height: 100vh;
         background-color: var(--bg-color);
         flex-direction: column;
@@ -127,7 +208,6 @@
         align-items: center;
         transform: translateX(100%);
         transition: transform 0.4s var(--ease-out-expo);
-        /* Ensure it's below the actions but above content */
         z-index: 999;
     }
 
@@ -137,7 +217,6 @@
 
     .navbar-links a {
         font-size: 2rem;
-        /* Larger mobile type */
         margin-bottom: 2rem;
     }
 
@@ -148,7 +227,6 @@
 
     .navbar-actions {
         z-index: 1001;
-        /* Keep cart and toggle above menu */
         gap: 1rem;
     }
 }

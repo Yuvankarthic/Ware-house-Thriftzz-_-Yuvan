@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { Heart, HeartCrack, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const { cartCount, setIsCartOpen } = useCart();
+    const [animState, setAnimState] = useState('idle'); // 'idle', 'pulse', 'break'
 
+    const { cartCount, setIsCartOpen } = useCart();
+    const prevCountRef = useRef(cartCount);
+
+    // Scroll handler
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
@@ -16,6 +20,23 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Cart Animation Logic
+    useEffect(() => {
+        if (cartCount > prevCountRef.current) {
+            // Added item -> Pulse
+            setAnimState('pulse');
+            setTimeout(() => setAnimState('idle'), 400);
+        } else if (cartCount < prevCountRef.current) {
+            // Removed item -> Break
+            setAnimState('break');
+            setTimeout(() => setAnimState('idle'), 500);
+        }
+        prevCountRef.current = cartCount;
+    }, [cartCount]);
+
+    const isBreaking = animState === 'break';
+    const isFilled = cartCount > 0 && !isBreaking;
 
     return (
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -31,10 +52,32 @@ const Navbar = () => {
                 </div>
 
                 <div className="navbar-actions">
-                    <button className="icon-btn" aria-label="Cart" onClick={() => setIsCartOpen(true)}>
-                        <ShoppingBag size={20} strokeWidth={1.5} />
-                        <span className="cart-count">{cartCount}</span>
+                    <button
+                        className={`icon-btn cart-btn ${animState}`}
+                        aria-label="Cart"
+                        onClick={() => setIsCartOpen(true)}
+                    >
+                        {isBreaking ? (
+                            <HeartCrack
+                                size={20}
+                                strokeWidth={1.5}
+                                className="nav-icon breaking"
+                                color="currentColor" // Explicit color inheritance
+                            />
+                        ) : (
+                            <Heart
+                                size={20}
+                                strokeWidth={1.5}
+                                className={`nav-icon ${isFilled ? 'filled' : ''}`}
+                                fill={isFilled ? "currentColor" : "none"}
+                                color="currentColor"
+                            />
+                        )}
+
+                        {/* Dot indicator enabled as per request "Optional: show a small minimal count" */}
+                        {cartCount > 0 && <span className="cart-count-dot">{cartCount}</span>}
                     </button>
+
                     <button className="icon-btn mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
                         {menuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
