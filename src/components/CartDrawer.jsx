@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { X, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { X, Minus, Plus, Trash2, ArrowLeft, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/CartDrawer.css';
 import OrderSuccess from './OrderSuccess';
+import LocationPicker from './LocationPicker';
 
 const CartDrawer = () => {
     const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
 
     // Form State
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+    const [showLocationPicker, setShowLocationPicker] = useState(false); // Map state
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -20,6 +22,19 @@ const CartDrawer = () => {
     const [errors, setErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+
+    // Validate whenever formData changes to update disabled state
+    const isFormValid = React.useMemo(() => {
+        return (
+            formData.name.trim() !== '' &&
+            formData.phone.trim().length >= 10 &&
+            /^\d+$/.test(formData.phone) &&
+            formData.address.trim() !== '' &&
+            formData.city.trim() !== '' &&
+            formData.pincode.trim().length === 6 &&
+            /^\d+$/.test(formData.pincode)
+        );
+    }, [formData]);
 
     const handleSuccessClose = () => {
         setIsCartOpen(false);
@@ -48,21 +63,21 @@ const CartDrawer = () => {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
+        if (!formData.name.trim()) newErrors.name = 'This field is required';
 
         if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone is required';
+            newErrors.phone = 'This field is required';
         } else if (!/^\d+$/.test(formData.phone)) {
             newErrors.phone = 'Phone must contain only numbers';
         } else if (formData.phone.length < 10) {
             newErrors.phone = 'Enter a valid phone number';
         }
 
-        if (!formData.address.trim()) newErrors.address = 'Address is required';
-        if (!formData.city.trim()) newErrors.city = 'City is required';
+        if (!formData.address.trim()) newErrors.address = 'This field is required';
+        if (!formData.city.trim()) newErrors.city = 'This field is required';
 
         if (!formData.pincode.trim()) {
-            newErrors.pincode = 'Pincode is required';
+            newErrors.pincode = 'This field is required';
         } else if (!/^\d+$/.test(formData.pincode)) {
             newErrors.pincode = 'Pincode must be numeric';
         } else if (formData.pincode.length !== 6) {
@@ -169,6 +184,25 @@ const CartDrawer = () => {
 
     return (
         <AnimatePresence>
+            {showLocationPicker && (
+                <LocationPicker
+                    onConfirm={(locationData) => {
+                        // Extract address parts from fullResponse if available, or just use full string
+                        // The LocationPicker returns { lat, lng, fullAddress, rawAddressData }
+                        // Or based on implementation: { address, city, pincode, fullResponse }
+                        // Wait, my LocationPicker implementation returns onConfirm({ address, city, pincode, fullResponse })
+
+                        setFormData(prev => ({
+                            ...prev,
+                            address: locationData.address || prev.address,
+                            city: locationData.city || prev.city,
+                            pincode: locationData.pincode || prev.pincode
+                        }));
+                        setShowLocationPicker(false);
+                    }}
+                    onCancel={() => setShowLocationPicker(false)}
+                />
+            )}
             {isPaymentSuccess && (
                 <OrderSuccess onClose={handleSuccessClose} />
             )}
@@ -264,19 +298,21 @@ const CartDrawer = () => {
                             // Checkout Form View
                             <>
                                 <div className="checkout-form">
+                                    <p className="form-note">All fields marked with <span className="required-asterisk">*</span> are required to proceed</p>
                                     <div className="form-group">
-                                        <label>Full Name</label>
+                                        <label>Full Name <span className="required-asterisk">*</span></label>
                                         <input
                                             type="text"
                                             name="name"
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             placeholder="John Doe"
+                                            className={errors.name ? 'error' : ''}
                                         />
                                         {errors.name && <span className="form-error">{errors.name}</span>}
                                     </div>
                                     <div className="form-group">
-                                        <label>Phone Number</label>
+                                        <label>Phone Number <span className="required-asterisk">*</span></label>
                                         <input
                                             type="tel"
                                             name="phone"
@@ -284,33 +320,46 @@ const CartDrawer = () => {
                                             onChange={handleInputChange}
                                             placeholder="9876543210"
                                             maxLength={10}
+                                            className={errors.phone ? 'error' : ''}
                                         />
                                         {errors.phone && <span className="form-error">{errors.phone}</span>}
                                     </div>
                                     <div className="form-group">
-                                        <label>Address (House No, Street, Landmark)</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label>Address (House No, Street, Landmark) <span className="required-asterisk">*</span></label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowLocationPicker(true)}
+                                                className="btn-text locate-btn"
+                                                style={{ fontSize: '0.8rem', color: '#666', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'underline' }}
+                                            >
+                                                <MapPin size={14} /> Select on Map
+                                            </button>
+                                        </div>
                                         <input
                                             type="text"
                                             name="address"
                                             value={formData.address}
                                             onChange={handleInputChange}
                                             placeholder="Flat 101, Main Street, Near Park"
+                                            className={errors.address ? 'error' : ''}
                                         />
                                         {errors.address && <span className="form-error">{errors.address}</span>}
                                     </div>
                                     <div className="form-group">
-                                        <label>City</label>
+                                        <label>City <span className="required-asterisk">*</span></label>
                                         <input
                                             type="text"
                                             name="city"
                                             value={formData.city}
                                             onChange={handleInputChange}
                                             placeholder="Mumbai"
+                                            className={errors.city ? 'error' : ''}
                                         />
                                         {errors.city && <span className="form-error">{errors.city}</span>}
                                     </div>
                                     <div className="form-group">
-                                        <label>Pincode</label>
+                                        <label>Pincode <span className="required-asterisk">*</span></label>
                                         <input
                                             type="text"
                                             name="pincode"
@@ -318,6 +367,7 @@ const CartDrawer = () => {
                                             onChange={handleInputChange}
                                             placeholder="400001"
                                             maxLength={6}
+                                            className={errors.pincode ? 'error' : ''}
                                         />
                                         {errors.pincode && <span className="form-error">{errors.pincode}</span>}
                                     </div>
@@ -334,6 +384,10 @@ const CartDrawer = () => {
                                     >
                                         {isProcessing ? 'Processing...' : 'Pay Now'}
                                     </button>
+                                    <div className="trust-text">
+                                        <span>Secure checkout via Razorpay</span>
+                                        <span>Need help before paying? <a href="tel:+919962388065">Call us</a>.</span>
+                                    </div>
                                 </div>
                             </>
                         )}

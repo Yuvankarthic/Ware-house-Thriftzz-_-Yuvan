@@ -42,7 +42,7 @@ const ContactPage = () => {
                         <span className="group-label">Sales Team</span>
                         <div className="group-phones-list">
                             <a href="tel:+91996238065" className="group-phone">
-                                +91 99623 8065
+                                +91 99623 88065
                             </a>
                             <a href="tel:+916379849026" className="group-phone">
                                 +91 63798 49026

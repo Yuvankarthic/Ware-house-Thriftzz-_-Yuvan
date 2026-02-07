@@ -223,10 +223,39 @@
     outline: none;
 }
 
+.form-group input.error {
+    border-color: #e53935;
+}
+
 .form-error {
     color: #e53935;
     font-size: 0.8rem;
     margin-top: 0.25rem;
+}
+
+.required-asterisk {
+    color: #c92a2a;
+    /* Slightly deeper red */
+    margin-left: 0.25rem;
+    font-weight: 400;
+}
+
+.form-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Disabled button state */
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+    color: #666;
 }
 
 .checkout-header {
@@ -244,6 +273,31 @@
     justify-content: center;
     padding: 0.25rem;
     color: var(--text-main);
+}
+
+.trust-text {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.trust-text a {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.trust-text a:hover {
+    color: var(--text-main);
+}
+
+.checkout-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
