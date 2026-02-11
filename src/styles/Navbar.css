@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
-
 .navbar {
     position: sticky;
     top: 0;
@@ -25,12 +23,14 @@
 }
 
 .navbar-logo a {
-    font-family: 'Pixelify Sans', sans-serif !important;
-    font-weight: 400;
-    font-size: 3rem;
-    letter-spacing: -0.04em;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 2.2rem;
+    /* Adjusted for less aggression */
+    letter-spacing: -0.02em;
     color: var(--text-main);
-    text-transform: uppercase;
+    text-transform: none;
+    /* Removed uppercase */
     line-height: 1;
 }
 
@@ -41,11 +41,15 @@
 
 .navbar-links a {
     font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    /* Slightly larger for readability */
+    font-weight: 500;
+    /* Softer weight */
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    text-transform: none;
+    /* Removed uppercase */
+    letter-spacing: 0.05em;
+    /* Subtle letter spacing */
     position: relative;
     transition: color 0.3s ease;
 }
@@ -77,8 +81,8 @@
 
 /* Force Button Visibility */
 .icon-btn {
-    color: #111111 !important;
-    /* Force Black */
+    color: var(--text-main) !important;
+    /* Use variable for consistency */
     padding: 0;
     position: relative;
     transition: all 0.2s ease;
@@ -89,7 +93,6 @@
     border: none;
     cursor: pointer;
     width: 40px;
-    /* Explicit button size */
     height: 40px;
 }
 
@@ -177,8 +180,10 @@
     position: absolute;
     top: 6px;
     right: 4px;
-    background-color: #111111;
-    color: #F9F9F7;
+    background-color: var(--text-main);
+    /* Use variable for consistency */
+    color: var(--bg-color);
+    /* Use variable for consistency */
     font-size: 0.6rem;
     width: 14px;
     height: 14px;
@@ -188,7 +193,8 @@
     justify-content: center;
     font-weight: 700;
     pointer-events: none;
-    border: 1px solid #F9F9F7;
+    border: 1px solid var(--bg-color);
+    /* Use variable for consistency */
 }
 
 .mobile-toggle {
@@ -196,37 +202,77 @@
 }
 
 @media (max-width: 768px) {
+
     .navbar-links {
+
         position: fixed;
+
         top: 0;
+
         right: 0;
+
         width: 100%;
-        height: 100vh;
+
+        height: 100dvh;
+        /* Dynamic viewport height for mobile browsers */
+
         background-color: var(--bg-color);
+
         flex-direction: column;
+
         justify-content: center;
+
         align-items: center;
+
         transform: translateX(100%);
+
         transition: transform 0.4s var(--ease-out-expo);
+
         z-index: 999;
+
+        gap: 2rem;
+        /* Adjusted gap for mobile links */
+
     }
+
+
 
     .navbar-links.active {
+
         transform: translateX(0);
+
     }
+
+
 
     .navbar-links a {
-        font-size: 2rem;
-        margin-bottom: 2rem;
+
+        font-size: 1.5rem;
+        /* Slightly smaller for mobile */
+
+        margin-bottom: 0.5rem;
+        /* Adjusted margin */
+
     }
+
+
 
     .mobile-toggle {
+
         display: block;
+
         z-index: 1001;
+
     }
 
+
+
     .navbar-actions {
+
         z-index: 1001;
+
         gap: 1rem;
+
     }
+
 }

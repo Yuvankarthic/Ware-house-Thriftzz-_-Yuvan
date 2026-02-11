@@ -42,6 +42,15 @@
         gap: 2rem;
         text-align: center;
     }
+
+    .footer-links a,
+    .footer-brand span,
+    .contact-label {
+        font-size: 1rem;
+        /* Better readability on mobile */
+        padding: 0.5rem;
+        /* Larger touch target */
+    }
 }
 
 /* New Contact Styles */

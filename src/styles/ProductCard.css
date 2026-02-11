@@ -3,60 +3,83 @@
     text-decoration: none;
     color: inherit;
     position: relative;
-    overflow: hidden; /* Ensures image zoom doesn't break layout */
-    border: none; /* No heavy borders as requested */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* For subtle lift on hover */
-    border-radius: 14px; /* NEW: Softened corners for the card container */
+    overflow: hidden;
+    /* Ensures image zoom doesn't break layout */
+    border: none;
+    /* No heavy borders as requested */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* For subtle lift on hover */
+    border-radius: 14px;
+    /* NEW: Softened corners for the card container */
 }
 
 .product-card:hover {
-    transform: translateY(-5px); /* Subtle lift effect */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for premium feel */
+    transform: translateY(-5px);
+    /* Subtle lift effect */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    /* Soft shadow for premium feel */
 }
 
 .card-image-wrapper {
     position: relative;
-    background-color: #f5f5f5; /* Light background behind image */
-    aspect-ratio: 3 / 4; /* Consistent aspect ratio for all product images */
+    background-color: #f5f5f5;
+    /* Light background behind image */
+    aspect-ratio: 3 / 4;
+    /* Consistent aspect ratio for all product images */
     overflow: hidden;
-    margin-bottom: 1rem; /* Space between image and text */
-    border-radius: 14px; /* NEW: Softened corners for the image wrapper */
+    margin-bottom: 1rem;
+    /* Space between image and text */
+    border-radius: 14px;
+    /* NEW: Softened corners for the image wrapper */
 }
 
 .card-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures images cover the area without distortion */
-    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); /* Smooth zoom transition */
-    border-radius: 14px; /* NEW: Softened corners for the image itself */
+    object-fit: cover;
+    /* Ensures images cover the area without distortion */
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    /* Smooth zoom transition */
+    border-radius: 14px;
+    /* NEW: Softened corners for the image itself */
 }
 
 .product-card:hover .card-image {
-    transform: scale(1.05); /* Gentle zoom effect on hover */
+    transform: scale(1.05);
+    /* Gentle zoom effect on hover */
 }
 
 /* Card Info - always visible below the image */
 .card-info {
     text-align: left;
-    padding: 0 0.5rem; /* Small horizontal padding for text */
+    padding: 0 0.5rem;
+    /* Small horizontal padding for text */
 }
 
 .card-name {
-    font-family: var(--font-heading); /* Apply new heading font */
+    font-family: var(--font-heading);
+    /* Apply new heading font */
     font-weight: 500;
-    font-size: 0.95rem; /* Slightly smaller */
+    font-size: 0.95rem;
+    /* Slightly smaller */
     line-height: 1.4;
-    letter-spacing: 0.01em; /* Subtle letter spacing */
+    letter-spacing: 0.01em;
+    /* Subtle letter spacing */
     color: var(--text-main);
-    margin-bottom: 0.15rem; /* Reduced margin */
-    text-transform: none; /* Remove uppercase */
+    margin-bottom: 0.15rem;
+    /* Reduced margin */
+    text-transform: none;
+    /* Remove uppercase */
 }
 
 .card-price {
-    font-family: var(--font-body); /* Apply new body font */
-    font-size: 0.9rem; /* Slightly smaller */
+    font-family: var(--font-body);
+    /* Apply new body font */
+    font-size: 0.9rem;
+    /* Slightly smaller */
     color: var(--text-muted);
-    margin-top: 0; /* Remove top margin */
+    margin-top: 0;
+    /* Remove top margin */
 }
 
 /* Ensure hover image transitions cleanly */
@@ -64,30 +87,39 @@
     position: absolute;
     top: 0;
     left: 0;
-    opacity: 0; /* Hidden by default */
+    opacity: 0;
+    /* Hidden by default */
 }
 
 .product-card:hover .card-image.hover {
-    opacity: 1; /* Show on hover */
+    opacity: 1;
+    /* Show on hover */
 }
 
 .product-card:hover .card-image.primary {
-    opacity: 0; /* Hide primary on hover */
+    opacity: 0;
+    /* Hide primary on hover */
 }
 
 /* NEW: Add to Cart Button Styling within ProductCard */
 .btn-add-to-cart {
     display: block;
     width: 100%;
-    padding: 0.6rem 0.8rem; /* NEW: Reduced padding for smaller button */
-    margin-top: 0.8rem; /* NEW: Reduced margin */
+    padding: 0.6rem 0.8rem;
+    /* NEW: Reduced padding for smaller button */
+    margin-top: 0.8rem;
+    /* NEW: Reduced margin */
     background-color: var(--text-main);
     color: var(--white);
     border: none;
-    border-radius: 2px; /* Sharper corners */
-    font-size: 0.8rem; /* NEW: Smaller text */
-    font-weight: 500; /* Softer weight */
-    text-transform: uppercase; /* Keep uppercase for button action */
+    border-radius: 2px;
+    /* Sharper corners */
+    font-size: 0.8rem;
+    /* NEW: Smaller text */
+    font-weight: 500;
+    /* Softer weight */
+    text-transform: uppercase;
+    /* Keep uppercase for button action */
     letter-spacing: 0.08em;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
@@ -95,7 +127,8 @@
 
 .btn-add-to-cart:hover:not(:disabled) {
     background-color: var(--accent-color);
-    transform: none; /* Remove translateY */
+    transform: none;
+    /* Remove translateY */
 }
 
 .btn-add-to-cart:disabled {
@@ -107,8 +140,14 @@
 /* Responsive adjustments for button */
 @media (max-width: 768px) {
     .btn-add-to-cart {
-        padding: 0.6rem 0.8rem; /* Consistent smaller padding */
-        font-size: 0.75rem;
-        margin-top: 0.7rem;
+        padding: 0;
+        min-height: 44px;
+        /* Minimum touch target */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        margin-top: 0.8rem;
+        width: 100%;
     }
 }

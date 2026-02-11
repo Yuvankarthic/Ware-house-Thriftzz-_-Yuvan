@@ -80,7 +80,8 @@
     .product-grid {
         /* On smaller mobile, stack to two columns for better visibility */
         grid-template-columns: repeat(2, 1fr);
-        gap: 2rem 1rem;
+        gap: 1.5rem 0.75rem;
+        /* Tighter horizontal gap for larger images */
     }
 }
 

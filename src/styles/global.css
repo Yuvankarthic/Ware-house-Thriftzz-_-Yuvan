@@ -4,12 +4,20 @@
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    --bg-color: #fcfaf8; /* Soft off-white */
+    --bg-color: #fcfaf8;
+    /* Soft off-white */
     --text-main: #1a1a1a;
     --text-muted: #666;
-    --text-muted-dark: #bbb; /* For text on darker backgrounds */
-    --accent-color: #a39b8b; /* Warm neutral accent */
+    --text-muted-dark: #bbb;
+    /* For text on darker backgrounds */
+    --accent-color: #a39b8b;
+    /* Warm neutral accent */
     --border-color: #e0e0e0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -19,12 +27,22 @@ body {
     font-size: var(--text-base);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Improved mobile scrolling */
+    -webkit-overflow-scrolling: touch;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-heading);
     font-weight: 700;
-    letter-spacing: -0.01em; /* Slightly tighter letter spacing */
+    letter-spacing: -0.01em;
+    /* Slightly tighter letter spacing */
     line-height: 1.2;
     color: var(--text-main);
 }
@@ -41,6 +59,12 @@ button {
     background: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Touch target optimization */
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 img {
@@ -68,24 +92,31 @@ img {
 .btn-primary {
     background-color: var(--text-main);
     color: var(--white);
-    padding: 0.9rem 2rem; /* Slightly reduced padding */
-    font-weight: 500; /* Softer weight */
+    padding: 0.9rem 2rem;
+    /* Slightly reduced padding */
+    font-weight: 500;
+    /* Softer weight */
     font-size: 0.9rem;
-    text-transform: none; /* No ALL CAPS by default */
-    letter-spacing: 0.05em; /* Subtle letter spacing */
-    border-radius: 2px; /* Sharper corners */
+    text-transform: none;
+    /* No ALL CAPS by default */
+    letter-spacing: 0.05em;
+    /* Subtle letter spacing */
+    border-radius: 2px;
+    /* Sharper corners */
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    box-shadow: none; /* No hard shadows */
+    box-shadow: none;
+    /* No hard shadows */
 }
 
 .btn-primary:hover {
     background-color: var(--accent-color);
-    transform: none; /* Remove translateY for a calmer effect */
+    transform: none;
+    /* Remove translateY for a calmer effect */
     box-shadow: none;
 }
 
@@ -109,7 +140,8 @@ img {
     padding: 0.9rem 2rem;
     font-weight: 500;
     font-size: 0.9rem;
-    text-transform: none; /* No ALL CAPS by default */
+    text-transform: none;
+    /* No ALL CAPS by default */
     letter-spacing: 0.05em;
     border-radius: 2px;
     transition: all 0.3s ease;
@@ -181,21 +213,65 @@ textarea {
 
 
 @media (max-width: 768px) {
+
+
     :root {
-        --spacing-sm: 1.25rem;
-        --spacing-md: 2.5rem;
-        --spacing-lg: 5rem;
-        --spacing-xl: 6rem;
-        --text-base: 1rem;
+
+
+        --spacing-sm: 1rem;
+        /* Slightly smaller spacing on mobile */
+
+
+        --spacing-md: 2rem;
+
+
+        --spacing-lg: 4rem;
+
+
+        --spacing-xl: 5rem;
+
+
+        --text-base: 0.9375rem;
+        /* 15px base font size for better mobile readability */
+
+
     }
+
+
+
+
 
     .container {
-        padding: 0 20px;
+
+
+        padding: 0 1rem;
+        /* Reduced horizontal padding on mobile */
+
+
     }
 
+
+
+
+
     .btn-primary,
+
+
     .btn-secondary {
+
+
         width: 100%;
-        padding: 1.125rem;
+
+
+        padding: 1rem;
+        /* Slightly reduced for thumb-friendliness without being too large */
+
+
+        font-size: 0.9rem;
+        /* Match desktop slightly more */
+
+
     }
+
+
 }

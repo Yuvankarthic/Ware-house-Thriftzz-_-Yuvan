@@ -1,7 +1,7 @@
 /* --- Hero Section V2 --- */
 .hero-section {
-    min-height: 100vh;
-    height: 100vh;
+    min-height: 100dvh;
+    height: 100dvh;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -80,46 +80,39 @@
 }
 
 .hero-title {
-    font-family: 'DM Sans', 'Inter', sans-serif;
-    /* Modern, clean, bold */
-    font-size: clamp(3.5rem, 9vw, 6.5rem);
-    line-height: 1.1;
-    text-transform: uppercase;
-    font-weight: 800;
-    /* Heavier weight for BIG FLEX */
-    letter-spacing: -0.03em;
-    color: var(--white);
-    margin: 0;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    /* Pop off background */
-}
-
-/* Style for the second line "SMALL CHECK" */
-.check-line {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 10vw, 6rem);
+    /* Reduced min/max for better mobile scaling */
+    line-height: 1;
+    text-transform: none;
+    /* Removed aggressive uppercase */
     font-weight: 700;
-    font-style: italic;
-    /* Trendy variation */
-    color: #e0e0e0;
-    /* Slightly lighter/silver tone */
-    display: block;
-    /* Ensure it verifies as its own block */
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--white);
+    text-shadow: none;
+    /* Removed aggressive text shadow */
 }
 
 .hero-subtext {
-    font-family: 'DM Mono', monospace;
-    /* Tech/Street feel */
-    font-size: var(--text-sm);
-    color: rgba(255, 255, 255, 0.9);
-    margin-top: 2rem;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: rgba(255, 255, 255, 0.8);
+    /* Softer white */
+    margin-top: 1.5rem;
     max-width: 450px;
-    line-height: 1.5;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    display: inline-block;
-    backdrop-filter: blur(4px);
+    line-height: 1.6;
+    text-transform: none;
+    /* Removed aggressive uppercase */
+    letter-spacing: 0.01em;
+    background: none;
+    /* Removed aggressive background */
+    padding: 0;
+    border-radius: 0;
+    display: block;
+    /* Ensure it takes full width for text */
+    backdrop-filter: none;
+    /* Removed aggressive backdrop-filter */
 }
 
 /* Bottom elements (Marquee + Scroll) */

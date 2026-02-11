@@ -300,8 +300,11 @@
     }
 
     .qty-controls button {
-        padding: 0.5rem;
+        padding: 0.8rem;
         /* Larger touch target */
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
     }
 
     .qty-controls {
@@ -309,8 +312,13 @@
     }
 
     .close-btn {
-        padding: 0.5rem;
+        padding: 1rem;
         /* Easier to close */
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .checkout-btn {
