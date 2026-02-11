@@ -1,0 +1,93 @@
+.product-grid-section {
+    padding-top: 8rem;
+    padding-bottom: 15rem;
+    /* Massive internal padding */
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    background-color: var(--white);
+    margin-bottom: 10rem;
+    /* Massive external margin */
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) {
+    .product-grid-section {
+        padding-bottom: 12rem;
+        margin-bottom: 8rem;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .product-grid-section {
+        padding-top: 4rem;
+        /* Reduced top padding for mobile */
+        padding-bottom: 10rem;
+        margin-bottom: 6rem;
+    }
+
+    .grid-title {
+        font-size: var(--text-xl);
+        margin-bottom: 3rem;
+    }
+
+    .product-grid {
+        /* On smaller mobile, stack to two columns for better visibility */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem 1rem;
+    }
+}
+
+.grid-title {
+    text-align: center;
+    font-family: var(--font-heading);
+    /* Apply new heading font */
+    font-size: var(--text-2xl);
+    text-transform: none;
+    /* Remove uppercase */
+    letter-spacing: 0.05em;
+    /* Subtle letter spacing */
+    margin-bottom: 4rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.product-grid {
+    display: grid;
+    /* Responsive grid with minmax for flexible column sizing */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 4rem 2.5rem;
+    /* Generous row and column gaps for whitespace */
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 3rem 2rem;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    /* .product-grid-section padding handled in main block now */
+
+    .grid-title {
+        font-size: var(--text-xl);
+        margin-bottom: 3rem;
+    }
+
+    .product-grid {
+        /* On smaller mobile, stack to two columns for better visibility */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        /* Single column on very small screens for optimal viewing */
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}

@@ -1,48 +1,26 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import '../styles/AboutSection.css';
 
 const AboutSection = () => {
     return (
-        <section id="about" className="section about-section">
-            <div className="container about-container">
-                <div className="about-image-wrapper fade-in">
-                    <img
-                        src="/images/wht-orange-logo.png"
-                        alt="WHT Vintage Logo"
+        <section className="about-section">
+            <div className="container about-grid">
+                <div className="about-content-container">
+                    <p className="about-subtitle">Our Philosophy</p>
+                    <h2 className="about-title">A Study in Form</h2>
+                    <p className="about-description">
+                        WHT is a design house focused on singular, essential pieces. We reject the ephemeral and champion the permanent. Each garment is an exploration of silhouette, material, and purpose.
+                    </p>
+                    <a href="#about" className="btn-secondary">
+                        Read Our Story
+                    </a>
+                </div>
+                <div className="about-image-container">
+                    <img 
+                        src="/images/hero-smoker.png" 
+                        alt="A person in a stylish pose, representing the WHT brand ethos" 
                         className="about-image"
                     />
-                    <div className="about-overlay"></div>
-                </div>
-
-                <div className="about-content">
-                    <motion.h2
-                        className="about-title"
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        Real thrift.<br />
-                        No mass production.<br />
-                        <span className="underline-anim">One piece at a time.</span>
-                    </motion.h2>
-
-                    <motion.div
-                        className="about-text"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                    >
-                        <p>
-                            WHT defines the anti-fast fashion movement. We don't do warehouses of generics.
-                            We hand-pick vintage heat that tells a story of the street.
-                            From 90s workwear to Y2K grails, every piece is authenticated,
-                            cleaned, and dropped in limited batches.
-                        </p>
-                        <a href="#latest-drop" className="btn-link">Shop The Collection</a>
-                    </motion.div>
                 </div>
             </div>
         </section>

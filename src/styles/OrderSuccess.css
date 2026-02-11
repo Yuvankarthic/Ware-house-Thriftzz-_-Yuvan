@@ -56,21 +56,27 @@
 
 .btn-back-store {
     margin-top: 2rem;
-    background: #000;
-    color: #fff;
+    background: var(--text-main);
+    color: var(--white);
     border: none;
     padding: 1rem 2.5rem;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     text-transform: uppercase;
     min-width: 200px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-back-store:hover {
-    opacity: 0.8;
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    /* Override old opacity */
 }
 
 @media (max-width: 768px) {

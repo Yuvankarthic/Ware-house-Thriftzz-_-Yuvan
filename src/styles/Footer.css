@@ -1,0 +1,71 @@
+.site-footer {
+    padding: 3rem 0;
+    background-color: #0a0a0a;
+    color: #888;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-brand {
+    font-family: monospace;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+.footer-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.footer-links a {
+    font-family: monospace;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        justify-content: center;
+        gap: 2rem;
+        text-align: center;
+    }
+}
+
+/* New Contact Styles */
+.footer-contact-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.contact-label {
+    font-family: monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #555;
+    letter-spacing: 0.05em;
+}
+
+.footer-phone {
+    font-family: monospace;
+    font-size: 1rem;
+    color: #fff;
+    /* Make number pop */
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}

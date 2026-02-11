@@ -216,11 +216,13 @@
     font-size: 0.95rem;
     color: var(--text-main);
     transition: border-color 0.2s;
+    border-radius: 4px;
 }
 
 .form-group input:focus {
     border-color: var(--text-main);
     outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
 .form-group input.error {
@@ -250,13 +252,7 @@
     text-align: center;
 }
 
-/* Disabled button state */
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #ccc;
-    color: #666;
-}
+
 
 .checkout-header {
     display: flex;
@@ -295,10 +291,7 @@
     color: var(--text-main);
 }
 
-.checkout-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
+
 
 @media (max-width: 768px) {
     .cart-drawer {

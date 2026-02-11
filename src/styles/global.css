@@ -1,49 +1,38 @@
-@import './variables.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
-/* Reset & Base */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+:root {
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
 
-html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    --bg-color: #fcfaf8; /* Soft off-white */
+    --text-main: #1a1a1a;
+    --text-muted: #666;
+    --text-muted-dark: #bbb; /* For text on darker backgrounds */
+    --accent-color: #a39b8b; /* Warm neutral accent */
+    --border-color: #e0e0e0;
 }
 
 body {
     background-color: var(--bg-color);
-    background-image: var(--bg-gradient);
-    background-attachment: fixed;
-    /* Parallax feel */
     color: var(--text-main);
     font-family: var(--font-body);
     font-size: var(--text-base);
-    /* Increased readability */
-    line-height: 1.5;
+    line-height: 1.6;
     overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    letter-spacing: -0.01em; /* Slightly tighter letter spacing */
+    line-height: 1.2;
+    color: var(--text-main);
 }
 
 a {
-    color: inherit;
+    color: var(--text-main);
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 button {
@@ -51,6 +40,7 @@ button {
     border: none;
     background: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 img {
@@ -60,8 +50,7 @@ img {
 
 /* Utilities */
 .container {
-    max-width: 1600px;
-    /* Wider canvas for editorial feel */
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 var(--spacing-sm);
 }
@@ -75,48 +64,138 @@ img {
     letter-spacing: 0.05em;
 }
 
+/* Premium Buttons */
 .btn-primary {
     background-color: var(--text-main);
     color: var(--white);
-    padding: 1.25rem 3rem;
-    /* Larger touch target */
-    font-weight: 600;
+    padding: 0.9rem 2rem; /* Slightly reduced padding */
+    font-weight: 500; /* Softer weight */
     font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-radius: 0;
-    /* Sharp edges for street look */
-    transition: all 0.4s var(--ease-out-expo);
+    text-transform: none; /* No ALL CAPS by default */
+    letter-spacing: 0.05em; /* Subtle letter spacing */
+    border-radius: 2px; /* Sharper corners */
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: none; /* No hard shadows */
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    transform: none; /* Remove translateY for a calmer effect */
+    box-shadow: none;
+}
+
+.btn-primary:active {
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #999;
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 0.9rem 2rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: none; /* No ALL CAPS by default */
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
-.btn-primary:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-2px);
+.btn-secondary:hover {
+    border-color: var(--text-main);
+    background-color: var(--text-main);
+    color: var(--white);
 }
+
+.btn-text {
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0;
+    position: relative;
+    color: var(--text-main);
+}
+
+.btn-text::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+}
+
+.btn-text:hover::after {
+    width: 100%;
+}
+
+/* Form Elements */
+input,
+select,
+textarea {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.input-field {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: transparent;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--text-main);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Accessibility */
+:focus-visible {
+    outline: 2px solid var(--text-main);
+    outline-offset: 2px;
+}
+
 
 @media (max-width: 768px) {
     :root {
-        /* Mobile Spacing */
-        --spacing-sm: 1rem;
-        --spacing-md: 2rem;
-        --spacing-lg: 4rem;
+        --spacing-sm: 1.25rem;
+        --spacing-md: 2.5rem;
+        --spacing-lg: 5rem;
         --spacing-xl: 6rem;
-
-        /* Mobile Typography Scale */
         --text-base: 1rem;
-        --text-3xl: 2.25rem;
-        /* Smaller hero title */
     }
 
     .container {
-        padding: 0 16px;
-        /* Safe padding */
+        padding: 0 20px;
     }
 
-    .section {
-        padding: var(--spacing-lg) 0;
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        padding: 1.125rem;
     }
 }
