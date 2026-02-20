@@ -9,9 +9,27 @@
     font-weight: 300;
     text-transform: uppercase;
     color: var(--text-main);
-    font-size: var(--text-3xl);
-    line-height: 1;
-    letter-spacing: 0.15em;
+    font-size: clamp(1.8rem, 7vw, var(--text-3xl));
+    line-height: 1.1;
+    letter-spacing: 0.1em;
     margin: 0 auto var(--spacing-lg);
     max-width: 800px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+    .cta-section {
+        padding: 4rem 1.5rem;
+    }
+
+    .cta-title {
+        font-size: clamp(1.6rem, 9vw, 2.2rem);
+        letter-spacing: 0.06em;
+        margin-bottom: 2rem;
+    }
+
+    .cta-section .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
 }

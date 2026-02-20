@@ -199,11 +199,41 @@
 /* ── Responsive ── */
 @media (max-width: 640px) {
     .brand-intro {
-        padding: 5rem 1.5rem 4rem;
+        padding: 4rem 1.25rem 3rem;
+    }
+
+    .brand-intro__hero {
+        margin-bottom: 2.5rem;
+    }
+
+    .brand-intro__hero-title {
+        font-size: clamp(3.5rem, 18vw, 5.5rem);
+    }
+
+    .brand-intro__hero-sub {
+        font-size: 0.8rem;
+    }
+
+    .brand-intro__label {
+        margin-bottom: 2rem;
+    }
+
+    .brand-intro__lines {
+        margin-bottom: 2.5rem;
+    }
+
+    .brand-intro__line {
+        padding: 1rem 0;
+        gap: 1rem;
+    }
+
+    .brand-intro__line-text {
+        font-size: clamp(0.95rem, 4vw, 1.15rem);
     }
 
     .brand-intro__body {
         grid-template-columns: 1fr;
+        margin-bottom: 2.5rem;
     }
 
     .brand-intro__col:nth-child(odd) {
@@ -213,5 +243,14 @@
 
     .brand-intro__col:nth-child(even) {
         padding-left: 0;
+    }
+
+    .brand-intro__kicker {
+        font-size: clamp(1.1rem, 5vw, 1.4rem);
+    }
+
+    .brand-intro__badge {
+        font-size: 0.6rem;
+        padding: 0.4rem 0.85rem;
     }
 }
