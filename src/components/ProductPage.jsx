@@ -34,6 +34,12 @@ const ProductPage = () => {
 
     return (
         <div className="product-page-container">
+            {/* Back button */}
+            <button className="product-page__back" onClick={() => navigate(-1)} aria-label="Go back">
+                <span className="product-page__back-arrow">←</span>
+                <span>Back</span>
+            </button>
+
             <div className="product-grid">
                 {/* Left Column: Image Slider (Replaces image gallery) */}
                 <div className="product-gallery-column"> {/* Renamed for clarity */}
@@ -45,7 +51,7 @@ const ProductPage = () => {
                     <div className="product-details-sticky-content">
                         <h1 className="product-title">{product.name}</h1>
                         <p className="product-price">₹{product.price}</p>
-                        
+
                         <div className="product-description">
                             <p>
                                 Authentic vintage piece, curated for WHT. Washed and ready to wear. Imperfections are part of the story.
