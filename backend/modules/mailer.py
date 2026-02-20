@@ -16,9 +16,17 @@ class InvoiceMailer:
 
             # 2. Prepare message
             msg = Message(
-                subject=f"Order Confirmation - {company_name} (Order #{order_id})",
+                subject=f"Your Order Invoice – {company_name}",
                 recipients=[customer_email],
-                body=f"Thank you for your purchase from {company_name}! Please find your invoice attached."
+                body=(
+                    f"Hi there,\n\n"
+                    f"Thank you for shopping with {company_name}! We're excited to confirm that your order #{order_id} has been successfully processed.\n\n"
+                    f"Please find your official invoice attached to this email for your records.\n\n"
+                    f"Our team is currently preparing your items for shipment. We'll send you another update with tracking details as soon as it's on its way.\n\n"
+                    f"If you have any questions or need assistance, feel free to reply to this email or contact our support team.\n\n"
+                    f"Stay stylish,\n"
+                    f"The {company_name} Team"
+                )
             )
 
             # 3. Read and attach file

@@ -39,9 +39,9 @@ class RazorpayWebhookHandler:
         return {
             'order_id': payment_entity.get('order_id'),
             'payment_id': payment_entity.get('id'),
-            'customer_name': notes.get('customer_name', 'Valued Customer'),
-            'customer_email': payment_entity.get('email'),
-            'customer_phone': payment_entity.get('contact'),
+            'customer_name': notes.get('customer_name') or payment_entity.get('notes', {}).get('customer_name', 'Valued Customer'),
+            'customer_email': notes.get('customer_email') or payment_entity.get('email'),
+            'customer_phone': notes.get('customer_phone') or payment_entity.get('contact'),
             'total_amount': f"{amount:,.2f}",
             'items': items_list,
             'payment_status': 'PAID'

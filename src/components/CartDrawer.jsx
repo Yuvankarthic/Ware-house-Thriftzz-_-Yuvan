@@ -14,6 +14,7 @@ const CartDrawer = () => {
     const [showLocationPicker, setShowLocationPicker] = useState(false); // Map state
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
         phone: '',
         address: '',
         city: '',
@@ -25,8 +26,10 @@ const CartDrawer = () => {
 
     // Validate whenever formData changes to update disabled state
     const isFormValid = React.useMemo(() => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return (
             formData.name.trim() !== '' &&
+            emailRegex.test(formData.email) &&
             formData.phone.trim().length >= 10 &&
             /^\d+$/.test(formData.phone) &&
             formData.address.trim() !== '' &&
@@ -64,6 +67,13 @@ const CartDrawer = () => {
     const validateForm = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'This field is required';
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim()) {
+            newErrors.email = 'This field is required';
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = 'Enter a valid email address';
+        }
 
         if (!formData.phone.trim()) {
             newErrors.phone = 'This field is required';
@@ -138,6 +148,17 @@ const CartDrawer = () => {
             name: "WHT",
             description: "Streetwear Order",
             image: "/vite.svg",
+            notes: {
+                customer_name: formData.name,
+                customer_email: formData.email,
+                customer_phone: formData.phone,
+                items: JSON.stringify(cartItems.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    size: item.size
+                })))
+            },
             handler: async function (response) {
                 // Payment Success
                 console.log("Payment Successful", response);
@@ -160,6 +181,7 @@ const CartDrawer = () => {
             },
             prefill: {
                 name: formData.name,
+                email: formData.email,
                 contact: formData.phone
             },
             theme: {
@@ -312,6 +334,18 @@ const CartDrawer = () => {
                                         {errors.name && <span className="form-error">{errors.name}</span>}
                                     </div>
                                     <div className="form-group">
+                                        <label>Email Address <span className="required-asterisk">*</span></label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            placeholder="john@example.com"
+                                            className={errors.email ? 'error' : ''}
+                                        />
+                                        {errors.email && <span className="form-error">{errors.email}</span>}
+                                    </div>
+                                    <div className="form-group">
                                         <label>Phone Number <span className="required-asterisk">*</span></label>
                                         <input
                                             type="tel"
@@ -380,7 +414,7 @@ const CartDrawer = () => {
                                     <button
                                         className="btn-primary checkout-btn"
                                         onClick={handlePayment}
-                                        disabled={isProcessing}
+                                        disabled={isProcessing || !isFormValid}
                                     >
                                         {isProcessing ? 'Processing...' : 'Pay Now'}
                                     </button>

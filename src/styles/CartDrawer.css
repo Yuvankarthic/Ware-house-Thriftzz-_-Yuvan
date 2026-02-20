@@ -227,6 +227,11 @@
     outline: none;
 }
 
+.required-asterisk {
+    color: #e63946;
+    margin-left: 2px;
+}
+
 .form-group input.error {
     border-color: #e63946;
 }

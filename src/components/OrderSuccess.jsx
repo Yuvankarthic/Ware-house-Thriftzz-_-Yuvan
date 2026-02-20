@@ -19,7 +19,8 @@ const OrderSuccess = ({ onClose }) => {
             >
                 <h1 className="brand-font">ORDER CONFIRMED.</h1>
                 <h2>Welcome to the WHT club. 🏁</h2>
-                <p>We’ll reach out shortly with the details.</p>
+                <p>We’ve sent your official invoice to your email.</p>
+                <p className="order-success-subtext">Our team will reach out shortly with shipping details.</p>
                 <button className="btn-primary" onClick={onClose}>
                     BACK TO STORE
                 </button>
