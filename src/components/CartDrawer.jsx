@@ -67,7 +67,7 @@ const CartDrawer = () => {
     const validateForm = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'This field is required';
-        
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email.trim()) {
             newErrors.email = 'This field is required';
@@ -105,6 +105,7 @@ const CartDrawer = () => {
         const payload = {
             orderId,
             name: formData.name,
+            email: formData.email,
             phone: formData.phone,
             address: formData.address,
             city: formData.city,
@@ -116,7 +117,7 @@ const CartDrawer = () => {
         };
 
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbxAuAUP4v_v2sdv_6pV-_kIlf78Z67gC8vGBr6QoIr1QssGJ-m4ExyhQhY4SZJbRItn/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbzc0i5Nu2vpb2FdC6AIGWuFvb42rAc2RiGXBLPWYEl8YXJ4D8GAWMvQd8Hoz0LVbncv/exec", {
                 method: "POST",
                 headers: {
                     "Content-Type": "text/plain;charset=utf-8", // text/plain to avoid CORS preflight issues with Google Apps Script
