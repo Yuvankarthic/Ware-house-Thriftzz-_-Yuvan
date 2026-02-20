@@ -1,35 +1,35 @@
 .cta-section {
-    padding: var(--spacing-xxl) var(--spacing-md);
+    padding: var(--section-py) var(--page-px);
     background-color: var(--white);
     text-align: center;
 }
 
 .cta-title {
     font-family: var(--font-heading);
-    font-weight: 300;
+    font-weight: 800;
     text-transform: uppercase;
     color: var(--text-main);
-    font-size: clamp(1.8rem, 7vw, var(--text-3xl));
-    line-height: 1.1;
+    font-size: 24px;
+    line-height: 1;
     letter-spacing: 0.1em;
-    margin: 0 auto var(--spacing-lg);
+    margin: 0 auto 32px;
     max-width: 800px;
 }
 
-/* ── Mobile ── */
-@media (max-width: 640px) {
-    .cta-section {
-        padding: 4rem 1.5rem;
-    }
-
+@media (min-width: 768px) {
     .cta-title {
-        font-size: clamp(1.6rem, 9vw, 2.2rem);
-        letter-spacing: 0.06em;
-        margin-bottom: 2rem;
+        font-size: 40px;
+        margin-bottom: 48px;
     }
+}
 
+.cta-section .btn-primary {
+    width: 100%;
+    font-weight: 800;
+}
+
+@media (min-width: 768px) {
     .cta-section .btn-primary {
-        width: 100%;
-        justify-content: center;
+        width: auto;
     }
 }

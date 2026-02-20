@@ -33,6 +33,7 @@ const ProductCard = ({ product }) => {
                     src={isHovered ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
                     className="card-image"
+                    loading="lazy"
                 />
             </div>
             <div className="card-info">

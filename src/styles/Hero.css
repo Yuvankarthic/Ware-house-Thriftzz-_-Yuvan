@@ -1,7 +1,6 @@
-/* --- Hero Section V2 --- */
 .hero-section {
-    min-height: 100dvh;
-    height: 100dvh;
+    min-height: 80vh;
+    height: auto;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -9,17 +8,23 @@
     align-items: center;
     overflow: hidden;
     background-color: #111;
-    /* Fallback for image loading */
+    padding: calc(var(--nav-height-mobile) + 32px) 0 48px;
 }
 
-/* Background Image & Animation */
+@media (min-width: 768px) {
+    .hero-section {
+        min-height: 100vh;
+        height: 100vh;
+        padding: 0;
+    }
+}
+
 .hero-background-container {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     z-index: 1;
 }
 
@@ -29,7 +34,6 @@
     background-size: cover;
     background-position: center;
     transform: scale(1.1);
-    /* Start slightly zoomed in */
     transition: transform 8s ease-out;
 }
 
@@ -38,25 +42,11 @@
 }
 
 @keyframes ken-burns {
-    0% {
-        transform: scale(1.1) translate(0, 0);
-    }
-
-    50% {
-        transform: scale(1.2) translate(5%, -5%);
-    }
-
-    100% {
-        transform: scale(1.1) translate(0, 0);
-    }
+    0% { transform: scale(1.1) translate(0, 0); }
+    50% { transform: scale(1.2) translate(5%, -5%); }
+    100% { transform: scale(1.1) translate(0, 0); }
 }
 
-/* Ensure hover effect from cursor doesn't break layout */
-.hero-background-container:hover .hero-background-image {
-    animation-play-state: paused;
-}
-
-/* Centered Text Content */
 .hero-content-container {
     position: relative;
     z-index: 2;
@@ -65,62 +55,67 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    width: 100%;
+    padding: 0 var(--page-px);
 }
 
 .hero-text-wrapper {
-    background: rgba(17, 17, 17, 0.5);
-    /* Semi-transparent dark bg for readability */
-    padding: 2.5rem 3rem;
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(17, 17, 17, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 32px 24px;
+    border-radius: var(--radius-md);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 500px;
+}
+
+@media (min-width: 768px) {
+    .hero-text-wrapper {
+        padding: 64px;
+        max-width: 700px;
+    }
 }
 
 .hero-title {
     font-family: var(--font-brand);
-    font-size: clamp(2.5rem, 10vw, 7.5rem);
-    line-height: 0.85;
+    font-size: 40px;
+    line-height: 0.9;
     text-transform: uppercase;
     font-weight: 400;
     letter-spacing: -0.01em;
     margin: 0;
     color: var(--white);
-    text-align: center;
-    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .hero-title {
+        font-size: clamp(3.5rem, 12vw, 7.5rem);
+    }
 }
 
 .hero-subtext {
     font-family: var(--font-heading);
-    font-size: clamp(0.75rem, 0.7rem + 0.5vw, 0.85rem);
-    color: rgba(255, 255, 255, 0.75);
-    margin-top: clamp(1.5rem, 5vh, 2.5rem);
-    max-width: clamp(280px, 80%, 450px);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 24px auto 0;
+    max-width: 400px;
     line-height: 1.6;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    font-weight: 500;
-    text-align: center;
+    font-weight: 800;
 }
 
-@media (max-width: 480px) {
-    .hero-text-wrapper {
-        padding: 1.5rem;
-        backdrop-filter: blur(8px);
-        background: rgba(17, 17, 17, 0.4);
-    }
-    
-    .hero-title {
-        font-size: clamp(2.2rem, 12vw, 3rem);
+@media (min-width: 768px) {
+    .hero-subtext {
+        font-size: 14px;
+        margin-top: 32px;
     }
 }
 
-/* Bottom elements (Marquee + Scroll) */
 .hero-bottom-container {
     position: absolute;
-    bottom: 0;
+    bottom: 24px;
     left: 0;
     width: 100%;
     z-index: 3;
@@ -129,10 +124,10 @@
     align-items: center;
 }
 
-.scroll-down-link {
-    margin-bottom: 1rem;
-    display: block;
-    cursor: pointer;
+@media (max-width: 768px) {
+    .hero-bottom-container {
+        display: none;
+    }
 }
 
 .scroll-down-arrow {
@@ -158,45 +153,15 @@
 }
 
 @keyframes bounce {
-
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-        transform: translateY(0);
-    }
-
-    40% {
-        transform: translateY(-15px);
-    }
-
-    60% {
-        transform: translateY(-10px);
-    }
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-10px); }
 }
 
 @keyframes scroll-dot {
-
-    0%,
-    10% {
-        opacity: 0;
-    }
-
-    50% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(10px);
-    }
-
-    90%,
-    100% {
-        opacity: 0;
-    }
-}
-
-/* Animations */
-.overflow-hidden {
-    overflow: hidden;
+    0%, 10% { opacity: 0; }
+    50% { opacity: 1; transform: translateX(-50%) translateY(10px); }
+    90%, 100% { opacity: 0; }
 }
 
 .reveal-text {
@@ -209,63 +174,4 @@
 .hero-section.loaded .reveal-text {
     transform: translateY(0);
     opacity: 1;
-}
-
-.fade-in {
-    opacity: 0;
-    transition: opacity 1s ease;
-}
-
-.hero-section.loaded .fade-in {
-    opacity: 1;
-}
-
-/* Delays */
-.delay-100 {
-    transition-delay: 0.1s;
-}
-
-.delay-200 {
-    transition-delay: 0.2s;
-}
-
-.delay-500 {
-    transition-delay: 0.5s;
-}
-
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero-text-wrapper {
-        padding: 2rem;
-        width: 90%;
-    }
-
-    .hero-title {
-        font-size: var(--text-3xl);
-    }
-
-    .hero-subtext {
-        font-size: var(--text-sm);
-    }
-
-    @keyframes ken-burns {
-        0% {
-            transform: scale(1.1) translate(0, 0);
-        }
-
-        100% {
-            transform: scale(1.15) translate(2%, -2%);
-        }
-    }
-}
-
-/* Adjusted scroll indicator for new fonts */
-.hero-scroll-indicator {
-    font-family: var(--font-body);
-    /* Use body font for subtle text */
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    /* Keep uppercase here for clear instruction */
 }

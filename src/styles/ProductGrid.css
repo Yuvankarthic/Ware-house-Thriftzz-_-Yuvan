@@ -10,34 +10,38 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     color: var(--text-main);
-}
-
-@media (min-width: 768px) {
-    .grid-title {
-        font-size: 32px;
-        margin-bottom: 48px;
-    }
-}
-
-.product-grid {
-    display: grid;
-    /* Mobile: 2 columns */
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px 12px;
+    padding: 0 16px;
 }
 
 @media (min-width: 640px) {
-    /* Tablet: 3 columns */
-    .product-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
+    .grid-title {
+        font-size: 32px;
+        margin-bottom: 48px;
+        padding: 0;
     }
 }
 
+/* ── Mobile (< 640px): exact spec — 2 columns, 12px gap, 16px horizontal padding ── */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 16px;
+}
+
+/* ── Tablet (640px+): 3 columns ── */
+@media (min-width: 640px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        padding: 0 var(--spacing-xs);
+    }
+}
+
+/* ── Desktop (1024px+): 4 columns ── */
 @media (min-width: 1024px) {
-    /* Desktop: 4 columns for balance */
     .product-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 32px;

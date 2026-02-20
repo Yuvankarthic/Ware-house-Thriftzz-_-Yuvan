@@ -10,8 +10,6 @@
     overflow: hidden;
     position: relative;
     background-color: var(--bg-color);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
 }
 
 .main-product-image {
@@ -20,7 +18,6 @@
     object-fit: cover;
     display: block;
     transition: opacity 0.5s var(--ease-out-expo);
-    image-rendering: -webkit-optimize-contrast;
 }
 
 /* Navigation Arrows */
@@ -42,49 +39,54 @@
     color: var(--text-main);
 }
 
-.slider-arrow:hover {
-    background: var(--text-main);
-    color: var(--white);
-}
-
 .slider-arrow.prev {
-    left: 20px;
+    left: 8px;
 }
 
 .slider-arrow.next {
-    right: 20px;
+    right: 8px;
 }
 
 /* Thumbnails */
 .thumbnail-strip {
     display: flex;
     justify-content: flex-start;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-bottom: 1rem;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 0 var(--page-px) 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+    .thumbnail-strip {
+        padding: 0;
+        gap: 12px;
+        margin-top: 24px;
+    }
 }
 
 .thumbnail-item {
     flex-shrink: 0;
-    width: 80px;
+    width: 64px;
     aspect-ratio: 3 / 4;
     background-color: var(--bg-color);
     border: 1px solid transparent;
     cursor: pointer;
     overflow: hidden;
-    transition: all 0.3s var(--ease-out-expo);
     border-radius: var(--radius-sm);
     padding: 0;
+    min-height: auto; /* Override default button min-height for thumbnails */
 }
 
-.thumbnail-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+@media (min-width: 768px) {
+    .thumbnail-item {
+        width: 80px;
+    }
 }
 
 .thumbnail-item.active {
     border-color: var(--text-main);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .thumbnail-item img {
@@ -92,20 +94,4 @@
     height: 100%;
     object-fit: cover;
     display: block;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .slider-arrow {
-        width: 36px;
-        height: 36px;
-    }
-    .thumbnail-strip {
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-    }
-    .thumbnail-item {
-        width: 50px;
-        height: 65px; /* maintain aspect ratio */
-    }
 }

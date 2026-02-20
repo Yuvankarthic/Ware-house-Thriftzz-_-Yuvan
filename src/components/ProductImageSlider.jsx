@@ -25,6 +25,7 @@ const ProductImageSlider = ({ images }) => {
                     src={images[currentImageIndex]}
                     alt={`Product view ${currentImageIndex + 1}`}
                     className="main-product-image"
+                    loading="lazy"
                 />
 
                 {/* Navigation Arrows */}
