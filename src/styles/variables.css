@@ -1,43 +1,47 @@
 :root {
-  /* Colors - Premium Palette */
+  /* Breakpoints (Tailwind Standards) */
+  --sm: 640px;
+  --md: 768px;
+  --lg: 1024px;
+  --xl: 1280px;
+
+  /* Colors */
   --bg-color: #FAFAF9;
-  --bg-gradient: linear-gradient(180deg, #FAFAF9 0%, #F5F5F4 100%);
   --text-main: #111111;
   --text-muted: #666666;
-  --text-muted-light: #999999;
+  --text-muted-light: #888888;
   --accent-color: #3D4F40;
-  --accent-hover: #2C3A2E;
   --border-color: #E5E5E5;
   --white: #FFFFFF;
 
-  /* Typography */
+  /* Typography - Montserrat Base */
   --font-brand: 'Pixelify Sans', sans-serif;
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
-
-  /* Fluid Typography Scale */
-  --text-xs: clamp(0.7rem, 0.6rem + 0.5vw, 0.75rem);
-  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.875rem);
-  --text-base: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
-  --text-lg: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
-  --text-xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
-  --text-2xl: clamp(2rem, 1.75rem + 2vw, 3rem);
-  --text-3xl: clamp(2.5rem, 2rem + 4vw, 4.5rem);
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Montserrat', sans-serif;
 
   /* Responsive Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: clamp(0.75rem, 0.5rem + 1vw, 1rem);
-  --spacing-md: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-  --spacing-lg: clamp(3rem, 2rem + 4vw, 5rem);
-  --spacing-xl: clamp(5rem, 3rem + 8vw, 10rem);
-  --spacing-xxl: clamp(7rem, 4rem + 12vw, 14rem);
-
-  /* Container & UI */
-  --container-width: 1440px;
-  --header-height: clamp(60px, 10vh, 90px);
+  --page-px: 16px;
+  --section-py: 48px;
+  
+  /* UI Elements */
+  --nav-height-mobile: 56px;
+  --nav-height-desktop: 80px;
   --radius-sm: 2px;
   --radius-md: 4px;
 
-  /* Animation Easing */
+  /* Animation */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-px: 32px;
+    --section-py: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --section-py: 120px;
+  }
 }

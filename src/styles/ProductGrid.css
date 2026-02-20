@@ -1,42 +1,45 @@
 .product-grid-section {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--section-py) 0;
     background-color: var(--white);
 }
 
 .grid-title {
     text-align: center;
     font-family: var(--font-heading);
-    font-size: var(--text-2xl);
+    font-size: 24px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin-bottom: var(--spacing-xl);
-    font-weight: 300;
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
     color: var(--text-main);
+}
+
+@media (min-width: 768px) {
+    .grid-title {
+        font-size: 32px;
+        margin-bottom: 48px;
+    }
 }
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-lg) var(--spacing-md);
-    padding: 0 var(--spacing-xs);
+    /* Mobile: 2 columns */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 12px;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 640px) {
+    /* Tablet: 3 columns */
     .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md) var(--spacing-sm);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
     }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 1024px) {
+    /* Desktop: 4 columns for balance */
     .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md) 0.5rem;
-    }
-    
-    .grid-title {
-        font-size: var(--text-xl);
-        margin-bottom: var(--spacing-lg);
-        letter-spacing: 0.1em;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px;
     }
 }
