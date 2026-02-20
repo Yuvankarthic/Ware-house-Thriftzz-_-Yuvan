@@ -1,3 +1,10 @@
+# Backend specific
+backend/invoices/
+backend/logs/
+backend/.env
+backend/__pycache__/
+backend/modules/__pycache__/
+
 # Logs
 logs
 *.log
