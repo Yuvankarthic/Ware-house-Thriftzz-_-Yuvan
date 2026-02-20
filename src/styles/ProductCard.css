@@ -3,151 +3,124 @@
     text-decoration: none;
     color: inherit;
     position: relative;
-    overflow: hidden;
-    /* Ensures image zoom doesn't break layout */
-    border: none;
-    /* No heavy borders as requested */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    /* For subtle lift on hover */
-    border-radius: 14px;
-    /* NEW: Softened corners for the card container */
+    background: transparent;
+    transition: all 0.4s var(--ease-out-expo);
+    font-family: 'Montserrat', sans-serif;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-    /* Subtle lift effect */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    /* Soft shadow for premium feel */
+    transform: translateY(-8px);
 }
 
 .card-image-wrapper {
     position: relative;
-    background-color: #f5f5f5;
-    /* Light background behind image */
+    background-color: var(--white);
     aspect-ratio: 3 / 4;
-    /* Consistent aspect ratio for all product images */
     overflow: hidden;
-    margin-bottom: 1rem;
-    /* Space between image and text */
-    border-radius: 14px;
-    /* NEW: Softened corners for the image wrapper */
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: all 0.4s var(--ease-out-expo);
+}
+
+.product-card:hover .card-image-wrapper {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Ensures images cover the area without distortion */
-    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-    /* Smooth zoom transition */
-    border-radius: 14px;
-    /* NEW: Softened corners for the image itself */
+    transition: transform 0.8s var(--ease-out-expo), opacity 0.5s ease;
+    image-rendering: -webkit-optimize-contrast;
 }
 
 .product-card:hover .card-image {
-    transform: scale(1.05);
-    /* Gentle zoom effect on hover */
+    transform: scale(1.08);
 }
 
-/* Card Info - always visible below the image */
 .card-info {
     text-align: left;
-    padding: 0 0.5rem;
-    /* Small horizontal padding for text */
+    padding: 0 0.25rem;
+}
+
+.card-meta {
+    margin-bottom: 0.5rem;
+}
+
+.card-size {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .card-name {
-    font-family: var(--font-heading);
-    /* Apply new heading font */
-    font-weight: 500;
-    font-size: 0.95rem;
-    /* Slightly smaller */
-    line-height: 1.4;
-    letter-spacing: 0.01em;
-    /* Subtle letter spacing */
-    color: var(--text-main);
-    margin-bottom: 0.15rem;
-    /* Reduced margin */
-    text-transform: none;
-    /* Remove uppercase */
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #111111;
+    margin-bottom: 0.5rem;
 }
 
 .card-price {
-    font-family: var(--font-body);
-    /* Apply new body font */
-    font-size: 0.9rem;
-    /* Slightly smaller */
-    color: var(--text-muted);
-    margin-top: 0;
-    /* Remove top margin */
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #111111;
 }
 
-/* Ensure hover image transitions cleanly */
-.card-image.hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    /* Hidden by default */
-}
-
-.product-card:hover .card-image.hover {
-    opacity: 1;
-    /* Show on hover */
-}
-
-.product-card:hover .card-image.primary {
-    opacity: 0;
-    /* Hide primary on hover */
-}
-
-/* NEW: Add to Cart Button Styling within ProductCard */
 .btn-add-to-cart {
     display: block;
     width: 100%;
-    padding: 0.6rem 0.8rem;
-    /* NEW: Reduced padding for smaller button */
-    margin-top: 0.8rem;
-    /* NEW: Reduced margin */
+    padding: 0.8rem;
+    margin-top: 1.25rem;
     background-color: var(--text-main);
     color: var(--white);
     border: none;
-    border-radius: 2px;
-    /* Sharper corners */
-    font-size: 0.8rem;
-    /* NEW: Smaller text */
-    font-weight: 500;
-    /* Softer weight */
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    /* Keep uppercase for button action */
-    letter-spacing: 0.08em;
+    letter-spacing: 0.2em;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition: all 0.4s var(--ease-out-expo);
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.product-card:hover .btn-add-to-cart {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .btn-add-to-cart:hover:not(:disabled) {
-    background-color: var(--accent-color);
-    transform: none;
-    /* Remove translateY */
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--text-main);
 }
 
 .btn-add-to-cart:disabled {
-    background-color: #ccc;
+    background-color: var(--border-color);
+    color: var(--text-muted-light);
     cursor: not-allowed;
-    opacity: 0.7;
+    opacity: 0.5;
+    transform: none;
 }
 
-/* Responsive adjustments for button */
 @media (max-width: 768px) {
     .btn-add-to-cart {
-        padding: 0;
-        min-height: 44px;
-        /* Minimum touch target */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        margin-top: 0.8rem;
-        width: 100%;
+        opacity: 1;
+        transform: none;
+        margin-top: 1rem;
+        padding: 0.75rem;
+    }
+    
+    .card-image-wrapper {
+        margin-bottom: 1rem;
     }
 }

@@ -36,6 +36,9 @@ const ProductCard = ({ product }) => {
                 />
             </div>
             <div className="card-info">
+                <div className="card-meta">
+                    <span className="card-size">{product.size}</span>
+                </div>
                 <h3 className="card-name">{product.name}</h3>
                 <p className="card-price">₹{product.price}</p>
                 <button

@@ -8,7 +8,7 @@ const Footer = () => {
         <footer className="site-footer">
             <div className="container footer-content">
                 <div className="footer-brand">
-                    <span>WHT © {currentYear}</span>
+                    <span className="brand-font">WHT</span> © {currentYear}
                 </div>
                 <div className="footer-contact-group">
                     <span className="contact-label">Contact Us</span>

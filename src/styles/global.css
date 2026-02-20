@@ -1,19 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-
-:root {
-    --font-heading: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
-
-    --bg-color: #fcfaf8;
-    /* Soft off-white */
-    --text-main: #1a1a1a;
-    --text-muted: #666;
-    --text-muted-dark: #bbb;
-    /* For text on darker backgrounds */
-    --accent-color: #a39b8b;
-    /* Warm neutral accent */
-    --border-color: #e0e0e0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Pixelify+Sans:wght@400..700&family=Montserrat:wght@500;700;800&display=swap');
 
 html {
     scroll-behavior: smooth;
@@ -29,7 +14,6 @@ body {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Improved mobile scrolling */
     -webkit-overflow-scrolling: touch;
 }
 
@@ -42,15 +26,22 @@ h6 {
     font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: -0.01em;
-    /* Slightly tighter letter spacing */
-    line-height: 1.2;
+    line-height: 1.1;
     color: var(--text-main);
+    margin-bottom: var(--spacing-sm);
+}
+
+.brand-font {
+    font-family: var(--font-brand) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
 }
 
 a {
     color: var(--text-main);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: all 0.3s var(--ease-out-expo);
 }
 
 button {
@@ -59,9 +50,6 @@ button {
     background: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    /* Touch target optimization */
-    min-width: 44px;
-    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,9 +62,9 @@ img {
 
 /* Utilities */
 .container {
-    max-width: 1400px;
+    max-width: var(--container-width);
     margin: 0 auto;
-    padding: 0 var(--spacing-sm);
+    padding: 0 var(--spacing-md);
 }
 
 .section {
@@ -85,66 +73,52 @@ img {
 
 .text-uppercase {
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-muted-light {
+    color: var(--text-muted-light);
 }
 
 /* Premium Buttons */
 .btn-primary {
     background-color: var(--text-main);
     color: var(--white);
-    padding: 0.9rem 2rem;
-    /* Slightly reduced padding */
+    padding: 1.1rem 2.5rem;
     font-weight: 500;
-    /* Softer weight */
-    font-size: 0.9rem;
-    text-transform: none;
-    /* No ALL CAPS by default */
-    letter-spacing: 0.05em;
-    /* Subtle letter spacing */
-    border-radius: 2px;
-    /* Sharper corners */
-    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-radius: var(--radius-sm);
+    transition: all 0.4s var(--ease-out-expo);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    box-shadow: none;
-    /* No hard shadows */
+    border: 1px solid var(--text-main);
 }
 
 .btn-primary:hover {
-    background-color: var(--accent-color);
-    transform: none;
-    /* Remove translateY for a calmer effect */
-    box-shadow: none;
-}
-
-.btn-primary:active {
-    transform: none;
-    box-shadow: none;
-}
-
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background-color: #999;
-    box-shadow: none;
-    transform: none;
+    background-color: transparent;
+    color: var(--text-main);
 }
 
 .btn-secondary {
     background-color: transparent;
     color: var(--text-main);
     border: 1px solid var(--border-color);
-    padding: 0.9rem 2rem;
+    padding: 1.1rem 2.5rem;
     font-weight: 500;
-    font-size: 0.9rem;
-    text-transform: none;
-    /* No ALL CAPS by default */
-    letter-spacing: 0.05em;
-    border-radius: 2px;
-    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-radius: var(--radius-sm);
+    transition: all 0.4s var(--ease-out-expo);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -157,10 +131,10 @@ img {
 }
 
 .btn-text {
-    font-weight: 500;
-    font-size: 0.9rem;
-    text-transform: none;
-    letter-spacing: 0.05em;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
     padding: 0.5rem 0;
     position: relative;
     color: var(--text-main);
@@ -186,23 +160,22 @@ input,
 select,
 textarea {
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--text-main);
 }
 
 .input-field {
     width: 100%;
-    padding: 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+    padding: 1.1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
     background: transparent;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .input-field:focus {
     outline: none;
     border-color: var(--text-main);
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Accessibility */
@@ -211,67 +184,18 @@ textarea {
     outline-offset: 2px;
 }
 
-
 @media (max-width: 768px) {
-
-
-    :root {
-
-
-        --spacing-sm: 1rem;
-        /* Slightly smaller spacing on mobile */
-
-
-        --spacing-md: 2rem;
-
-
-        --spacing-lg: 4rem;
-
-
-        --spacing-xl: 5rem;
-
-
-        --text-base: 0.9375rem;
-        /* 15px base font size for better mobile readability */
-
-
-    }
-
-
-
-
-
     .container {
-
-
-        padding: 0 1rem;
-        /* Reduced horizontal padding on mobile */
-
-
+        padding: 0 var(--spacing-sm);
     }
 
-
-
-
+    .section {
+        padding: var(--spacing-lg) 0;
+    }
 
     .btn-primary,
-
-
     .btn-secondary {
-
-
         width: 100%;
-
-
-        padding: 1rem;
-        /* Slightly reduced for thumb-friendliness without being too large */
-
-
-        font-size: 0.9rem;
-        /* Match desktop slightly more */
-
-
+        padding: 1rem 1.5rem;
     }
-
-
 }

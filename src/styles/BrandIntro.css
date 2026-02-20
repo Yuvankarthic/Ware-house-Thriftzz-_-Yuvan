@@ -1,0 +1,217 @@
+.brand-intro {
+    padding: 7rem 2rem 6rem;
+    background-color: #FAFAF9;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Label ── */
+.brand-intro__label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: #999;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* ── Hero ── */
+.brand-intro__hero {
+    margin-bottom: 4rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.brand-intro__hero-small {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #999;
+    margin-bottom: 0.4rem;
+}
+
+.brand-intro__hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(5rem, 14vw, 10rem);
+    font-weight: 700;
+    line-height: 0.9;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.brand-intro__dot {
+    color: #3D4F40;
+}
+
+.brand-intro__hero-sub {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #888;
+    font-style: italic;
+}
+
+/* ── Lines ── */
+.brand-intro__lines {
+    border-top: 1px solid #E5E5E5;
+    margin-bottom: 4rem;
+}
+
+.brand-intro__line {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid #E5E5E5;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.brand-intro__line-tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #bbb;
+    letter-spacing: 0.15em;
+    flex-shrink: 0;
+    min-width: 2rem;
+}
+
+.brand-intro__line-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 500;
+    color: #111;
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+/* ── Body columns ── */
+.brand-intro__body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid #E5E5E5;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.brand-intro__col {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #E5E5E5;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-right: 2rem;
+}
+
+.brand-intro__col:nth-child(odd) {
+    border-right: 1px solid #E5E5E5;
+    padding-right: 2.5rem;
+}
+
+.brand-intro__col:nth-child(even) {
+    padding-left: 2.5rem;
+    padding-right: 0;
+}
+
+.brand-intro__col-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #bbb;
+    font-weight: 600;
+}
+
+.brand-intro__col-value {
+    font-size: 0.95rem;
+    color: #111;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* ── Badges ── */
+.brand-intro__badge-wrap {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.brand-intro__badge {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid #E5E5E5;
+    border-radius: 999px;
+    color: #bbb;
+    background: transparent;
+    transition: all 0.5s ease;
+}
+
+.brand-intro__badge--active {
+    background-color: #111;
+    color: #fff;
+    border-color: #111;
+    transform: scale(1.05);
+}
+
+/* ── Kicker ── */
+.brand-intro__kicker {
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    color: #999;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    font-style: italic;
+}
+
+.brand-intro__kicker strong {
+    color: #111;
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* ── Visibility trigger ── */
+.bi-visible {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .brand-intro {
+        padding: 5rem 1.5rem 4rem;
+    }
+
+    .brand-intro__body {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-intro__col:nth-child(odd) {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .brand-intro__col:nth-child(even) {
+        padding-left: 0;
+    }
+}

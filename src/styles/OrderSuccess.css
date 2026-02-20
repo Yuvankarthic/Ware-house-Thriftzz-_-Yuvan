@@ -4,54 +4,34 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #ffffff;
+    background-color: var(--white);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-}
-
-.order-success-content {
-    text-align: center;
-    padding: 2rem;
-    max-width: 90vw;
-    width: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
 }
 
 .order-success-content h1 {
-    font-size: 3.5rem;
-    /* Hero level size */
-    font-weight: 800;
-    /* Extra bold */
-    letter-spacing: -0.01em;
-    /* Slight tightening for large text can look better, user asked for expanded but 'editorial' usually implies tight for headlines or slight expanded if caps. Let's aim for premium. User said 'Slightly expanded'. I'll adjust. */
-    letter-spacing: 0.02em;
-    margin: 0;
-    color: #000;
-    line-height: 1;
-    text-transform: uppercase;
+    font-size: 4rem;
+    margin-bottom: 2rem;
+    color: var(--text-main);
 }
 
 .order-success-content h2 {
+    font-family: var(--font-heading);
     font-size: 1rem;
     font-weight: 500;
-    color: #333;
-    margin: 0;
-    margin-top: 0.5rem;
-    letter-spacing: 0.01em;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
 }
 
 .order-success-content p {
-    font-size: 0.875rem;
-    color: #666;
-    margin: 0;
-    line-height: 1.5;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
 }
 
 .btn-back-store {

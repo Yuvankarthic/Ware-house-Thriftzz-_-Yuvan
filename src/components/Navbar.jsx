@@ -42,12 +42,12 @@ const Navbar = () => {
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
             <div className="navbar-container container">
                 <div className="navbar-logo">
-                    <a href="/" style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 400 }}>WHT</a>
+                    <a href="/" className="brand-font">WHT</a>
                 </div>
 
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
                     <a href="/#latest-drop" onClick={() => setMenuOpen(false)}>Latest Drop</a>
-                    <a href="/#about" onClick={() => setMenuOpen(false)}>About</a>
+                    <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
 
                 </div>
 

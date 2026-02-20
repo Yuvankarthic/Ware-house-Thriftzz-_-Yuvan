@@ -100,6 +100,7 @@ const WelcomeOverlay = () => {
                    HTML Typography: Replaces the baked text for sharpness and optimization.
                 */}
                 <div className={`text-container ${startAnimation && !prefersReducedMotion ? 'animate' : ''}`}>
+                    <h1 className="welcome-brand brand-font">WHT</h1>
                     <h2 className="tagline-primary">CURATED THRIFT. BUILT FOR THE STREET.</h2>
                     <p className="tagline-secondary">One-of-one pieces. No mass production.</p>
                 </div>

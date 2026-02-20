@@ -1,68 +1,58 @@
 /* --- New Product Page Styles --- */
 
 .product-page-container {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: calc(var(--header-height) + 4rem) var(--spacing-md);
+    padding: calc(var(--header-height) + var(--spacing-lg)) var(--spacing-md);
 }
 
 .product-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 5rem;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--spacing-xl);
     align-items: start;
 }
 
-/* --- Left Column: Product Image Slider --- */
-.product-gallery-column { /* Container for the new slider */
-    /* Minimal styling here as the slider component handles its own layout */
-}
-
-/* --- Right Column: Product Details --- */
 .product-details-wrapper {
     position: sticky;
-    top: calc(var(--header-height) + 4rem); /* Stick below the header */
-    height: calc(100vh - var(--header-height) - 8rem);
-    display: flex;
-    flex-direction: column;
+    top: calc(var(--header-height) + var(--spacing-lg));
 }
 
 .product-details-sticky-content {
-    padding-left: 2rem;
-    border-left: 1px solid var(--border-color);
+    padding-left: var(--spacing-lg);
 }
 
 .product-title {
-    font-family: var(--font-heading); /* Apply new heading font */
-    font-size: clamp(2rem, 4vw, 2.5rem);
-    font-weight: 600; /* Slightly reduced weight */
-    text-transform: none; /* Remove uppercase */
-    letter-spacing: -0.01em;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     line-height: 1.1;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
     color: var(--text-main);
 }
 
 .product-price {
-    font-family: var(--font-body); /* Apply new body font */
-    font-size: 1.15rem; /* Slightly smaller price */
+    font-family: var(--font-body);
+    font-size: 1.25rem;
     font-weight: 400;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem; /* Reduced margin */
+    color: var(--text-main);
+    margin-bottom: 2.5rem;
 }
 
 .product-description {
-    font-family: var(--font-body); /* Apply new body font */
-    font-size: 0.95rem; /* Slightly smaller description */
-    line-height: 1.6;
-    margin-bottom: 1.5rem; /* Reduced margin */
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 3rem;
     color: var(--text-muted);
     max-width: 50ch;
 }
 
 .product-attributes {
     border-top: 1px solid var(--border-color);
-    margin-top: 2rem;
+    margin-top: 3rem;
     padding-top: 2rem;
 }
 
@@ -70,33 +60,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    font-size: 0.875rem;
-}
-
-.attribute-item + .attribute-item {
-    border-top: 1px solid var(--border-color);
+    padding: 1rem 0;
 }
 
 .attribute-label {
-    font-family: var(--font-body); /* Apply new body font */
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase; /* Keep uppercase for attribute labels */
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted-light);
 }
 
 .attribute-value {
-    font-family: var(--font-body); /* Apply new body font */
+    font-family: var(--font-body);
+    font-size: 0.85rem;
     font-weight: 500;
     color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .add-to-cart-btn {
     width: 100%;
-    margin-top: auto; /* Pushes button to the bottom */
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
+    margin-top: 4rem;
+    padding: 1.25rem;
 }
 
 /* --- Responsive --- */

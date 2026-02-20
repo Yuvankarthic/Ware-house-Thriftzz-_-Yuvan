@@ -17,10 +17,10 @@ const OrderSuccess = ({ onClose }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             >
-                <h1>ORDER CONFIRMED. 🖤</h1>
-                <h2>Welcome to the WHT club. 🏁🔥</h2>
+                <h1 className="brand-font">ORDER CONFIRMED.</h1>
+                <h2>Welcome to the WHT club. 🏁</h2>
                 <p>We’ll reach out shortly with the details.</p>
-                <button className="btn-back-store" onClick={onClose}>
+                <button className="btn-primary" onClick={onClose}>
                     BACK TO STORE
                 </button>
             </motion.div>

@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 
 import AboutSection from './components/AboutSection';
+import AboutPage from './components/AboutPage';
 import CtaSection from './components/CtaSection';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
@@ -33,6 +34,7 @@ function App() {
       <CartDrawer />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
 
       </Routes>

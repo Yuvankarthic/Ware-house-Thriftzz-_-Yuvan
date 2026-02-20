@@ -1,5 +1,4 @@
 /* Welcome Overlay Styles */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
 
 .welcome-overlay {
     position: fixed;
@@ -97,31 +96,32 @@
 /* Typography Container */
 .text-container {
     position: absolute;
-    bottom: 14vh;
-    /* Increased bottom spacing for "Open" feel */
+    bottom: 12vh;
     left: 0;
     width: 100%;
     text-align: center;
     z-index: 5;
     opacity: 0;
-    /* Start without blur */
-    transform: translateY(15px);
+    transform: translateY(20px);
 }
 
 .text-container.animate {
-    animation: fadeInUpText 1.8s ease-out 0.6s forwards;
+    animation: fadeInUpText 1.8s var(--ease-out-expo) 0.6s forwards;
+}
+
+.welcome-brand {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+    color: var(--text-main);
 }
 
 /* Primary Tagline - Bold, Trippy, Readable */
 .tagline-primary {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(1rem, 2vw, 1.4rem);
-    /* Increased size */
-    font-weight: 800;
-    /* Extra bold */
-    color: #000;
-    letter-spacing: -0.02em;
-    /* Tighter for Syne style */
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-main);
+    letter-spacing: 0.25em;
     line-height: 1.1;
     margin: 0 0 1rem 0;
     text-transform: uppercase;
@@ -129,16 +129,13 @@
 
 /* Secondary Tagline - Clean, Soft */
 .tagline-secondary {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(0.75rem, 1.3vw, 1rem);
-    /* Increased size */
-    font-weight: 500;
-    color: #555;
-    letter-spacing: 0.02em;
-    /* Slight breathing room */
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
     margin: 0;
     opacity: 1;
-    /* Crisp */
 }
 
 /* UFO Interaction */
@@ -177,15 +174,14 @@
 }
 
 .ufo-hint {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: #000;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--text-main);
     margin-top: 10px;
     text-transform: uppercase;
     opacity: 1;
-    /* Crisp */
 }
 
 .ufo-container:hover .ufo-icon {

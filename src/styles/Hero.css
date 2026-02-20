@@ -80,39 +80,26 @@
 }
 
 .hero-title {
-    font-family: var(--font-heading);
-    font-size: clamp(3rem, 10vw, 6rem);
-    /* Reduced min/max for better mobile scaling */
-    line-height: 1;
-    text-transform: none;
-    /* Removed aggressive uppercase */
-    font-weight: 700;
+    font-family: var(--font-brand);
+    font-size: clamp(3.5rem, 12vw, 7.5rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+    font-weight: 400;
     letter-spacing: -0.01em;
     margin: 0;
     color: var(--white);
-    text-shadow: none;
-    /* Removed aggressive text shadow */
 }
 
 .hero-subtext {
-    font-family: var(--font-body);
-    font-size: var(--text-base);
-    color: rgba(255, 255, 255, 0.8);
-    /* Softer white */
-    margin-top: 1.5rem;
-    max-width: 450px;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2rem;
+    max-width: 400px;
     line-height: 1.6;
-    text-transform: none;
-    /* Removed aggressive uppercase */
-    letter-spacing: 0.01em;
-    background: none;
-    /* Removed aggressive background */
-    padding: 0;
-    border-radius: 0;
-    display: block;
-    /* Ensure it takes full width for text */
-    backdrop-filter: none;
-    /* Removed aggressive backdrop-filter */
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 500;
 }
 
 /* Bottom elements (Marquee + Scroll) */
