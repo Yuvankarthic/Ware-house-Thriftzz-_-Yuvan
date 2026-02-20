@@ -1,0 +1,8 @@
+company:
+  name: "WHT FASHION"
+  address: "Premium Thrift Boutique, Mumbai, India"
+  website: "www.wht-fashion.com"
+  email: "support@wht-fashion.com"
+  tagline: "Washed and ready to wear. Imperfections are part of the story."
+  currency_symbol: "₹"
+  invoice_prefix: "INV"

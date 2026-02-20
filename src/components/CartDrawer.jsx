@@ -132,7 +132,7 @@ const CartDrawer = () => {
         setIsProcessing(true);
 
         const options = {
-            key: "rzp_live_S28xdLIyICaX2m",
+            key: "rzp_live_SIWbEpIpIPvf5L",
             amount: cartTotal * 100, // Amount in paise
             currency: "INR",
             name: "WHT",

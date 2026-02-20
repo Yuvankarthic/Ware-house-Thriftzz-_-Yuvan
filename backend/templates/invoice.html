@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #111;
+            margin: 0;
+            padding: 40px;
+            background: #fff;
+            font-size: 13px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
+            border-bottom: 2px solid #111;
+            padding-bottom: 20px;
+        }
+
+        .company-info h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0;
+            text-transform: uppercase;
+            color: #111;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .details-block h3 {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #666;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .details-block p {
+            margin: 4px 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .invoice-info {
+            text-align: right;
+        }
+
+        .invoice-info p {
+            margin: 4px 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: 15px 10px;
+            background: #f9f9f9;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #111;
+        }
+
+        .items-table td {
+            padding: 20px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .items-table td:nth-child(3),
+        .items-table th:nth-child(3),
+        .items-table td:nth-child(4),
+        .items-table th:nth-child(4) {
+            text-align: right;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .totals-table {
+            width: 300px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .total-row.grand-total {
+            border-top: 2px solid #111;
+            margin-top: 10px;
+            padding-top: 20px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 11px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-info">
+            <h1>{{ company_name }}</h1>
+            <p>Premium Thrift & Fashion</p>
+        </div>
+        <div class="invoice-title">
+            <h2>Invoice</h2>
+            <div class="status-badge">{{ payment_status }}</div>
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-block">
+            <h3>Bill To:</h3>
+            <p>{{ customer_name }}</p>
+            <p>{{ customer_email }}</p>
+            <p>{{ customer_phone }}</p>
+        </div>
+        <div class="invoice-info">
+            <div class="details-block">
+                <h3>Invoice Details:</h3>
+                <p>Invoice #: {{ invoice_number }}</p>
+                <p>Date: {{ date }}</p>
+                <p>Order ID: {{ order_id }}</p>
+                <p>Payment ID: {{ payment_id }}</p>
+            </div>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity | default(1) }}</td>
+                <td>₹{{ "{:,.2f}".format(item.price) }}</td>
+                <td>₹{{ "{:,.2f}".format(item.price * (item.quantity | default(1))) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        <div class="totals-table">
+            <div class="total-row grand-total">
+                <span>Total Paid</span>
+                <span>₹{{ total_amount }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for choosing {{ company_name }}.</p>
+        <p>Your order is being processed and will be shipped soon.</p>
+        <p>&copy; 2026 {{ company_name }}. All rights reserved.</p>
+    </div>
+</body>
+</html>
