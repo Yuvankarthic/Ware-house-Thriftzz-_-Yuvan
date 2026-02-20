@@ -1,8 +1,9 @@
 company:
   name: "WHT FASHION"
-  address: "Premium Thrift Boutique, Mumbai, India"
+  address: "123 Streetwear Plaza, Lower Parel, Mumbai, MH 400013"
   website: "www.wht-fashion.com"
   email: "support@wht-fashion.com"
+  phone: "+91 99623 88065"
   tagline: "Washed and ready to wear. Imperfections are part of the story."
   currency_symbol: "₹"
-  invoice_prefix: "INV"
+  invoice_prefix: "WHT"
