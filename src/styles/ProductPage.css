@@ -4,7 +4,8 @@
 
 /* ── Outer container ── */
 .product-page-container {
-    max-width: 1000px; /* More focused width for vertical layout */
+    max-width: 1000px;
+    /* More focused width for vertical layout */
     margin: 0 auto;
     background-color: var(--bg-color);
     min-height: 100vh;
@@ -31,7 +32,8 @@
 
 .product-page__back:hover {
     color: var(--text-main);
-    transform: none; /* Removed Amazon-style transform */
+    transform: none;
+    /* Removed Amazon-style transform */
 }
 
 .product-page__back-arrow {
@@ -50,21 +52,21 @@
 /* ── Image section ── */
 .product-gallery-column {
     width: 100%;
-    padding: 0; /* Full width on mobile */
+    padding: 0;
+    /* Full width on mobile */
 }
 
 @media (min-width: 768px) {
     .product-gallery-column {
-        padding: 0 var(--page-px); /* Some breathing room on larger screens */
+        padding: 0 var(--page-px);
+        /* Some breathing room on larger screens */
     }
 }
 
 /* ── Info section ── */
 .product-details-wrapper {
-    padding: 48px var(--page-px) 120px;
-    background: transparent;
-    max-width: 600px; /* Keep text readable */
-    margin: 0 auto;
+    padding: 20px var(--page-px) 100px;
+    background: #fff;
     width: 100%;
     text-align: left;
 }
@@ -72,12 +74,12 @@
 /* ── Title ── */
 .product-title {
     font-family: var(--font-heading);
-    font-size: clamp(2rem, 8vw, 3.5rem); /* Stronger presence */
+    font-size: clamp(1.3rem, 5.5vw, 3.5rem);
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: -0.02em; /* Tighter for modern feel */
-    line-height: 0.95;
-    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin-bottom: 10px;
     color: var(--text-main);
 }
 
@@ -96,7 +98,8 @@
     font-size: 15px;
     line-height: 1.6;
     margin-bottom: 48px;
-    color: var(--text-main); /* Stronger for readability */
+    color: var(--text-main);
+    /* Stronger for readability */
     max-width: 100%;
 }
 
@@ -120,7 +123,8 @@
 
 .attribute-label {
     font-size: 11px;
-    font-weight: 400; /* Lighter weight for metadata */
+    font-weight: 400;
+    /* Lighter weight for metadata */
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-muted);
@@ -167,8 +171,9 @@
         bottom: 0;
         left: 0;
         z-index: 1001;
-        height: 70px; /* Larger tap area on mobile */
-        border-top: 1px solid rgba(0,0,0,0.05);
+        height: 70px;
+        /* Larger tap area on mobile */
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 }
 
@@ -181,7 +186,8 @@
     }
 
     .product-grid {
-        display: flex; /* Still flex-column */
+        display: flex;
+        /* Still flex-column */
         grid-template-columns: none;
         gap: 0;
         padding: 0;
