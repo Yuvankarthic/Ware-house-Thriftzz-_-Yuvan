@@ -34,43 +34,24 @@
 
 .navbar-links {
     display: flex;
-    gap: 4rem;
+    gap: clamp(1.5rem, 3vw, 4rem);
 }
 
-.navbar-links a {
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    font-weight: 500;
+.mobile-toggle {
+    display: none;
     color: var(--text-main);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    position: relative;
-    transition: color 0.3s ease;
+    cursor: pointer;
 }
 
-.navbar-links a:hover {
-    color: var(--text-muted);
-}
-
-.navbar-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background-color: var(--text-main);
-    transition: width 0.4s var(--ease-out-expo);
-}
-
-.navbar-links a:hover::after {
-    width: 100%;
-}
-
-.navbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        z-index: 1001;
+    }
 }
 
 /* Force Button Visibility */

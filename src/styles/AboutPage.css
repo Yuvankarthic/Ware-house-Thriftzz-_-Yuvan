@@ -2,6 +2,47 @@
     padding-top: var(--header-height);
     min-height: 100vh;
     background-color: var(--bg-color);
+    position: relative;
+}
+
+/* Back Button */
+.about-page__back {
+    position: fixed;
+    top: calc(var(--header-height) + 1.2rem);
+    left: 2rem;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    border: 1px solid #E5E5E5;
+    border-radius: 999px;
+    padding: 0.55rem 1.1rem 0.55rem 0.85rem;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #111;
+    letter-spacing: 0.04em;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s var(--ease-out-expo);
+}
+
+.about-page__back:hover {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+    transform: translateX(-3px);
+}
+
+.about-page__back-arrow {
+    font-size: 1rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+}
+
+.about-page__back:hover .about-page__back-arrow {
+    transform: translateX(-2px);
 }
 
 .about-page__philosophy {

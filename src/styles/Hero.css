@@ -81,25 +81,40 @@
 
 .hero-title {
     font-family: var(--font-brand);
-    font-size: clamp(3.5rem, 12vw, 7.5rem);
-    line-height: 0.9;
+    font-size: clamp(2.5rem, 10vw, 7.5rem);
+    line-height: 0.85;
     text-transform: uppercase;
     font-weight: 400;
     letter-spacing: -0.01em;
     margin: 0;
     color: var(--white);
+    text-align: center;
+    width: 100%;
 }
 
 .hero-subtext {
     font-family: var(--font-heading);
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 2rem;
-    max-width: 400px;
+    font-size: clamp(0.75rem, 0.7rem + 0.5vw, 0.85rem);
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: clamp(1.5rem, 5vh, 2.5rem);
+    max-width: clamp(280px, 80%, 450px);
     line-height: 1.6;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.15em;
     font-weight: 500;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .hero-text-wrapper {
+        padding: 1.5rem;
+        backdrop-filter: blur(8px);
+        background: rgba(17, 17, 17, 0.4);
+    }
+    
+    .hero-title {
+        font-size: clamp(2.2rem, 12vw, 3rem);
+    }
 }
 
 /* Bottom elements (Marquee + Scroll) */
