@@ -43,7 +43,7 @@
 /* ═══════════════════════════════════════
    VERTICAL LAYOUT
 ═══════════════════════════════════════ */
-.product-grid {
+.product-page__layout {
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -185,7 +185,7 @@
         padding-top: 40px;
     }
 
-    .product-grid {
+    .product-page__layout {
         display: flex;
         /* Still flex-column */
         grid-template-columns: none;

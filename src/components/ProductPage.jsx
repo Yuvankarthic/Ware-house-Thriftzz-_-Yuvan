@@ -40,7 +40,7 @@ const ProductPage = () => {
                 <span>Back</span>
             </button>
 
-            <div className="product-grid">
+            <div className="product-page__layout">
                 {/* Image Section */}
                 <div className="product-gallery-column">
                     <ProductImageSlider images={product.images} />
