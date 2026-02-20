@@ -1,15 +1,27 @@
+/* ─────────────────────────────────────────────
+   PRODUCT IMAGE SLIDER
+───────────────────────────────────────────── */
 .product-image-slider {
     width: 100%;
     position: relative;
-    background-color: var(--white);
+    background-color: var(--bg-color);
 }
 
+/* ── Main image ── */
 .main-image-display {
     width: 100%;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1 / 1;
+    /* Square on mobile — like Amazon */
     overflow: hidden;
     position: relative;
-    background-color: var(--bg-color);
+    background-color: #f5f5f3;
+}
+
+@media (min-width: 768px) {
+    .main-image-display {
+        aspect-ratio: 3 / 4;
+        /* Portrait on tablet/desktop */
+    }
 }
 
 .main-product-image {
@@ -17,72 +29,96 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: opacity 0.5s var(--ease-out-expo);
+    transition: opacity 0.4s ease;
 }
 
-/* Navigation Arrows */
+/* ── Nav arrows ── */
 .slider-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--white);
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s var(--ease-out-expo);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
     color: var(--text-main);
+    min-height: unset;
+}
+
+.slider-arrow:hover {
+    background: var(--white);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
 }
 
 .slider-arrow.prev {
-    left: 8px;
+    left: 10px;
 }
 
 .slider-arrow.next {
-    right: 8px;
+    right: 10px;
 }
 
-/* Thumbnails */
-.thumbnail-strip {
+/* ── Image counter dot indicator (mobile) ── */
+.slider-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-top: 16px;
-    padding: 0 var(--page-px) 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    gap: 5px;
+    z-index: 5;
+}
+
+.slider-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.slider-dot.active {
+    background: var(--white);
+    transform: scale(1.35);
+}
+
+/* ── Thumbnails — hidden on mobile, shown on tablet+ ── */
+.thumbnail-strip {
+    display: none;
 }
 
 @media (min-width: 768px) {
     .thumbnail-strip {
-        padding: 0;
-        gap: 12px;
-        margin-top: 24px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
     }
 }
 
 .thumbnail-item {
     flex-shrink: 0;
-    width: 64px;
+    width: 72px;
     aspect-ratio: 3 / 4;
     background-color: var(--bg-color);
-    border: 1px solid transparent;
+    border: 1.5px solid transparent;
     cursor: pointer;
     overflow: hidden;
     border-radius: var(--radius-sm);
     padding: 0;
-    min-height: auto; /* Override default button min-height for thumbnails */
-}
-
-@media (min-width: 768px) {
-    .thumbnail-item {
-        width: 80px;
-    }
+    min-height: unset;
+    transition: border-color 0.2s ease;
 }
 
 .thumbnail-item.active {

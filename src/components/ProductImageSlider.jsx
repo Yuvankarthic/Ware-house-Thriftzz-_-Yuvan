@@ -32,12 +32,25 @@ const ProductImageSlider = ({ images }) => {
                 {images.length > 1 && (
                     <>
                         <button className="slider-arrow prev" onClick={prevImage} aria-label="Previous image">
-                            <ChevronLeft size={24} />
+                            <ChevronLeft size={20} />
                         </button>
                         <button className="slider-arrow next" onClick={nextImage} aria-label="Next image">
-                            <ChevronLeft size={24} style={{ transform: 'rotate(180deg)' }} />
+                            <ChevronLeft size={20} style={{ transform: 'rotate(180deg)' }} />
                         </button>
                     </>
+                )}
+
+                {/* Dot indicators (mobile) */}
+                {images.length > 1 && (
+                    <div className="slider-dots">
+                        {images.map((_, i) => (
+                            <span
+                                key={i}
+                                className={`slider-dot ${i === currentImageIndex ? 'active' : ''}`}
+                                onClick={() => setCurrentImageIndex(i)}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
 
