@@ -1,3 +1,6 @@
+/* ─────────────────────────────────────────────
+   CTA SECTION
+───────────────────────────────────────────── */
 .cta-section {
     padding: var(--section-py) var(--page-px);
     background-color: var(--white);
@@ -9,27 +12,17 @@
     font-weight: 800;
     text-transform: uppercase;
     color: var(--text-main);
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: 0.1em;
+    font-size: clamp(1.7rem, 7vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: 0.06em;
     margin: 0 auto 32px;
-    max-width: 800px;
+    max-width: 760px;
 }
 
 @media (min-width: 768px) {
     .cta-title {
-        font-size: 40px;
         margin-bottom: 48px;
     }
 }
 
-.cta-section .btn-primary {
-    width: 100%;
-    font-weight: 800;
-}
-
-@media (min-width: 768px) {
-    .cta-section .btn-primary {
-        width: auto;
-    }
-}
+/* Button is already full-width on mobile via global.css .btn-primary */

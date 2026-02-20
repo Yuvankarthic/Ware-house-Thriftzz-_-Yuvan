@@ -1,3 +1,6 @@
+/* ─────────────────────────────────────────────
+   ABOUT SECTION
+───────────────────────────────────────────── */
 .about-section {
     padding: var(--section-py) 0;
     background-color: var(--text-main);
@@ -5,6 +8,7 @@
     overflow: hidden;
 }
 
+/* The .container class handles horizontal padding via var(--page-px) */
 .about-grid {
     display: flex;
     flex-direction: column;
@@ -20,48 +24,57 @@
     }
 }
 
+/* ─── Image ─── */
 .about-image {
     width: 100%;
     height: auto;
+    aspect-ratio: 4/3;
     object-fit: cover;
     filter: grayscale(1);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
+    display: block;
 }
 
+@media (min-width: 768px) {
+    .about-image {
+        aspect-ratio: auto;
+    }
+}
+
+/* ─── Content ─── */
 .about-subtitle {
-    font-size: 11px;
+    font-family: var(--font-heading);
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
     color: var(--text-muted-light);
     margin-bottom: 12px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.25em;
 }
 
 .about-title {
-    font-size: 28px;
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
     font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 24px;
+    line-height: 1.05;
+    margin-bottom: 20px;
     color: var(--white);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-@media (min-width: 768px) {
-    .about-title {
-        font-size: 40px;
-    }
+    letter-spacing: 0.06em;
 }
 
 .about-description {
     font-size: 14px;
-    line-height: 1.8;
-    color: var(--text-muted-light);
+    line-height: 1.85;
+    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 32px;
 }
 
+/* ─── Button — full width mobile, auto desktop ─── */
 .about-content-container .btn-secondary {
     width: 100%;
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 @media (min-width: 768px) {
@@ -70,22 +83,8 @@
     }
 }
 
-/* Base button override for btn-secondary in this context */
-.btn-secondary {
-    background-color: transparent;
-    color: var(--white);
-    border: 1px solid var(--white);
-    padding: 12px 24px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 800;
-    min-height: 48px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-secondary:hover {
+.about-content-container .btn-secondary:hover {
     background-color: var(--white);
+    border-color: var(--white);
     color: var(--text-main);
 }

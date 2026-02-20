@@ -1,5 +1,8 @@
+/* ─────────────────────────────────────────────
+   VARIABLES — Design Tokens
+───────────────────────────────────────────── */
 :root {
-  /* Breakpoints (Tailwind Standards) */
+  /* Breakpoints */
   --sm: 640px;
   --md: 768px;
   --lg: 1024px;
@@ -14,34 +17,40 @@
   --border-color: #E5E5E5;
   --white: #FFFFFF;
 
-  /* Typography - Montserrat Base */
+  /* Typography */
   --font-brand: 'Pixelify Sans', sans-serif;
   --font-heading: 'Montserrat', sans-serif;
   --font-body: 'Montserrat', sans-serif;
 
-  /* Responsive Spacing */
+  /* Spacing — mobile first */
   --page-px: 16px;
-  --section-py: 48px;
-  
-  /* UI Elements */
+  --section-py: 56px;
+
+  /* Nav */
   --nav-height-mobile: 56px;
-  --nav-height-desktop: 80px;
-  --radius-sm: 2px;
-  --radius-md: 4px;
+  --nav-height-desktop: 72px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
 
   /* Animation */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
+/* Tablet */
 @media (min-width: 768px) {
   :root {
-    --page-px: 32px;
-    --section-py: 80px;
+    --page-px: 40px;
+    --section-py: 96px;
   }
 }
 
+/* Desktop */
 @media (min-width: 1024px) {
   :root {
-    --section-py: 120px;
+    --page-px: 64px;
+    --section-py: 128px;
   }
 }

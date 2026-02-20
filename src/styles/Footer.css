@@ -1,99 +1,87 @@
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
 .site-footer {
-    padding: var(--spacing-lg) 0;
+    padding: 48px 0;
     background-color: var(--text-main);
     color: var(--text-muted-light);
 }
 
 .footer-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    flex-direction: column;
+    gap: 32px;
 }
 
+@media (min-width: 768px) {
+    .footer-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+    }
+}
+
+/* ─── Brand ─── */
 .footer-brand {
     font-family: var(--font-heading);
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
+    letter-spacing: 0.15em;
+    color: var(--text-muted-light);
 }
 
 .footer-brand .brand-font {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     margin-right: 0.5rem;
     color: var(--white);
+    vertical-align: middle;
 }
 
+/* ─── Nav links ─── */
 .footer-links {
     display: flex;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
 }
 
 .footer-links a {
     font-family: var(--font-heading);
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     color: var(--text-muted-light);
     letter-spacing: 0.15em;
-    transition: color 0.3s ease;
+    transition: color 0.25s ease;
 }
 
 .footer-links a:hover {
     color: var(--white);
 }
 
-/* Contact group */
+/* ─── Contact ─── */
 .footer-contact-group {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
+    gap: 4px;
 }
 
 .contact-label {
     font-family: var(--font-heading);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     text-transform: uppercase;
     color: var(--text-muted-light);
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
 }
 
 .footer-phone {
     font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--white);
     text-decoration: none;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-    white-space: nowrap;
+    font-weight: 700;
+    letter-spacing: 0.04em;
 }
 
-/* ── Mobile ── */
-@media (max-width: 640px) {
-    .site-footer {
-        padding: 2.5rem 0;
-    }
-
-    .footer-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.75rem;
-        padding: 0 1.5rem;
-    }
-
-    .footer-contact-group {
-        align-items: flex-start;
-    }
-
-    .footer-links {
-        gap: 1.5rem;
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .footer-phone {
-        font-size: 1rem;
-    }
+.footer-phone:hover {
+    opacity: 0.75;
 }

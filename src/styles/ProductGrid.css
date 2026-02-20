@@ -1,49 +1,47 @@
+/* ─────────────────────────────────────────────
+   PRODUCT GRID SECTION
+───────────────────────────────────────────── */
 .product-grid-section {
     padding: var(--section-py) 0;
     background-color: var(--white);
 }
 
+/* Title — uses .container padding via parent */
 .grid-title {
     text-align: center;
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: clamp(1.3rem, 5vw, 2rem);
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 24px;
+    letter-spacing: 0.14em;
+    margin-bottom: 32px;
     color: var(--text-main);
-    padding: 0 16px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
     .grid-title {
-        font-size: 32px;
         margin-bottom: 48px;
-        padding: 0;
     }
 }
 
-/* ── Mobile (< 640px): exact spec — 2 columns, 12px gap, 16px horizontal padding ── */
+/* ── Grid ── */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    padding: 0 16px;
+    padding: 0 var(--page-px);
 }
 
-/* ── Tablet (640px+): 3 columns ── */
 @media (min-width: 640px) {
     .product-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
-        padding: 0 var(--spacing-xs);
+        gap: 20px;
     }
 }
 
-/* ── Desktop (1024px+): 4 columns ── */
 @media (min-width: 1024px) {
     .product-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 32px;
+        gap: 28px;
     }
 }

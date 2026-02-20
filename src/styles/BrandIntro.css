@@ -1,27 +1,36 @@
-.brand-intro {
-    padding: 7rem 2rem 6rem;
-    background-color: #FAFAF9;
-    max-width: 1000px;
-    margin: 0 auto;
-    position: relative;
+/* ─────────────────────────────────────────────
+   BRAND INTRO
+───────────────────────────────────────────── */
+.brand-intro-section {
+    background-color: var(--bg-color);
+    padding: var(--section-py) 0;
     overflow: hidden;
+}
+
+/* The inner box is max-width constrained, horizontally centred */
+.brand-intro {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 var(--page-px);
 }
 
 /* ── Label ── */
 .brand-intro__label {
-    font-size: 0.72rem;
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.28em;
     color: #999;
-    margin-bottom: 3.5rem;
+    margin-bottom: 2.5rem;
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-/* ── Hero ── */
+/* ── Hero headline ── */
 .brand-intro__hero {
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.7s ease, transform 0.7s ease;
@@ -29,21 +38,22 @@
 
 .brand-intro__hero-small {
     display: block;
-    font-size: 0.85rem;
+    font-size: 10px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     color: #999;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .brand-intro__hero-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(5rem, 14vw, 10rem);
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 12vw, 8rem);
+    font-weight: 800;
     line-height: 0.9;
     color: #111;
     text-transform: uppercase;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     margin: 0;
 }
 
@@ -53,22 +63,22 @@
 
 .brand-intro__hero-sub {
     margin-top: 1rem;
-    font-size: 0.9rem;
+    font-size: 13px;
     color: #888;
     font-style: italic;
 }
 
-/* ── Lines ── */
+/* ── Statement lines ── */
 .brand-intro__lines {
     border-top: 1px solid #E5E5E5;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
 }
 
 .brand-intro__line {
     display: flex;
     align-items: baseline;
-    gap: 1.5rem;
-    padding: 1.4rem 0;
+    gap: 1.25rem;
+    padding: 1.2rem 0;
     border-bottom: 1px solid #E5E5E5;
     opacity: 0;
     transform: translateX(-20px);
@@ -76,76 +86,74 @@
 }
 
 .brand-intro__line-tag {
-    font-size: 0.68rem;
-    font-weight: 600;
+    font-size: 9px;
+    font-weight: 800;
     color: #bbb;
     letter-spacing: 0.15em;
     flex-shrink: 0;
     min-width: 2rem;
+    text-transform: uppercase;
 }
 
 .brand-intro__line-text {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-    font-weight: 500;
+    font-family: var(--font-heading);
+    font-size: clamp(1rem, 3.5vw, 1.35rem);
+    font-weight: 700;
     color: #111;
     margin: 0;
     letter-spacing: -0.01em;
     line-height: 1.3;
 }
 
-/* ── Body columns ── */
+/* ── Info columns ── */
 .brand-intro__body {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
     border-top: 1px solid #E5E5E5;
-    margin-bottom: 3.5rem;
+    margin-bottom: 3rem;
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .brand-intro__col {
-    padding: 1.5rem 0;
+    padding: 1.25rem 0;
     border-bottom: 1px solid #E5E5E5;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    padding-right: 2rem;
+    gap: 4px;
 }
 
 .brand-intro__col:nth-child(odd) {
     border-right: 1px solid #E5E5E5;
-    padding-right: 2.5rem;
+    padding-right: 2rem;
 }
 
 .brand-intro__col:nth-child(even) {
-    padding-left: 2.5rem;
-    padding-right: 0;
+    padding-left: 2rem;
 }
 
 .brand-intro__col-label {
-    font-size: 0.68rem;
+    font-size: 9px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     color: #bbb;
-    font-weight: 600;
 }
 
 .brand-intro__col-value {
-    font-size: 0.95rem;
+    font-size: 13px;
     color: #111;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 1.4;
 }
 
 /* ── Badges ── */
 .brand-intro__badge-wrap {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 0.6s ease, transform 0.6s ease;
@@ -153,9 +161,9 @@
 
 .brand-intro__badge {
     display: inline-block;
-    padding: 0.45rem 1rem;
-    font-size: 0.65rem;
-    font-weight: 700;
+    padding: 0.4rem 0.9rem;
+    font-size: 9px;
+    font-weight: 800;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     border: 1px solid #E5E5E5;
@@ -166,7 +174,7 @@
 }
 
 .brand-intro__badge--active {
-    background-color: #111;
+    background: #111;
     color: #fff;
     border-color: #111;
     transform: scale(1.05);
@@ -174,8 +182,8 @@
 
 /* ── Kicker ── */
 .brand-intro__kicker {
-    font-size: clamp(1.3rem, 3vw, 2rem);
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-heading);
+    font-size: clamp(1.1rem, 3.5vw, 1.75rem);
     font-weight: 300;
     color: #999;
     opacity: 0;
@@ -186,54 +194,36 @@
 
 .brand-intro__kicker strong {
     color: #111;
-    font-weight: 600;
+    font-weight: 800;
     font-style: normal;
 }
 
-/* ── Visibility trigger ── */
+/* ── Scroll animation trigger ── */
 .bi-visible {
     opacity: 1 !important;
     transform: none !important;
 }
 
-/* ── Responsive ── */
-@media (max-width: 640px) {
-    .brand-intro {
-        padding: 4rem 1.25rem 3rem;
-    }
-
+/* ═══════════════════════════════════════
+   MOBILE overrides (< 640px)
+═══════════════════════════════════════ */
+@media (max-width: 639px) {
     .brand-intro__hero {
-        margin-bottom: 2.5rem;
-    }
-
-    .brand-intro__hero-title {
-        font-size: clamp(3.5rem, 18vw, 5.5rem);
-    }
-
-    .brand-intro__hero-sub {
-        font-size: 0.8rem;
-    }
-
-    .brand-intro__label {
         margin-bottom: 2rem;
     }
 
     .brand-intro__lines {
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
 
     .brand-intro__line {
-        padding: 1rem 0;
-        gap: 1rem;
-    }
-
-    .brand-intro__line-text {
-        font-size: clamp(0.95rem, 4vw, 1.15rem);
+        padding: 0.9rem 0;
+        gap: 0.9rem;
     }
 
     .brand-intro__body {
         grid-template-columns: 1fr;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
 
     .brand-intro__col:nth-child(odd) {
@@ -246,11 +236,6 @@
     }
 
     .brand-intro__kicker {
-        font-size: clamp(1.1rem, 5vw, 1.4rem);
-    }
-
-    .brand-intro__badge {
-        font-size: 0.6rem;
-        padding: 0.4rem 0.85rem;
+        font-size: clamp(1rem, 5vw, 1.3rem);
     }
 }
