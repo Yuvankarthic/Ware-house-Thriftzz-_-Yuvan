@@ -1,50 +1,70 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Hero.css';
 
+const TOTAL_FRAMES = 200;
+
 const Hero = () => {
-    const heroRef = useRef(null);
+    const [currentFrame, setCurrentFrame] = useState(1);
+    const requestRef = useRef();
+    const lastTimeRef = useRef();
+
+    // The frames are named ezgif-frame-001.jpg etc.
+    const formatFrameNumber = (num) => {
+        return num.toString().padStart(3, '0');
+    };
+
+    const animate = (time) => {
+        if (!lastTimeRef.current) {
+            lastTimeRef.current = time;
+        }
+
+        const deltaTime = time - lastTimeRef.current;
+
+        // Approx 24fps = ~41.6ms per frame
+        // Making it "very fast" -> let's try 30fps (~33ms)
+        if (deltaTime > 33) {
+            setCurrentFrame((prev) => (prev % TOTAL_FRAMES) + 1);
+            lastTimeRef.current = time;
+        }
+
+        requestRef.current = requestAnimationFrame(animate);
+    };
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (heroRef.current) {
-                heroRef.current.classList.add('loaded');
-            }
-        }, 100);
-        return () => clearTimeout(timer);
+        requestRef.current = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(requestRef.current);
     }, []);
 
     return (
-        <section className="hero-section" ref={heroRef}>
-            {/* Full-bleed background image */}
-            <div className="hero-background-container">
-                <div
-                    className="hero-background-image"
-                    style={{ backgroundImage: `url('/images/hero-rapper-v2.png')` }}
-                    aria-label="A model wearing WHT fashion"
+        <section className="hero-section">
+            {/* Rapid Movie Frame Sequence */}
+            <div className="hero-movie-container">
+                <img
+                    src={`/images/hero/ezgif-frame-${formatFrameNumber(currentFrame)}.jpg`}
+                    alt="Cinematic Sequence"
+                    className="hero-frame"
                 />
             </div>
 
-            {/* Bottom gradient overlay */}
+            {/* Premium Overlays */}
+            <div className="hero-grain-overlay" />
             <div className="hero-gradient-overlay" />
 
-            {/* Text — bottom left, editorial */}
-            <div className="hero-content-container">
-                <div className="hero-text-wrapper">
-                    <p className="hero-eyebrow fade-in delay-100">Premium Vintage</p>
-                    <h1 className="hero-title">
-                        <div className="overflow-hidden">
-                            <span className="reveal-text delay-200">Big Flex.</span>
-                        </div>
-                        <div className="overflow-hidden">
-                            <span className="reveal-text delay-350">Small Check.</span>
-                        </div>
+            {/* Big Flex. Small Check. */}
+            <div className="hero-content">
+                <div className="hero-text-container">
+                    <h1 className="hero-headline">
+                        <span className="headline-line">Big Flex.</span>
+                        <span className="headline-line">Small Check.</span>
                     </h1>
-                    <p className="hero-subtext fade-in delay-600">
-                        No hype tax. No logo flex. Just the piece.
-                    </p>
-                    <a href="#latest-drop" className="hero-cta fade-in delay-800">
-                        Shop the Drop
-                    </a>
+                    <div className="hero-subline">
+                        <p>Premium Vintage Streetwear. Bengaluru.</p>
+                    </div>
+                    <div className="hero-actions">
+                        <a href="#latest-drop" className="hero-cta-btn">
+                            Shop the Drop
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
