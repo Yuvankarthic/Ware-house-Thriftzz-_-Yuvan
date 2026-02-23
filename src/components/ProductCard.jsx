@@ -9,15 +9,19 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const cardRef = useRef(null);
 
+    // Snappy spring config for "cartoon-cool" motion
+    const springConfig = { damping: 15, stiffness: 150, mass: 0.5 };
+
     // Mouse tilt values
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
-    const mouseXSpring = useSpring(x);
-    const mouseYSpring = useSpring(y);
+    const mouseXSpring = useSpring(x, springConfig);
+    const mouseYSpring = useSpring(y, springConfig);
 
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["4deg", "-4deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
+    // Exaggerated rotation (up to 8deg)
+    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
 
     const [isHovered, setIsHovered] = useState(false);
 
@@ -48,10 +52,7 @@ const ProductCard = ({ product }) => {
     };
 
     const handleTap = (e) => {
-        // Prevent navigation if clicking "Add to Cart" button
         if (e.target.closest('.btn-add-to-cart')) return;
-
-        // Mobile tactile feedback delay before navigation
         setTimeout(() => {
             navigate(`/product/${product.id}`);
         }, 200);
@@ -77,42 +78,46 @@ const ProductCard = ({ product }) => {
                 transformStyle: "preserve-3d",
             }}
             whileHover={{
-                y: -6,
-                scale: 1.03,
-                transition: { duration: 0.4, ease: "easeOut" }
+                y: -10,
+                scale: 1.05,
+                transition: { type: "spring", stiffness: 200, damping: 20 }
             }}
             whileTap={{
-                y: -4,
-                scale: 1.02,
+                scale: 0.98,
                 transition: { duration: 0.1 }
             }}
         >
-            <div className="card-image-wrapper" style={{ transform: "translateZ(20px)" }}>
+            {/* STAGGERED DEPTH: Image leaps out most (Z: 60px) */}
+            <div className="card-image-wrapper" style={{ transform: "translateZ(60px)" }}>
                 <motion.img
                     src={isHovered && !product.soldOut ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
                     className="card-image"
                     loading="lazy"
-                    animate={{ scale: isHovered ? 1.05 : 1 }}
-                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    animate={{ scale: isHovered ? 1.15 : 1 }}
+                    transition={{ type: "spring", ...springConfig }}
                 />
                 {product.soldOut && (
-                    <div className="card-sold-overlay">
+                    <div className="card-sold-overlay" style={{ transform: "translateZ(30px)" }}>
                         <span className="card-sold-label">Sold</span>
                     </div>
                 )}
             </div>
 
-            <div className="card-info" style={{ transform: "translateZ(10px)" }}>
+            {/* Info floats at intermediate depth (Z: 30px) */}
+            <div className="card-info" style={{ transform: "translateZ(30px)" }}>
                 <div className="card-meta">
                     <span className="card-size">{product.size}</span>
                 </div>
                 <h3 className="card-name">{product.name}</h3>
                 <p className="card-price">₹{product.price}</p>
+
+                {/* Button floats in front (Z: 40px) */}
                 <button
                     className="btn-add-to-cart"
                     onClick={handleAddToCart}
                     disabled={product.soldOut}
+                    style={{ transform: "translateZ(40px)" }}
                 >
                     {product.soldOut ? 'Sold Out' : 'Add to Cart'}
                 </button>
