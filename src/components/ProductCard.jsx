@@ -107,38 +107,6 @@ const ProductCard = ({ product }) => {
                     transition={{ type: "spring", ...springConfig }}
                 />
 
-                {/* Mobile-only plus button */}
-                {!product.soldOut && (
-                    <motion.button
-                        className="mobile-plus-btn"
-                        onClick={handleAddToCart}
-                        whileTap={{ scale: 0.9 }}
-                        style={{ transform: "translateZ(80px)" }}
-                    >
-                        <AnimatePresence mode="wait">
-                            {added ? (
-                                <motion.div
-                                    key="check"
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                >
-                                    <Check size={20} strokeWidth={3} />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="plus"
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                >
-                                    <Plus size={20} strokeWidth={3} />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </motion.button>
-                )}
-
                 {product.soldOut && (
                     <div className="card-sold-overlay" style={{ transform: "translateZ(30px)" }}>
                         <span className="card-sold-label">Sold</span>
@@ -152,9 +120,42 @@ const ProductCard = ({ product }) => {
                     <span className="card-size">{product.size}</span>
                 </div>
                 <h3 className="card-name">{product.name}</h3>
-                <p className="card-price">₹{product.price}</p>
+                <div className="card-price-row">
+                    <p className="card-price">₹{product.price}</p>
 
-                {/* Button floats in front (Z: 40px) */}
+                    {/* Mobile-only plus button next to price */}
+                    {!product.soldOut && (
+                        <motion.button
+                            className="mobile-plus-btn"
+                            onClick={handleAddToCart}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <AnimatePresence mode="wait">
+                                {added ? (
+                                    <motion.div
+                                        key="check"
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.5 }}
+                                    >
+                                        <Check size={16} strokeWidth={3} />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="plus"
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.5 }}
+                                    >
+                                        <Plus size={16} strokeWidth={3} />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.button>
+                    )}
+                </div>
+
+                {/* Desktop-only button */}
                 <button
                     className="btn-add-to-cart"
                     onClick={handleAddToCart}

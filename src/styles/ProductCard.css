@@ -11,11 +11,9 @@
     background: var(--bg-color);
     border-radius: 12px;
     overflow: visible;
-    /* CRITICAL: Allow pop-out components to exceed bounds */
     border: 1px solid var(--border-color);
 
     perspective: 1200px;
-    /* Stronger perspective for dramatic angles */
     transform-style: preserve-3d;
     cursor: pointer;
     will-change: transform, box-shadow;
@@ -25,7 +23,6 @@
         border-color 0.4s ease;
 }
 
-/* Deep, dynamic shadow for exaggerated lift */
 .product-card:hover {
     border-color: rgba(0, 0, 0, 0.1);
     box-shadow:
@@ -39,17 +36,10 @@
     width: 100%;
     aspect-ratio: 3 / 4;
     overflow: visible;
-    /* Allow image to scale out without clipping */
     background-color: var(--bg-subtle);
     border-radius: 10px;
     transform-style: preserve-3d;
     backface-visibility: hidden;
-    transition: box-shadow 0.5s ease-out;
-}
-
-/* Image shadow grows as it leaps out */
-.product-card:hover .card-image-wrapper {
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
 }
 
 .card-image {
@@ -59,37 +49,35 @@
     display: block;
     will-change: transform;
     border-radius: 8px;
-    /* Slightly more rounded for the 'pop' image */
 }
 
-/* 📱 Mobile Plus Button — Positioned specifically at bottom-left-middle */
+/* ── Price Row (Flexbox for Plus Button) ── */
+.card-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+}
+
+/* 📱 Mobile Plus Button — Small & Unique next to price */
 .mobile-plus-btn {
     display: none;
-    /* Hidden by default (Desktop) */
-    position: absolute;
-    bottom: -14px;
-    /* Even more down */
-    left: 38%;
-    /* Even more left */
-    transform: translateX(-50%);
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background-color: #000;
     color: #fff;
     border: none;
     border-radius: 50%;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-    z-index: 10;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 767px) {
     .mobile-plus-btn {
         display: flex;
-        /* Force show only on phones */
     }
 }
 
@@ -97,7 +85,7 @@
     padding: 20px 22px 24px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     text-align: left;
     transform-style: preserve-3d;
 }
@@ -152,7 +140,6 @@
 .btn-add-to-cart:hover:not(:disabled) {
     background-color: transparent;
     color: #000;
-    transform: translateZ(50px) scale(1.05) !important;
 }
 
 @media (max-width: 767px) {
@@ -166,7 +153,6 @@
 
     .btn-add-to-cart {
         display: none;
-        /* Mobile focuses on the center PLUS button */
     }
 }
 
