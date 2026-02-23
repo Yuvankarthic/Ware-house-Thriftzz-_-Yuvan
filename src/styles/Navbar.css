@@ -58,10 +58,11 @@
 @media (min-width: 768px) {
     .navbar-links {
         display: flex;
-        gap: 2.5rem;
+        gap: 2rem;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+        align-items: center;
     }
 
     .navbar-links a {
@@ -69,7 +70,7 @@
         font-weight: 600;
         font-family: var(--font-heading);
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.1em;
         color: var(--text-main);
         transition: opacity 0.2s ease;
         white-space: nowrap;
@@ -77,6 +78,11 @@
 
     .navbar-links a:hover {
         opacity: 0.5;
+    }
+
+    /* Hide mobile-only extras on desktop */
+    .nav-mobile-extras {
+        display: none !important;
     }
 }
 
