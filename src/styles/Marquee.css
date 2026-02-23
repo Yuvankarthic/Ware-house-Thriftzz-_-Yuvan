@@ -1,29 +1,40 @@
+/* ─────────────────────────────────────────────
+   MARQUEE — light, editorial
+───────────────────────────────────────────── */
+
 .marquee-container {
     width: 100%;
-    background-color: var(--text-main);
-    color: var(--white);
-    padding: 1.25rem 0;
     overflow: hidden;
+    background-color: var(--bg-subtle);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 0;
+    white-space: nowrap;
 }
 
 .marquee-content {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 4rem;
+    gap: 32px;
+    animation: marquee-scroll 22s linear infinite;
     white-space: nowrap;
-    animation: scrollLeft 30s linear infinite;
+}
+
+.marquee-content span {
     font-family: var(--font-heading);
-    font-weight: 500;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.25em;
+    color: var(--text-muted);
 }
 
 .marquee-content .separator {
     color: var(--accent-color);
+    font-size: 12px;
 }
 
-@keyframes scrollLeft {
+@keyframes marquee-scroll {
     0% {
         transform: translateX(0);
     }

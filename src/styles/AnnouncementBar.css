@@ -1,0 +1,31 @@
+/* ─────────────────────────────────────────────
+   ANNOUNCEMENT BAR
+───────────────────────────────────────────── */
+
+.announcement-bar {
+    width: 100%;
+    height: var(--announcement-height);
+    background-color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.announcement-text {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+    transition: opacity 0.35s ease;
+}
+
+.announcement-text.fade-out {
+    opacity: 0;
+}
+
+.announcement-text.fade-in {
+    opacity: 1;
+}

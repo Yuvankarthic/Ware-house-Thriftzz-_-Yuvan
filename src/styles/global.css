@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Pixelify+Sans:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700;800&family=Pixelify+Sans:wght@400..700&display=swap');
 
 /* ─── Reset ─── */
 *,
@@ -19,7 +19,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     font-family: var(--font-body);
-    font-weight: 500;
+    font-weight: 400;
     font-size: 14px;
     line-height: 1.6;
     overflow-x: hidden;
@@ -33,17 +33,18 @@ body {
     }
 }
 
-/* ─── Headings ─── */
+/* ─── Headings — serif editorial ─── */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-heading);
-    font-weight: 800;
-    line-height: 1.1;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.15;
     color: var(--text-main);
+    letter-spacing: -0.01em;
 }
 
 /* ─── Links ─── */
@@ -62,17 +63,17 @@ video {
 /* ─── Buttons (base) ─── */
 button {
     font-family: inherit;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
     border: none;
     background: none;
-    transition: all 0.3s var(--ease-out-expo);
+    transition: all 0.25s ease;
 }
 
 /* ─── Page container ─── */
 .container {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
     padding-left: var(--page-px);
     padding-right: var(--page-px);
@@ -100,17 +101,18 @@ main {
     justify-content: center;
     background-color: var(--text-main);
     color: var(--white);
-    border: 1.5px solid var(--text-main);
-    padding: 14px 28px;
+    border: 1px solid var(--text-main);
+    padding: 13px 28px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    border-radius: var(--radius-sm);
-    min-height: 48px;
+    letter-spacing: 0.14em;
+    border-radius: 0;
+    min-height: 46px;
     width: 100%;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 @media (min-width: 640px) {
@@ -125,7 +127,7 @@ main {
 }
 
 .btn-primary:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
@@ -136,16 +138,17 @@ main {
     justify-content: center;
     background-color: transparent;
     color: var(--text-main);
-    border: 1.5px solid var(--text-main);
-    padding: 14px 28px;
+    border: 1px solid var(--text-main);
+    padding: 13px 28px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    border-radius: var(--radius-sm);
-    min-height: 48px;
+    letter-spacing: 0.14em;
+    border-radius: 0;
+    min-height: 46px;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-secondary:hover {

@@ -9,16 +9,18 @@
   --xl: 1280px;
 
   /* Colors */
-  --bg-color: #FAFAF9;
+  --bg-color: #FFFFFF;
+  --bg-subtle: #F8F7F4;
   --text-main: #111111;
   --text-muted: #666666;
-  --text-muted-light: #888888;
-  --accent-color: #3D4F40;
-  --border-color: #E5E5E5;
+  --text-muted-light: #999999;
+  --accent-color: #B8967E;
+  --border-color: #EBEBEB;
   --white: #FFFFFF;
 
   /* Typography */
   --font-brand: 'Pixelify Sans', sans-serif;
+  --font-serif: 'Libre Baskerville', serif;
   --font-heading: 'Montserrat', sans-serif;
   --font-body: 'Montserrat', sans-serif;
 
@@ -27,13 +29,14 @@
   --section-py: 56px;
 
   /* Nav */
-  --nav-height-mobile: 56px;
-  --nav-height-desktop: 72px;
+  --nav-height-mobile: 52px;
+  --nav-height-desktop: 64px;
+  --announcement-height: 36px;
 
   /* Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
 
   /* Animation */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);

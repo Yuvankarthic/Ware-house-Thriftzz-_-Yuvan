@@ -1,47 +1,60 @@
 /* ─────────────────────────────────────────────
-   PRODUCT GRID SECTION
+   PRODUCT GRID — editorial, clean
 ───────────────────────────────────────────── */
+
 .product-grid-section {
-    padding: var(--section-py) 0;
-    background-color: var(--white);
+    padding: clamp(48px, 8vw, 96px) 0;
+    background-color: var(--bg-color);
 }
 
-/* Title — uses .container padding via parent */
-.grid-title {
-    text-align: center;
+/* ─── Section header — aligned block ─── */
+.section-header-block {
+    padding: 0 var(--page-px);
+    max-width: 1320px;
+    margin: 0 auto clamp(24px, 4vw, 40px);
+}
+
+.section-eyebrow {
     font-family: var(--font-heading);
-    font-size: clamp(1.3rem, 5vw, 2rem);
-    font-weight: 800;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin-bottom: 32px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    font-style: italic;
     color: var(--text-main);
+    margin: 0;
+    display: block;
+}
+
+/* ─── Grid ─── */
+.product-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 var(--page-px);
+    max-width: 1320px;
+    margin: 0 auto;
 }
 
 @media (min-width: 768px) {
-    .grid-title {
-        margin-bottom: 48px;
-    }
-}
-
-/* ── Grid ── */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 0 var(--page-px);
-}
-
-@media (min-width: 640px) {
-    .product-grid {
+    .product-grid-inner {
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
     }
 }
 
-@media (min-width: 1024px) {
-    .product-grid {
+@media (min-width: 1100px) {
+    .product-grid-inner {
         grid-template-columns: repeat(4, 1fr);
-        gap: 28px;
+        gap: 24px;
     }
 }

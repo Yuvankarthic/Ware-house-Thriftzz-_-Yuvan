@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   PRODUCT CARD  — mobile-first
+   PRODUCT CARD — flat, editorial, clean
 ═══════════════════════════════════════ */
 
 /* ── Card container ── */
@@ -8,12 +8,15 @@
     text-decoration: none;
     color: inherit;
     position: relative;
-    background: #fff;
-    border-radius: 8px;
+    background: var(--bg-color);
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: none;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.25s ease;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ── Image ── */
@@ -22,10 +25,8 @@
     width: 100%;
     aspect-ratio: 3 / 4;
     overflow: hidden;
-    border-radius: 8px 8px 0 0;
-    background-color: #f7f7f5;
-    margin-bottom: 0;
-    /* flush against details */
+    background-color: var(--bg-subtle);
+    border-radius: 10px 10px 0 0;
 }
 
 .card-image {
@@ -33,195 +34,137 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.6s ease;
+    transition: transform 0.7s var(--ease-out-expo);
+}
+
+.product-card:hover .card-image {
+    transform: scale(1.05);
 }
 
 /* ── Details section ── */
 .card-info {
-    background: #fff;
-    padding: 10px 12px;
-    border-radius: 0 0 8px 8px;
+    background: var(--bg-color);
+    padding: 14px 16px 18px;
     display: flex;
     flex-direction: column;
+    gap: 4px;
     text-align: left;
 }
 
 /* ── Size label ── */
 .card-meta {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .card-size {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    color: #888888;
+    font-family: var(--font-heading);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-muted-light);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
 }
 
 /* ── Product name ── */
 .card-name {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    color: #111111;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    line-height: 1.2;
-    margin-bottom: 6px;
-    /* max 2 lines */
+    letter-spacing: 0.04em;
+    line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-clamp: 2;
     overflow: hidden;
+    margin: 0;
 }
 
 /* ── Price ── */
 .card-price {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #111111;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
     margin: 0;
 }
 
-/* ── Add to cart (hidden on mobile, slides in on desktop hover) ── */
+/* ── Add to cart ── */
 .btn-add-to-cart {
-    display: block;
+    display: none;
     width: 100%;
-    padding: 12px;
+    padding: 11px;
     margin-top: 10px;
-    background-color: #111;
+    background-color: var(--text-main);
     color: #fff;
-    border: 1.5px solid #111;
-    border-radius: 6px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 11px;
+    border: 1px solid var(--text-main);
+    border-radius: 0;
+    font-family: var(--font-heading);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.16em;
     cursor: pointer;
-    min-height: 44px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 42px;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-add-to-cart:hover:not(:disabled) {
     background-color: transparent;
-    color: #111;
+    color: var(--text-main);
 }
 
 .btn-add-to-cart:disabled {
-    background-color: #e5e5e5;
-    color: #aaa;
-    border-color: #e5e5e5;
+    background-color: var(--bg-subtle);
+    color: var(--text-muted-light);
+    border-color: var(--border-color);
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
-/* ══════════════════════════════════════
-   MOBILE  (< 640px) — exact spec
-   Button hidden (tap goes to PDP)
-══════════════════════════════════════ */
-@media (max-width: 639px) {
-    .product-card {
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
+/* ─── Mobile: tap goes to PDP ─── */
+@media (max-width: 767px) {
     .card-info {
-        padding: 10px 12px;
-    }
-
-    .card-size {
-        font-size: 10px;
-        font-weight: 500;
-        color: #888888;
-        margin-bottom: 4px;
+        padding: 12px 14px 16px;
     }
 
     .card-name {
-        font-size: 13px;
-        font-weight: 800;
-        margin-bottom: 6px;
+        font-size: 11px;
     }
 
     .card-price {
-        font-size: 15px;
-        font-weight: 700;
-    }
-
-    /* Hide button on mobile — tap the card to go to PDP */
-    .btn-add-to-cart {
-        display: none;
+        font-size: 12px;
     }
 }
 
-/* ══════════════════════════════════════
-   TABLET  (640px – 1023px)
-══════════════════════════════════════ */
-@media (min-width: 640px) and (max-width: 1023px) {
-    .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-
-    .product-card:hover .card-image {
-        transform: scale(1.05);
-    }
-}
-
-/* ══════════════════════════════════════
-   DESKTOP  (≥ 1024px)
-   Restore card chrome + hover effects
-══════════════════════════════════════ */
-@media (min-width: 1024px) {
-    .product-card {
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        border: 1px solid #f0f0f0;
-    }
-
-    .product-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
-        border-color: #e0e0e0;
-    }
-
-    .product-card:hover .card-image {
-        transform: scale(1.06);
-    }
-
-    .card-info {
-        padding: 1.1rem 1.2rem 1.3rem;
-    }
-
-    .card-size {
-        font-size: 10px;
-        background: #f4f4f4;
-        padding: 2px 8px;
-        border-radius: 999px;
-        display: inline-block;
-    }
-
-    .card-name {
-        font-size: 13px;
-        margin-bottom: 0.35rem;
-    }
-
-    .card-price {
-        font-size: 17px;
-        font-weight: 800;
-    }
-
-    /* Slide-in Add to Cart on desktop hover */
+/* ─── Tablet ─── */
+@media (min-width: 768px) {
     .btn-add-to-cart {
         display: block;
+    }
+}
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+    .card-info {
+        padding: 16px 18px 20px;
+    }
+
+    .card-name {
+        font-size: 12px;
+    }
+
+    .card-price {
+        font-size: 14px;
+    }
+
+    /* Slide-in on hover */
+    .btn-add-to-cart {
         opacity: 0;
-        transform: translateY(8px);
-        transition: opacity 0.35s ease, transform 0.35s ease,
-            background-color 0.3s ease, color 0.3s ease;
+        transform: translateY(6px);
+        transition: opacity 0.3s ease, transform 0.3s ease,
+            background-color 0.2s ease, color 0.2s ease;
     }
 
     .product-card:hover .btn-add-to-cart {

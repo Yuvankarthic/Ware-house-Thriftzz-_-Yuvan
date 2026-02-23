@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-
 import '../styles/Hero.css';
 
 const Hero = () => {
@@ -10,42 +9,43 @@ const Hero = () => {
             if (heroRef.current) {
                 heroRef.current.classList.add('loaded');
             }
-        }, 100); // Small delay to ensure styles are applied
-
+        }, 100);
         return () => clearTimeout(timer);
     }, []);
 
     return (
         <section className="hero-section" ref={heroRef}>
-            <div className="hero-background-container clickable">
+            {/* Full-bleed background image */}
+            <div className="hero-background-container">
                 <div
                     className="hero-background-image"
                     style={{ backgroundImage: `url('/images/hero-rapper-v2.png')` }}
                     aria-label="A model wearing WHT fashion"
-                ></div>
+                />
             </div>
 
-            <div className="hero-content-container container">
+            {/* Bottom gradient overlay */}
+            <div className="hero-gradient-overlay" />
+
+            {/* Text — bottom left, editorial */}
+            <div className="hero-content-container">
                 <div className="hero-text-wrapper">
+                    <p className="hero-eyebrow fade-in delay-100">Premium Vintage</p>
                     <h1 className="hero-title">
                         <div className="overflow-hidden">
-                            <span className="reveal-text delay-100">BIG FLEX. 💎</span>
+                            <span className="reveal-text delay-200">Big Flex.</span>
                         </div>
                         <div className="overflow-hidden">
-                            <span className="reveal-text delay-200 check-line">SMALL CHECK. 💸</span>
+                            <span className="reveal-text delay-350">Small Check.</span>
                         </div>
                     </h1>
-                    <p className="hero-subtext fade-in delay-500">
-                        Premium vintage. No hype tax.
+                    <p className="hero-subtext fade-in delay-600">
+                        No hype tax. No logo flex. Just the piece.
                     </p>
+                    <a href="#latest-drop" className="hero-cta fade-in delay-800">
+                        Shop the Drop
+                    </a>
                 </div>
-            </div>
-
-            <div className="hero-bottom-container">
-
-                <a href="#latest-drop" className="scroll-down-link" aria-label="Scroll to next section">
-                    <div className="scroll-down-arrow"></div>
-                </a>
             </div>
         </section>
     );

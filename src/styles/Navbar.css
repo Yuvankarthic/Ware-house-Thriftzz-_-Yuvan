@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   NAVBAR
+   NAVBAR — always white, editorial
 ───────────────────────────────────────────── */
 .navbar {
     position: sticky;
@@ -12,23 +12,17 @@
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    transition: background-color 0.3s ease, height 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
 }
 
 @media (min-width: 768px) {
     .navbar {
         height: var(--nav-height-desktop);
-        background-color: transparent;
-        border-bottom: none;
     }
 
     .navbar.scrolled {
-        background-color: rgba(255, 255, 255, 0.96);
-        height: 60px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border-color);
-        box-shadow: 0 1px 16px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.07);
+        border-bottom-color: transparent;
     }
 }
 
@@ -42,25 +36,15 @@
     padding: 0 var(--page-px);
 }
 
-/* ─── Logo — centered on mobile, left on desktop ─── */
+/* ─── Logo — always left ─── */
 .navbar-logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     z-index: 1;
 }
 
-@media (min-width: 768px) {
-    .navbar-logo {
-        position: static;
-        transform: none;
-    }
-}
-
 .navbar-logo a {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: var(--text-main);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     font-weight: 800;
     font-family: var(--font-brand);
     line-height: 1;
@@ -82,15 +66,17 @@
 
     .navbar-links a {
         font-size: 11px;
-        font-weight: 800;
+        font-weight: 600;
+        font-family: var(--font-heading);
         text-transform: uppercase;
         letter-spacing: 0.12em;
         color: var(--text-main);
         transition: opacity 0.2s ease;
+        white-space: nowrap;
     }
 
     .navbar-links a:hover {
-        opacity: 0.55;
+        opacity: 0.5;
     }
 }
 
@@ -102,8 +88,8 @@
 }
 
 .icon-btn {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,8 +127,8 @@
 
 .cart-count-dot {
     position: absolute;
-    top: 9px;
-    right: 7px;
+    top: 6px;
+    right: 4px;
     background: var(--text-main);
     color: var(--white);
     font-size: 8px;
@@ -154,6 +140,7 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    font-family: var(--font-heading);
 }
 
 /* ─── Mobile menu overlay ─── */
@@ -166,16 +153,17 @@
     height: calc(100dvh - var(--nav-height-mobile));
     background: var(--white);
     flex-direction: column;
-    padding: 48px var(--page-px);
-    gap: 36px;
+    padding: 40px var(--page-px);
+    gap: 8px;
     z-index: 999;
     overflow-y: auto;
 }
 
 .navbar-links.active a {
-    font-size: 28px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--font-serif);
     color: var(--text-main);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
 }
