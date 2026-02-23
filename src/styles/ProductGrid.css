@@ -58,3 +58,51 @@
         gap: 24px;
     }
 }
+
+/* ─── Size Filter Bar ─── */
+.size-filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0 var(--page-px);
+    max-width: 1320px;
+    margin: 0 auto 28px;
+}
+
+.size-pill {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.size-pill:hover {
+    border-color: var(--text-main);
+    color: var(--text-main);
+}
+
+.size-pill.active {
+    background-color: var(--text-main);
+    border-color: var(--text-main);
+    color: var(--white);
+}
+
+/* ─── Empty state ─── */
+.grid-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}

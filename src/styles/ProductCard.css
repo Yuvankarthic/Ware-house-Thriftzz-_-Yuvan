@@ -41,6 +41,44 @@
     transform: scale(1.05);
 }
 
+/* ── Sold-out state ── */
+.product-card.is-sold-out {
+    pointer-events: auto;
+    cursor: default;
+}
+
+.product-card.is-sold-out .card-image {
+    filter: grayscale(100%);
+    opacity: 0.55;
+}
+
+.product-card.is-sold-out:hover .card-image {
+    transform: none;
+}
+
+/* ── Sold badge overlay ── */
+.card-sold-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.card-sold-label {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--white);
+    background-color: rgba(0, 0, 0, 0.65);
+    padding: 8px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 /* ── Details section ── */
 .card-info {
     background: var(--bg-color);

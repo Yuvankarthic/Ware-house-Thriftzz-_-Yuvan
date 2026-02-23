@@ -1,40 +1,42 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // NEW: Import useCart for adding to cart
+import { useCart } from '../context/CartContext';
 import '../styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const { addToCart } = useCart(); // NEW: Use the existing addToCart function
+    const { addToCart } = useCart();
 
-    // Default to the first image. If a second image exists, use it for hover.
     const primaryImage = product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.png';
     const hoverImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage;
-
-    // Link directly to the product ID, as expected by ProductPage
     const productLink = `/product/${product.id}`;
 
     const handleAddToCart = (e) => {
-        e.preventDefault(); // Prevent navigating to product page when clicking add to cart
-        e.stopPropagation(); // Stop event bubbling to the Link
-        addToCart(product);
-        // Optionally, could open cart drawer here, but current useCart doesn't expose setIsCartOpen directly from here.
+        e.preventDefault();
+        e.stopPropagation();
+        if (!product.soldOut) addToCart(product);
     };
 
     return (
         <Link
             to={productLink}
-            className="product-card"
+            className={`product-card ${product.soldOut ? 'is-sold-out' : ''}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="card-image-wrapper">
                 <img
-                    src={isHovered ? hoverImage : primaryImage}
+                    src={isHovered && !product.soldOut ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
                     className="card-image"
                     loading="lazy"
                 />
+                {/* Sold out overlay */}
+                {product.soldOut && (
+                    <div className="card-sold-overlay">
+                        <span className="card-sold-label">Sold</span>
+                    </div>
+                )}
             </div>
             <div className="card-info">
                 <div className="card-meta">
@@ -43,9 +45,9 @@ const ProductCard = ({ product }) => {
                 <h3 className="card-name">{product.name}</h3>
                 <p className="card-price">₹{product.price}</p>
                 <button
-                    className="btn-add-to-cart" // Custom class for styling the button within the card
+                    className="btn-add-to-cart"
                     onClick={handleAddToCart}
-                    disabled={product.soldOut} // Disable if product is sold out
+                    disabled={product.soldOut}
                 >
                     {product.soldOut ? 'Sold Out' : 'Add to Cart'}
                 </button>
