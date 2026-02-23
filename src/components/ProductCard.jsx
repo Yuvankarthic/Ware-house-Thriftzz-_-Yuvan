@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import '../styles/ProductCard.css';
 
@@ -8,6 +9,7 @@ const ProductCard = ({ product }) => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const cardRef = useRef(null);
+    const [added, setAdded] = useState(false);
 
     // Snappy spring config for "cartoon-cool" motion
     const springConfig = { damping: 15, stiffness: 150, mass: 0.5 };
@@ -21,7 +23,7 @@ const ProductCard = ({ product }) => {
 
     // Exaggerated rotation (up to 8deg)
     const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
 
     const [isHovered, setIsHovered] = useState(false);
 
@@ -52,7 +54,10 @@ const ProductCard = ({ product }) => {
     };
 
     const handleTap = (e) => {
-        if (e.target.closest('.btn-add-to-cart')) return;
+        // Prevent navigation if clicking "Add to Cart" button or Plus button
+        if (e.target.closest('.btn-add-to-cart') || e.target.closest('.mobile-plus-btn')) return;
+
+        // Mobile tactile feedback delay before navigation
         setTimeout(() => {
             navigate(`/product/${product.id}`);
         }, 200);
@@ -61,7 +66,11 @@ const ProductCard = ({ product }) => {
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!product.soldOut) addToCart(product);
+        if (!product.soldOut) {
+            addToCart(product);
+            setAdded(true);
+            setTimeout(() => setAdded(false), 1500);
+        }
     };
 
     return (
@@ -97,6 +106,39 @@ const ProductCard = ({ product }) => {
                     animate={{ scale: isHovered ? 1.15 : 1 }}
                     transition={{ type: "spring", ...springConfig }}
                 />
+
+                {/* Mobile-only plus button */}
+                {!product.soldOut && (
+                    <motion.button
+                        className="mobile-plus-btn"
+                        onClick={handleAddToCart}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ transform: "translateZ(80px)" }}
+                    >
+                        <AnimatePresence mode="wait">
+                            {added ? (
+                                <motion.div
+                                    key="check"
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.5 }}
+                                >
+                                    <Check size={20} strokeWidth={3} />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="plus"
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.5 }}
+                                >
+                                    <Plus size={20} strokeWidth={3} />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.button>
+                )}
+
                 {product.soldOut && (
                     <div className="card-sold-overlay" style={{ transform: "translateZ(30px)" }}>
                         <span className="card-sold-label">Sold</span>
