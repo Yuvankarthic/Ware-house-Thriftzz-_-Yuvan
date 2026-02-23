@@ -190,3 +190,40 @@
     padding: 12px 0;
     border-bottom: 1px solid var(--border-color);
 }
+
+/* Mobile nav extras */
+.nav-mobile-extras {
+    margin-top: auto;
+    padding-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.nav-city-tag {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.nav-mobile-cart-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background-color: var(--text-main);
+    color: var(--white);
+    border: none;
+    border-radius: 0;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    justify-content: center;
+}

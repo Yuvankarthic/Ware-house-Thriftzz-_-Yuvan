@@ -12,16 +12,12 @@ const Navbar = () => {
     const { cartCount, setIsCartOpen } = useCart();
     const prevCountRef = useRef(cartCount);
 
-    // Scroll handler
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
-        };
+        const handleScroll = () => setScrolled(window.scrollY > 50);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Cart bump animation when item added
     useEffect(() => {
         if (cartCount > prevCountRef.current) {
             setBump(true);
@@ -30,38 +26,59 @@ const Navbar = () => {
         prevCountRef.current = cartCount;
     }, [cartCount]);
 
+    const closeMenu = () => setMenuOpen(false);
+
     return (
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
             <div className="navbar-container container">
+
+                {/* Logo */}
                 <div className="navbar-logo">
                     <a href="/" className="brand-font">WHT</a>
                 </div>
 
+                {/* Desktop + Mobile nav links */}
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
-                    <a href="/#latest-drop" onClick={() => setMenuOpen(false)}>Latest Drop</a>
-                    <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
+                    <a href="/#latest-drop" onClick={closeMenu}>Shop</a>
+                    <a href="/#latest-drop" onClick={closeMenu}>New Arrivals</a>
+                    <Link to="/about" onClick={closeMenu}>Our Story</Link>
+                    <Link to="/about" onClick={closeMenu}>Condition Guide</Link>
+
+                    {/* Mobile-only extras */}
+                    <div className="nav-mobile-extras">
+                        <p className="nav-city-tag">📍 Bengaluru, India</p>
+                        <button
+                            className="nav-mobile-cart-btn"
+                            onClick={() => { setIsCartOpen(true); closeMenu(); }}
+                        >
+                            <ShoppingBag size={16} strokeWidth={1.5} />
+                            View Cart {cartCount > 0 && `(${cartCount})`}
+                        </button>
+                    </div>
                 </div>
 
+                {/* Actions */}
                 <div className="navbar-actions">
                     <button
                         className={`icon-btn cart-btn ${bump ? 'bump' : ''}`}
                         aria-label={`Cart (${cartCount} items)`}
                         onClick={() => setIsCartOpen(true)}
                     >
-                        <ShoppingBag
-                            size={20}
-                            strokeWidth={1.5}
-                            className="nav-icon"
-                        />
+                        <ShoppingBag size={20} strokeWidth={1.5} className="nav-icon" />
                         {cartCount > 0 && (
                             <span className="cart-count-dot">{cartCount}</span>
                         )}
                     </button>
 
-                    <button className="icon-btn mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+                    <button
+                        className="icon-btn mobile-toggle"
+                        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                        onClick={() => setMenuOpen(prev => !prev)}
+                    >
                         {menuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
+
             </div>
         </nav>
     );
