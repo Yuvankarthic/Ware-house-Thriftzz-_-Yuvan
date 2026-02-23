@@ -62,23 +62,24 @@
     /* Slightly more rounded for the 'pop' image */
 }
 
-/* 📱 Mobile Plus Button — Bottom middle of image */
+/* 📱 Mobile Plus Button — Positioned specifically at bottom-center-left */
 .mobile-plus-btn {
     display: none;
     /* Hidden by default (Desktop) */
     position: absolute;
-    bottom: 0;
-    /* Align to bottom of image */
-    left: 50%;
-    transform: translate(-50%, 50%);
-    /* Float it right on the edge */
-    width: 38px;
-    height: 38px;
+    bottom: -10px;
+    /* Bit more down */
+    left: 45%;
+    /* Slightly more to the left */
+    transform: translateX(-50%);
+    width: 36px;
+    /* Slightly smaller/unique */
+    height: 36px;
     background-color: #000;
     color: #fff;
     border: none;
     border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     z-index: 10;
     align-items: center;
     justify-content: center;
