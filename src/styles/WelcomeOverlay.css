@@ -21,29 +21,26 @@
 }
 
 .ufo-scene {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     position: relative;
     width: 100%;
     height: 100%;
-}
-
-.canvas-container {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.canvas-container {
     width: 100%;
-    max-width: 800px;
+    height: 100%;
     will-change: transform;
 }
 
 .ufo-canvas {
     width: 100%;
-    height: auto;
-    max-width: 600px;
-    object-fit: contain;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
 }
 
 .entry-text {
@@ -57,16 +54,13 @@
     text-transform: uppercase;
     pointer-events: none;
     opacity: 0.6;
+    z-index: 10;
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .ufo-canvas {
-        max-width: 100vw;
-    }
-
     .entry-text {
-        bottom: 15vh;
+        bottom: 8vh;
         font-size: 0.8rem;
     }
 }
