@@ -1,19 +1,21 @@
-/* Welcome Overlay Styles - UFO Entry */
+/* Welcome Overlay Styles - UFO Animation Sequence */
 
-.welcome-overlay {
+.welcome-overlay.dark-futuristic {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    /* Soft light grey gradient background - slightly deeper for contrast against glows */
-    background: linear-gradient(135deg, #F0F2F5 0%, #E6E9EE 50%, #DCE0E5 100%);
+    /* Minimal dark futuristic background */
+    background: #000000;
     z-index: 9999;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Force GPU rendering for sharpness */
+    touch-action: none;
+    /* Prevent native pull-to-refresh / scroll */
+    /* Force GPU rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -22,111 +24,49 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    /* Move elements to the bottom */
-    padding-bottom: 12vh;
-    /* Spacing from bottom */
+    justify-content: center;
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-.ufo-wrapper {
-    width: 600px;
-    height: 300px;
-    cursor: grab;
-    touch-action: none;
-    /* FIX: Prevents native scrolling on mobile to prioritize swipe/drag */
-    z-index: 10;
-    will-change: transform;
+.canvas-container {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-}
-
-.ufo-wrapper:active {
-    cursor: grabbing;
-}
-
-.ufo-body {
+    align-items: center;
     width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 40px 50px rgba(0, 0, 0, 0.2));
+    max-width: 800px;
+    will-change: transform;
 }
 
-.ufo-glow-idle {
-    animation: pulseGlow 2s ease-in-out infinite alternate;
-    transform-origin: center;
-}
-
-@keyframes pulseGlow {
-    0% {
-        opacity: 0.6;
-        transform: scale(0.95);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-}
-
-.ufo-shadow {
-    width: 300px;
-    height: 40px;
-    /* Soft glowing Green ground reflection */
-    background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0) 70%);
-    border-radius: 50%;
-    position: absolute;
-    bottom: 5vh;
-    /* Position slightly below UFO resting spot */
-    z-index: 5;
-    pointer-events: none;
+.ufo-canvas {
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    object-fit: contain;
 }
 
 .entry-text {
     position: absolute;
-    bottom: 25vh;
-    /* Reposition text above the UFO when it's at the bottom */
+    bottom: 12vh;
     font-family: var(--font-heading, "Helvetica Neue", sans-serif);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     letter-spacing: 0.25em;
-    color: #333;
+    color: #FFFFFF;
     text-transform: uppercase;
     pointer-events: none;
     opacity: 0.6;
-    animation: floatText 4s ease-in-out infinite alternate;
-}
-
-@keyframes floatText {
-    0% {
-        transform: translateY(0px);
-        opacity: 0.5;
-    }
-
-    100% {
-        transform: translateY(-5px);
-        opacity: 0.8;
-    }
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .ufo-wrapper {
-        width: 380px;
-        /* Make extremely large on mobile too */
-        height: 190px;
-    }
-
-    .ufo-shadow {
-        width: 200px;
-        height: 25px;
-        bottom: 5vh;
+    .ufo-canvas {
+        max-width: 100vw;
     }
 
     .entry-text {
-        bottom: 25vh;
+        bottom: 15vh;
         font-size: 0.8rem;
     }
 }
