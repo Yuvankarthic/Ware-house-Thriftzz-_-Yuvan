@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AnnouncementBar from './components/AnnouncementBar';
-import AboutSection from './components/AboutSection';
+
 import AboutPage from './components/AboutPage';
 import CtaSection from './components/CtaSection';
 import Footer from './components/Footer';
@@ -17,7 +17,7 @@ function HomePage() {
       <Hero />
       <main>
         <ProductGrid />
-        <AboutSection />
+
         <CtaSection />
       </main>
     </>

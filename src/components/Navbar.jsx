@@ -42,7 +42,6 @@ const Navbar = () => {
                     <a href="/#latest-drop" onClick={closeMenu}>Shop</a>
                     <a href="/#latest-drop" onClick={closeMenu}>New Arrivals</a>
                     <Link to="/about" onClick={closeMenu}>Our Story</Link>
-                    <Link to="/about" onClick={closeMenu}>Condition Guide</Link>
 
                     {/* Mobile-only extras */}
                     <div className="nav-mobile-extras">

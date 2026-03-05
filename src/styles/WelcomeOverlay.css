@@ -1,4 +1,4 @@
-/* Welcome Overlay Styles */
+/* Welcome Overlay Styles - UFO Entry */
 
 .welcome-overlay {
     position: fixed;
@@ -6,255 +6,118 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    /* Clean, flat white/off-white background - NO NOISE */
-    background-color: #FAFAF9;
+    /* Soft light grey gradient background */
+    background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F0 50%, #EAEBE6 100%);
     z-index: 9999;
     overflow: hidden;
-    opacity: 0;
-    transition: opacity 1.8s cubic-bezier(0.45, 0, 0.55, 1);
-    cursor: default;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     /* Force GPU rendering for sharpness */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-.welcome-overlay.visible {
-    opacity: 1;
-}
-
-.welcome-overlay.exiting {
-    opacity: 0;
-    transform: translateY(-20px);
-    pointer-events: none;
-}
-
-/* REMOVED .background-noise entirely for clarity */
-.background-noise {
-    display: none;
-}
-
-.welcome-content-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Graphic Container */
-.graphic-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: scale(1);
-    will-change: transform;
-    /* Optimize for performance */
-}
-
-.graphic-container.animate {
-    /* Subtle breathing, ensuring no blur on scale */
-    animation: breathing 8s ease-in-out infinite alternate;
-}
-
-.welcome-graphic {
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    object-position: center;
-    mix-blend-mode: multiply;
-    /* 
-       SHARPNESS OPTIMIZATION:
-       No blur filters. 
-       Slight contrast boost to define edges of the line art.
-       Brightness adjustment to match page white.
-    */
-    filter: contrast(1.05) brightness(1.02);
-    opacity: 0;
-    animation: fadeInGraphic 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
-    transform: scale(1.02);
-}
-
-/* Mask Patch - Clean solid cover */
-.text-mask-patch {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 38vh;
-    background-color: #FAFAF9;
-    /* Match bg */
-    z-index: 2;
-    /* Smooth gradient mask */
-    mask-image: linear-gradient(to bottom, transparent, black 15%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%);
-}
-
-/* Typography Container */
-.text-container {
-    position: absolute;
-    bottom: 12vh;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 5;
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.text-container.animate {
-    animation: fadeInUpText 1.8s var(--ease-out-expo) 0.6s forwards;
-}
-
-.welcome-brand {
-    font-size: 5rem;
-    margin-bottom: 2rem;
-    color: var(--text-main);
-}
-
-/* Primary Tagline - Bold, Trippy, Readable */
-.tagline-primary {
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-main);
-    letter-spacing: 0.25em;
-    line-height: 1.1;
-    margin: 0 0 1rem 0;
-    text-transform: uppercase;
-}
-
-/* Secondary Tagline - Clean, Soft */
-.tagline-secondary {
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    margin: 0;
-    opacity: 1;
-}
-
-/* UFO Interaction */
-.ufo-container {
-    position: fixed;
-    bottom: 40px;
-    right: 40px;
-    z-index: 10001;
-    cursor: pointer;
+.ufo-scene {
     display: flex;
     flex-direction: column;
     align-items: center;
-    opacity: 0;
-    transition: opacity 1s ease 1.5s;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-.ufo-container.visible {
-    opacity: 1;
+.ufo-wrapper {
+    width: 280px;
+    height: 140px;
+    cursor: grab;
+    z-index: 10;
+    will-change: transform;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
 }
 
-.ufo-container.flying {
-    transform: translateY(-50px) scale(0.95);
-    opacity: 0;
-    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
+.ufo-wrapper:active {
+    cursor: grabbing;
 }
 
-.ufo-icon {
-    width: 40px;
-    /* Larger icon for clarity */
-    height: auto;
-    color: #000;
-    stroke-width: 1.5px;
-    /* REMOVED all glow filters for sharpness */
-    filter: none;
-    transition: transform 0.3s ease;
+.ufo-body {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15));
 }
 
-.ufo-hint {
-    font-family: var(--font-heading);
-    font-size: 0.6rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    color: var(--text-main);
-    margin-top: 10px;
-    text-transform: uppercase;
-    opacity: 1;
+.ufo-glow-idle {
+    animation: pulseGlow 2s ease-in-out infinite alternate;
+    transform-origin: center;
 }
 
-.ufo-container:hover .ufo-icon {
-    /* Crisp sharp movement, no blur */
-    transform: translateY(-4px);
-}
-
-/* Animations - REMOVED BLUR */
-@keyframes breathing {
+@keyframes pulseGlow {
     0% {
-        transform: scale(1);
+        opacity: 0.6;
+        transform: scale(0.95);
     }
 
     100% {
-        transform: scale(1.02);
-    }
-
-    /* Reduced scale range for sharpness */
-}
-
-@keyframes fadeInGraphic {
-    from {
-        opacity: 0;
-        transform: scale(0.98) translateY(10px);
-    }
-
-    to {
         opacity: 1;
-        transform: scale(1.02) translateY(0);
+        transform: scale(1.05);
     }
 }
 
-@keyframes fadeInUpText {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-        /* No filter: blur() */
+.ufo-shadow {
+    width: 140px;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+    position: absolute;
+    bottom: calc(50% - 100px);
+    /* Position below UFO */
+    z-index: 5;
+    pointer-events: none;
+}
+
+.entry-text {
+    position: absolute;
+    bottom: 15vh;
+    font-family: var(--font-heading, "Helvetica Neue", sans-serif);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: #333;
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 0.6;
+    animation: floatText 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatText {
+    0% {
+        transform: translateY(0px);
+        opacity: 0.5;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    100% {
+        transform: translateY(-5px);
+        opacity: 0.8;
     }
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .text-mask-patch {
-        height: 32vh;
+    .ufo-wrapper {
+        width: 220px;
+        height: 110px;
     }
 
-    .text-container {
-        bottom: 16vh;
-        /* Raise text slightly */
-        padding: 0 24px;
+    .ufo-shadow {
+        width: 110px;
+        bottom: calc(50% - 80px);
     }
 
-    .tagline-primary {
-        font-size: 1.1rem;
-        letter-spacing: -0.01em;
-        margin-bottom: 0.6rem;
-    }
-
-    .tagline-secondary {
-        font-size: 0.85rem;
-    }
-
-    .ufo-container {
-        bottom: 30px;
-        right: 30px;
-    }
-
-    .ufo-icon {
-        width: 32px;
+    .entry-text {
+        bottom: 20vh;
+        font-size: 0.75rem;
     }
 }
