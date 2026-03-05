@@ -105,83 +105,95 @@ const WelcomeOverlay = () => {
                             whileTap={{ cursor: "grabbing" }}
                         >
                             <div className="ufo-body">
-                                {/* 3D Green/White UFO SVG */}
-                                <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {/* Premium 3D Green/White UFO SVG */}
+                                <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <defs>
-                                        <linearGradient id="metalGreen" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stopColor="#4ADE80" />
-                                            <stop offset="40%" stopColor="#22C55E" />
-                                            <stop offset="100%" stopColor="#15803D" />
-                                        </linearGradient>
-                                        <linearGradient id="metalWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <linearGradient id="metalBrightWhite" x1="0%" y1="0%" x2="0%" y2="100%">
                                             <stop offset="0%" stopColor="#FFFFFF" />
-                                            <stop offset="50%" stopColor="#E2E8F0" />
-                                            <stop offset="100%" stopColor="#94A3B8" />
+                                            <stop offset="60%" stopColor="#F8FAFC" />
+                                            <stop offset="100%" stopColor="#CBD5E1" />
                                         </linearGradient>
-                                        <linearGradient id="glass3D" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
-                                            <stop offset="50%" stopColor="rgba(255,255,255,0.4)" />
-                                            <stop offset="100%" stopColor="rgba(34,197,94,0.2)" />
+                                        <linearGradient id="metalDarkGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#22C55E" />
+                                            <stop offset="50%" stopColor="#166534" />
+                                            <stop offset="100%" stopColor="#064E3B" />
                                         </linearGradient>
-                                        <radialGradient id="glowEngine" cx="50%" cy="50%" r="50%">
-                                            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
-                                            <stop offset="50%" stopColor="#86EFAC" stopOpacity="0.6" />
-                                            <stop offset="100%" stopColor="#22C55E" stopOpacity="0" />
+                                        <linearGradient id="metalEmerald" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#86EFAC" />
+                                            <stop offset="40%" stopColor="#22C55E" />
+                                            <stop offset="100%" stopColor="#14532D" />
+                                        </linearGradient>
+                                        <linearGradient id="glassPremium" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
+                                            <stop offset="50%" stopColor="rgba(240,253,244,0.5)" />
+                                            <stop offset="100%" stopColor="rgba(22,101,52,0.8)" />
+                                        </linearGradient>
+                                        <radialGradient id="engineCore" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                                            <stop offset="30%" stopColor="#86EFAC" stopOpacity="0.9" />
+                                            <stop offset="70%" stopColor="#22C55E" stopOpacity="0.4" />
+                                            <stop offset="100%" stopColor="#064E3B" stopOpacity="0" />
                                         </radialGradient>
-                                        <filter id="shadow3D" x="-20%" y="-20%" width="140%" height="140%">
-                                            <feDropShadow dx="0" dy="20" stdDeviation="12" floodOpacity="0.4" />
-                                            <feDropShadow dx="0" dy="5" stdDeviation="5" floodOpacity="0.6" floodColor="#15803D" />
+                                        <filter id="shadowPremium" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="25" stdDeviation="15" floodOpacity="0.4" />
+                                            <feDropShadow dx="0" dy="10" stdDeviation="5" floodOpacity="0.7" floodColor="#064E3B" />
                                         </filter>
-                                        {/* 3D highlight filter */}
-                                        <filter id="highlight">
-                                            <feDropShadow dx="0" dy="-4" stdDeviation="4" floodColor="#FFFFFF" floodOpacity="0.6" />
+                                        <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feGaussianBlur stdDeviation="8" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                        <filter id="highlightPremium">
+                                            <feDropShadow dx="0" dy="-3" stdDeviation="3" floodColor="#FFFFFF" floodOpacity="0.9" />
                                         </filter>
                                     </defs>
 
-                                    <g filter="url(#shadow3D)">
-                                        {/* Engine Glow ring (idle Green/White) */}
-                                        <ellipse cx="100" cy="80" rx="38" ry="12" fill="url(#glowEngine)" className="ufo-glow-idle" />
+                                    <g filter="url(#shadowPremium)">
+                                        {/* Extremely glowing engine ring */}
+                                        <ellipse cx="200" cy="160" rx="70" ry="20" fill="url(#engineCore)" className="ufo-glow-idle" />
 
-                                        {/* Main Hull base curve (3D bottom depth) */}
-                                        <ellipse cx="100" cy="68" rx="80" ry="25" fill="#15803D" />
+                                        {/* Bottom Thruster Housing */}
+                                        <ellipse cx="200" cy="140" rx="140" ry="40" fill="url(#metalDarkGreen)" />
 
-                                        {/* Main Hull (3D Green) */}
-                                        <ellipse cx="100" cy="65" rx="80" ry="25" fill="url(#metalGreen)" filter="url(#highlight)" />
+                                        {/* Middle White Hull Ring (Thick) */}
+                                        <ellipse cx="200" cy="120" rx="160" ry="45" fill="url(#metalBrightWhite)" filter="url(#highlightPremium)" />
+                                        <ellipse cx="200" cy="130" rx="158" ry="43" fill="none" stroke="#94A3B8" strokeWidth="4" />
 
-                                        {/* White Outer Rim */}
-                                        <ellipse cx="100" cy="65" rx="80" ry="25" fill="none" stroke="url(#metalWhite)" strokeWidth="6" strokeOpacity="1" />
+                                        {/* Upper Green Armor Plating */}
+                                        <ellipse cx="200" cy="115" rx="150" ry="40" fill="url(#metalEmerald)" />
 
-                                        {/* Inner Ring Details (White Accent) */}
-                                        <ellipse cx="100" cy="65" rx="55" ry="14" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
+                                        {/* Glowing Neon Green Divider Ring */}
+                                        <ellipse cx="200" cy="113" rx="145" ry="38" fill="none" stroke="#4ADE80" strokeWidth="3" filter="url(#glowGreen)" />
 
-                                        {/* 3D Glass Dome */}
-                                        <path d="M50 55 C 50 15, 150 15, 150 55" fill="url(#glass3D)" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+                                        {/* Core White Structure */}
+                                        <ellipse cx="200" cy="100" rx="110" ry="30" fill="url(#metalBrightWhite)" />
+                                        <ellipse cx="200" cy="100" rx="100" ry="25" fill="none" stroke="#E2E8F0" strokeWidth="2" />
 
-                                        {/* Highlight on Dome for 3D effect */}
-                                        <path d="M65 40 C 85 22, 115 22, 135 40" fill="none" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.7" filter="blur(2px)" />
+                                        {/* Premium Glass Dome */}
+                                        <path d="M90 100 C 90 20, 310 20, 310 100" fill="url(#glassPremium)" stroke="#FFFFFF" strokeWidth="3" />
 
-                                        {/* Base Thruster Housing (White Metal) */}
-                                        <path d="M68 85 L 85 95 L 115 95 L 132 85 Z" fill="url(#metalWhite)" />
-                                        <path d="M72 85 L 85 93 L 115 93 L 128 85 Z" fill="#94A3B8" /> {/* Thruster shadow inside */}
+                                        {/* High-fidelity Window Reflections */}
+                                        <path d="M120 70 C 160 30, 240 30, 280 70" fill="none" stroke="#FFFFFF" strokeWidth="8" strokeLinecap="round" strokeOpacity="0.8" filter="blur(2px)" />
+                                        <path d="M140 85 C 180 50, 220 50, 260 85" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.9" />
 
-                                        {/* Cinematic Plasma Thruster (Active only when exiting) */}
+                                        {/* Cinematic Exiting Plasma Beam (Downwards from Thruster) */}
                                         {isExiting && (
                                             <motion.path
-                                                d="M85 95 L 100 190 L 115 95 Z"
+                                                d="M160 160 L 200 400 L 240 160 Z"
                                                 fill="#86EFAC"
                                                 initial={{ opacity: 0, scaleY: 0 }}
-                                                animate={{ opacity: [0.9, 1, 0.9], scaleY: [1, 1.4, 1] }}
-                                                transition={{ duration: 0.12, repeat: Infinity }}
+                                                animate={{ opacity: [0.9, 1, 0.9], scaleY: [1, 1.5, 1] }}
+                                                transition={{ duration: 0.1, repeat: Infinity }}
                                                 style={{ transformOrigin: "top center" }}
+                                                filter="url(#glowGreen)"
                                             />
                                         )}
                                         {isExiting && (
                                             <motion.path
-                                                d="M92 95 L 100 160 L 108 95 Z"
+                                                d="M180 160 L 200 350 L 220 160 Z"
                                                 fill="#FFFFFF"
                                                 initial={{ opacity: 0, scaleY: 0 }}
-                                                animate={{ opacity: [0.8, 1, 0.8], scaleY: [1, 1.2, 1] }}
-                                                transition={{ duration: 0.1, repeat: Infinity }}
+                                                animate={{ opacity: [0.8, 1, 0.8], scaleY: [1, 1.3, 1] }}
+                                                transition={{ duration: 0.08, repeat: Infinity }}
                                                 style={{ transformOrigin: "top center" }}
                                             />
                                         )}

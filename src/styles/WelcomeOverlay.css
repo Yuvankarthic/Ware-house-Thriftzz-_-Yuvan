@@ -22,16 +22,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    /* Move elements to the bottom */
+    padding-bottom: 12vh;
+    /* Spacing from bottom */
     position: relative;
     width: 100%;
     height: 100%;
 }
 
 .ufo-wrapper {
-    width: 440px;
-    height: 220px;
+    width: 600px;
+    height: 300px;
     cursor: grab;
+    touch-action: none;
+    /* FIX: Prevents native scrolling on mobile to prioritize swipe/drag */
     z-index: 10;
     will-change: transform;
     display: flex;
@@ -67,21 +72,22 @@
 }
 
 .ufo-shadow {
-    width: 220px;
-    height: 30px;
-    /* Soft Green ground reflection */
-    background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0) 70%);
+    width: 300px;
+    height: 40px;
+    /* Soft glowing Green ground reflection */
+    background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0) 70%);
     border-radius: 50%;
     position: absolute;
-    bottom: calc(50% - 140px);
-    /* Position below UFO */
+    bottom: 5vh;
+    /* Position slightly below UFO resting spot */
     z-index: 5;
     pointer-events: none;
 }
 
 .entry-text {
     position: absolute;
-    bottom: 15vh;
+    bottom: 25vh;
+    /* Reposition text above the UFO when it's at the bottom */
     font-family: var(--font-heading, "Helvetica Neue", sans-serif);
     font-size: 0.95rem;
     font-weight: 500;
@@ -108,17 +114,19 @@
 /* Mobile Adjustments */
 @media (max-width: 768px) {
     .ufo-wrapper {
-        width: 320px;
-        height: 160px;
+        width: 380px;
+        /* Make extremely large on mobile too */
+        height: 190px;
     }
 
     .ufo-shadow {
-        width: 180px;
-        bottom: calc(50% - 100px);
+        width: 200px;
+        height: 25px;
+        bottom: 5vh;
     }
 
     .entry-text {
-        bottom: 12vh;
+        bottom: 25vh;
         font-size: 0.8rem;
     }
 }
