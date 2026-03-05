@@ -105,52 +105,83 @@ const WelcomeOverlay = () => {
                             whileTap={{ cursor: "grabbing" }}
                         >
                             <div className="ufo-body">
-                                {/* Metallic UFO SVG */}
+                                {/* 3D Green/White UFO SVG */}
                                 <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <defs>
-                                        <linearGradient id="metal" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stopColor="#E0E6ED" />
-                                            <stop offset="50%" stopColor="#B3C0D1" />
-                                            <stop offset="100%" stopColor="#7A8B99" />
+                                        <linearGradient id="metalGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#4ADE80" />
+                                            <stop offset="40%" stopColor="#22C55E" />
+                                            <stop offset="100%" stopColor="#15803D" />
                                         </linearGradient>
-                                        <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
-                                            <stop offset="100%" stopColor="rgba(100,150,200,0.3)" />
+                                        <linearGradient id="metalWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#FFFFFF" />
+                                            <stop offset="50%" stopColor="#E2E8F0" />
+                                            <stop offset="100%" stopColor="#94A3B8" />
                                         </linearGradient>
-                                        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                                            <stop offset="0%" stopColor="#4A90E2" stopOpacity="0.8" />
-                                            <stop offset="100%" stopColor="#4A90E2" stopOpacity="0" />
+                                        <linearGradient id="glass3D" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
+                                            <stop offset="50%" stopColor="rgba(255,255,255,0.4)" />
+                                            <stop offset="100%" stopColor="rgba(34,197,94,0.2)" />
+                                        </linearGradient>
+                                        <radialGradient id="glowEngine" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+                                            <stop offset="50%" stopColor="#86EFAC" stopOpacity="0.6" />
+                                            <stop offset="100%" stopColor="#22C55E" stopOpacity="0" />
                                         </radialGradient>
-                                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                                            <feDropShadow dx="0" dy="15" stdDeviation="10" floodOpacity="0.3" />
+                                        <filter id="shadow3D" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feDropShadow dx="0" dy="20" stdDeviation="12" floodOpacity="0.4" />
+                                            <feDropShadow dx="0" dy="5" stdDeviation="5" floodOpacity="0.6" floodColor="#15803D" />
+                                        </filter>
+                                        {/* 3D highlight filter */}
+                                        <filter id="highlight">
+                                            <feDropShadow dx="0" dy="-4" stdDeviation="4" floodColor="#FFFFFF" floodOpacity="0.6" />
                                         </filter>
                                     </defs>
 
-                                    <g filter="url(#shadow)">
-                                        {/* Engine Glow ring (idle) */}
-                                        <ellipse cx="100" cy="80" rx="35" ry="10" fill="url(#glow)" className="ufo-glow-idle" />
+                                    <g filter="url(#shadow3D)">
+                                        {/* Engine Glow ring (idle Green/White) */}
+                                        <ellipse cx="100" cy="80" rx="38" ry="12" fill="url(#glowEngine)" className="ufo-glow-idle" />
 
-                                        {/* Main Hull */}
-                                        <ellipse cx="100" cy="65" rx="80" ry="25" fill="url(#metal)" stroke="#5A6B7C" strokeWidth="2" />
+                                        {/* Main Hull base curve (3D bottom depth) */}
+                                        <ellipse cx="100" cy="68" rx="80" ry="25" fill="#15803D" />
 
-                                        {/* Inner Ring Details */}
-                                        <ellipse cx="100" cy="65" rx="60" ry="15" fill="none" stroke="#E0E6ED" strokeWidth="1" strokeOpacity="0.5" />
+                                        {/* Main Hull (3D Green) */}
+                                        <ellipse cx="100" cy="65" rx="80" ry="25" fill="url(#metalGreen)" filter="url(#highlight)" />
 
-                                        {/* Glass Dome */}
-                                        <path d="M50 55 C 50 20, 150 20, 150 55" fill="url(#glass)" stroke="#FFF" strokeWidth="1" strokeOpacity="0.6" />
-                                        <path d="M60 45 C 80 25, 120 25, 140 45" fill="none" stroke="#FFF" strokeWidth="4" strokeLinecap="round" strokeOpacity="0.4" />
+                                        {/* White Outer Rim */}
+                                        <ellipse cx="100" cy="65" rx="80" ry="25" fill="none" stroke="url(#metalWhite)" strokeWidth="6" strokeOpacity="1" />
 
-                                        {/* Base Thruster Engine */}
-                                        <path d="M70 85 L 85 95 L 115 95 L 130 85 Z" fill="#2C3E50" />
+                                        {/* Inner Ring Details (White Accent) */}
+                                        <ellipse cx="100" cy="65" rx="55" ry="14" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
 
-                                        {/* Blast Thruster Glow (Active only when exiting) */}
+                                        {/* 3D Glass Dome */}
+                                        <path d="M50 55 C 50 15, 150 15, 150 55" fill="url(#glass3D)" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+
+                                        {/* Highlight on Dome for 3D effect */}
+                                        <path d="M65 40 C 85 22, 115 22, 135 40" fill="none" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" strokeOpacity="0.7" filter="blur(2px)" />
+
+                                        {/* Base Thruster Housing (White Metal) */}
+                                        <path d="M68 85 L 85 95 L 115 95 L 132 85 Z" fill="url(#metalWhite)" />
+                                        <path d="M72 85 L 85 93 L 115 93 L 128 85 Z" fill="#94A3B8" /> {/* Thruster shadow inside */}
+
+                                        {/* Cinematic Plasma Thruster (Active only when exiting) */}
                                         {isExiting && (
                                             <motion.path
-                                                d="M85 95 L 100 160 L 115 95 Z"
-                                                fill="#60A5FA"
+                                                d="M85 95 L 100 190 L 115 95 Z"
+                                                fill="#86EFAC"
+                                                initial={{ opacity: 0, scaleY: 0 }}
+                                                animate={{ opacity: [0.9, 1, 0.9], scaleY: [1, 1.4, 1] }}
+                                                transition={{ duration: 0.12, repeat: Infinity }}
+                                                style={{ transformOrigin: "top center" }}
+                                            />
+                                        )}
+                                        {isExiting && (
+                                            <motion.path
+                                                d="M92 95 L 100 160 L 108 95 Z"
+                                                fill="#FFFFFF"
                                                 initial={{ opacity: 0, scaleY: 0 }}
                                                 animate={{ opacity: [0.8, 1, 0.8], scaleY: [1, 1.2, 1] }}
-                                                transition={{ duration: 0.2, repeat: Infinity }}
+                                                transition={{ duration: 0.1, repeat: Infinity }}
                                                 style={{ transformOrigin: "top center" }}
                                             />
                                         )}
