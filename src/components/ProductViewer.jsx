@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -11,6 +11,8 @@ const ProductViewer = ({
     onNavigate
 }) => {
     const { addToCart, setIsCartOpen } = useCart();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
     // Using simple document.body block for quick scroll prevention
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -19,10 +21,16 @@ const ProductViewer = ({
         };
     }, []);
 
+    // Reset image index when looking at a new product
+    useEffect(() => {
+        setCurrentImageIndex(0);
+    }, [product?.id]);
+
     if (!product) return null;
 
     const currentIndex = products.findIndex(p => p.id === product.id);
-    const primaryImage = product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.png';
+    const images = product.images && product.images.length > 0 ? product.images : ['/placeholder-image.png'];
+    const currentImage = images[currentImageIndex] || images[0];
 
     const handleAddToCart = () => {
         if (!product.soldOut) {
@@ -39,12 +47,24 @@ const ProductViewer = ({
 
         // Horizontal Swipe
         if (Math.abs(offset.x) > 100 || Math.abs(velocity.x) > 500) {
-            if (offset.x < 0 && currentIndex < products.length - 1) {
-                // Swipe Left -> Next
-                onNavigate(products[currentIndex + 1].id);
-            } else if (offset.x > 0 && currentIndex > 0) {
-                // Swipe Right -> Prev
-                onNavigate(products[currentIndex - 1].id);
+            if (offset.x < 0) {
+                // Swipe Left
+                if (currentImageIndex < images.length - 1) {
+                    // Navigate to next image
+                    setCurrentImageIndex(prev => prev + 1);
+                } else if (currentIndex < products.length - 1) {
+                    // Reached end of images, go to next product
+                    onNavigate(products[currentIndex + 1].id);
+                }
+            } else if (offset.x > 0) {
+                // Swipe Right
+                if (currentImageIndex > 0) {
+                    // Navigate to previous image
+                    setCurrentImageIndex(prev => prev - 1);
+                } else if (currentIndex > 0) {
+                    // Reached start of images, go to previous product
+                    onNavigate(products[currentIndex - 1].id);
+                }
             }
         }
         // Vertical Swipe (Pull down to close)
@@ -77,18 +97,19 @@ const ProductViewer = ({
                     onDragEnd={handleDragEnd}
                 >
                     <motion.img
-                        src={primaryImage}
-                        alt={product.name}
+                        key={currentImage} // Key helps Framer Motion animate the src change if desired, though standard img works too
+                        src={currentImage}
+                        alt={`${product.name} - View ${currentImageIndex + 1}`}
                         className="viewer-main-image"
                         layoutId={`product-image-${product.id}`}
                     />
 
-                    {/* Navigation dots matching grid length */}
+                    {/* Navigation dots for product images */}
                     <div className="viewer-navigation-hints">
-                        {products.map((p, idx) => (
+                        {images.length > 1 && images.map((img, idx) => (
                             <div
-                                key={p.id}
-                                className={`nav-dot ${idx === currentIndex ? 'active' : ''}`}
+                                key={idx}
+                                className={`nav-dot ${idx === currentImageIndex ? 'active' : ''}`}
                             />
                         ))}
                     </div>
