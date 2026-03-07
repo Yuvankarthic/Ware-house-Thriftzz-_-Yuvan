@@ -43,24 +43,83 @@
     display: block;
 }
 
-.entry-text {
+.launch-interaction-area {
     position: absolute;
-    bottom: 12vh;
+    bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20;
+}
+
+/* The vertical track where the button slides */
+.launch-track {
+    position: relative;
+    width: 60px;
+    height: 200px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.launch-progress {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+}
+
+.launch-button {
+    position: absolute;
+    bottom: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 5px;
+    will-change: transform;
+}
+
+.launch-button:active {
+    cursor: grabbing;
+}
+
+.launch-button-inner {
+    width: 20px;
+    height: 4px;
+    background: #000;
+    border-radius: 2px;
+    opacity: 0.6;
+}
+
+.launch-instruction {
     font-family: var(--font-heading, "Helvetica Neue", sans-serif);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 0.25em;
     color: #FFFFFF;
     text-transform: uppercase;
     pointer-events: none;
-    opacity: 0.6;
-    z-index: 10;
+    text-align: center;
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .entry-text {
-        bottom: 8vh;
-        font-size: 0.8rem;
+    .launch-interaction-area {
+        bottom: 6vh;
     }
 }

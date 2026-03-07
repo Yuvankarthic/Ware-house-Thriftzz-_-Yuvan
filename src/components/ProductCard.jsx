@@ -5,7 +5,7 @@ import { Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import '../styles/ProductCard.css';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onSelect }) => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const cardRef = useRef(null);
@@ -57,10 +57,15 @@ const ProductCard = ({ product }) => {
         // Prevent navigation if clicking "Add to Cart" button or Plus button
         if (e.target.closest('.btn-add-to-cart') || e.target.closest('.mobile-plus-btn')) return;
 
-        // Mobile tactile feedback delay before navigation
-        setTimeout(() => {
-            navigate(`/product/${product.id}`);
-        }, 200);
+        // Use the onSelect prop if provided (for overlay viewers), else fallback to navigation
+        if (onSelect) {
+            onSelect();
+        } else {
+            // Mobile tactile feedback delay before navigation
+            setTimeout(() => {
+                navigate(`/product/${product.id}`);
+            }, 200);
+        }
     };
 
     const handleAddToCart = (e) => {
@@ -102,6 +107,7 @@ const ProductCard = ({ product }) => {
                     src={isHovered && !product.soldOut ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
                     className="card-image"
+                    layoutId={`product-image-${product.id}`}
                     loading="lazy"
                     animate={{ scale: isHovered ? 1.15 : 1 }}
                     transition={{ type: "spring", ...springConfig }}

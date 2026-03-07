@@ -8,12 +8,15 @@ const getFrameUrl = (index) => `/assets/ufo-animation/ezgif-frame-${index.toStri
 const WelcomeOverlay = () => {
     const [shouldRender, setShouldRender] = useState(true);
     const [isLaunched, setIsLaunched] = useState(false);
+    const [swipeProgress, setSwipeProgress] = useState(0);
+
     const canvasRef = useRef(null);
     const imagesRef = useRef([]);
     const frameIndexRef = useRef(1);
     const animationRef = useRef(null);
 
     // Track interactions
+    const isHolding = useRef(false);
     const startY = useRef(0);
     const isScrollLocked = useRef(false);
 
@@ -78,24 +81,38 @@ const WelcomeOverlay = () => {
         animationRef.current = requestAnimationFrame(renderFrame);
     };
 
-    // Interaction Handlers map to scroll / swipe
+    // Interaction Handlers map to pointer (mouse/touch) on the button
 
-    const handleWheel = (e) => {
-        if (e.deltaY > 50) {
-            playLaunchAnimation();
-        }
-    };
-
-    const handleTouchStart = (e) => {
-        startY.current = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
+    const handlePointerDown = (e) => {
         if (isScrollLocked.current) return;
-        const deltaY = startY.current - e.touches[0].clientY;
-        if (deltaY > 50) {
-            playLaunchAnimation();
+        isHolding.current = true;
+        startY.current = e.clientY;
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e) => {
+        if (!isHolding.current || isScrollLocked.current) return;
+
+        const deltaY = startY.current - e.clientY;
+        if (deltaY > 0) {
+            const progress = Math.min(deltaY / 150, 1);
+            setSwipeProgress(progress);
+
+            if (deltaY >= 150) {
+                isHolding.current = false;
+                e.currentTarget.releasePointerCapture(e.pointerId);
+                playLaunchAnimation();
+            }
+        } else {
+            setSwipeProgress(0);
         }
+    };
+
+    const handlePointerUp = (e) => {
+        if (!isHolding.current) return;
+        isHolding.current = false;
+        setSwipeProgress(0);
+        e.currentTarget.releasePointerCapture(e.pointerId);
     };
 
     if (!shouldRender) return null;
@@ -107,9 +124,6 @@ const WelcomeOverlay = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 1.2, ease: "easeInOut" } }}
-                onWheel={handleWheel}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
             >
                 <div className="ufo-scene">
                     {/* Container floats slightly when idle, stops when launched */}
@@ -126,13 +140,31 @@ const WelcomeOverlay = () => {
                         />
                     </motion.div>
 
-                    {/* Instructional Text */}
+                    {/* Launch Button Area */}
                     <motion.div
-                        className="entry-text"
-                        animate={{ opacity: isLaunched ? 0 : [0.3, 0.8, 0.3] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="launch-interaction-area"
+                        animate={{ opacity: isLaunched ? 0 : 1 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        Swipe Up
+                        <div className="launch-track">
+                            <div
+                                className="launch-progress"
+                                style={{ height: `${swipeProgress * 100}%` }}
+                            ></div>
+                            <motion.div
+                                className="launch-button"
+                                onPointerDown={handlePointerDown}
+                                onPointerMove={handlePointerMove}
+                                onPointerUp={handlePointerUp}
+                                onPointerCancel={handlePointerUp}
+                                style={{ y: -swipeProgress * 150 }}
+                            >
+                                <div className="launch-button-inner"></div>
+                            </motion.div>
+                        </div>
+                        <div className="launch-instruction" style={{ opacity: 1 - swipeProgress }}>
+                            HOLD & SWIPE UP
+                        </div>
                     </motion.div>
                 </div>
             </motion.div>
