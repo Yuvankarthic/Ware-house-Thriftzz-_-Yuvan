@@ -72,7 +72,7 @@ const ProductCard = ({ product, onSelect }) => {
         e.preventDefault();
         e.stopPropagation();
         if (!product.soldOut) {
-            addToCart(product);
+            addToCart(product, e);
             setAdded(true);
             setTimeout(() => setAdded(false), 1500);
         }

@@ -27,9 +27,8 @@ const ProductPage = () => {
         return null;
     }
 
-    const handleAddToCart = () => {
-        addToCart(product);
-        setIsCartOpen(true); // Open cart drawer immediately after adding
+    const handleAddToCart = (e) => {
+        addToCart(product, e);
     };
 
     return (
@@ -74,7 +73,7 @@ const ProductPage = () => {
 
                     <button
                         className="btn-primary add-to-cart-btn"
-                        onClick={handleAddToCart}
+                        onClick={(e) => handleAddToCart(e)}
                         disabled={product.soldOut}
                     >
                         {product.soldOut ? 'Sold Out' : 'Add to Cart'}

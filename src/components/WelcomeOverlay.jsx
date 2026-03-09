@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { default as ChevronUp } from 'lucide-react/dist/esm/icons/chevron-up'; // Explicit import to avoid conflicts
 import '../styles/WelcomeOverlay.css';
 
-const frameCount = 192;
-const getFrameUrl = (index) => `/assets/ufo-animation/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
+const frameCount = 168; // New frame count for white-hoodie
+const getFrameUrl = (index) => `/assets/white-hoodie/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
 
 const WelcomeOverlay = () => {
     const [shouldRender, setShouldRender] = useState(true);
@@ -74,6 +75,7 @@ const WelcomeOverlay = () => {
             }
 
             frameIndexRef.current++;
+            // We can control the speed of playback. Requesting every frame usually plays at ~60fps
             animationRef.current = requestAnimationFrame(renderFrame);
         };
 
@@ -95,10 +97,12 @@ const WelcomeOverlay = () => {
 
         const deltaY = startY.current - e.clientY;
         if (deltaY > 0) {
-            const progress = Math.min(deltaY / 150, 1);
+            // Unzipping usually feels like pulling *down*, but user requested swipe *up* to open.
+            // We use 100px as the 'full swipe' threshold
+            const progress = Math.min(deltaY / 100, 1);
             setSwipeProgress(progress);
 
-            if (deltaY >= 150) {
+            if (deltaY >= 100) {
                 isHolding.current = false;
                 e.currentTarget.releasePointerCapture(e.pointerId);
                 playLaunchAnimation();
@@ -111,7 +115,7 @@ const WelcomeOverlay = () => {
     const handlePointerUp = (e) => {
         if (!isHolding.current) return;
         isHolding.current = false;
-        setSwipeProgress(0);
+        setSwipeProgress(0); // Snap back if they didn't swipe far enough
         e.currentTarget.releasePointerCapture(e.pointerId);
     };
 
@@ -120,51 +124,44 @@ const WelcomeOverlay = () => {
     return (
         <AnimatePresence>
             <motion.div
-                className="welcome-overlay dark-futuristic"
+                // removed dark-futuristic class since hoodie sequence is brighter
+                className="welcome-overlay"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 1.2, ease: "easeInOut" } }}
             >
-                <div className="ufo-scene">
-                    {/* Container floats slightly when idle, stops when launched */}
-                    <motion.div
-                        className="canvas-container"
-                        animate={isLaunched ? {} : { y: [0, -10, 0] }}
-                        transition={isLaunched ? {} : { duration: 4, ease: "easeInOut", repeat: Infinity }}
-                    >
+                <div className="animation-scene">
+                    <div className="canvas-container">
                         <canvas
                             ref={canvasRef}
-                            width={800} /* Hardware resolution width */
+                            width={800} /* Native resolution width of frames */
                             height={800}
-                            className="ufo-canvas"
+                            className="sequence-canvas"
                         />
-                    </motion.div>
+                    </div>
 
-                    {/* Launch Button Area */}
+                    {/* Launch Button Area - positioned over the zipper */}
                     <motion.div
-                        className="launch-interaction-area"
+                        className="zipper-interaction-area"
                         animate={{ opacity: isLaunched ? 0 : 1 }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.3 }}
                     >
-                        <div className="launch-track">
-                            <div
-                                className="launch-progress"
-                                style={{ height: `${swipeProgress * 100}%` }}
-                            ></div>
-                            <motion.div
-                                className="launch-button"
-                                onPointerDown={handlePointerDown}
-                                onPointerMove={handlePointerMove}
-                                onPointerUp={handlePointerUp}
-                                onPointerCancel={handlePointerUp}
-                                style={{ y: -swipeProgress * 150 }}
-                            >
-                                <div className="launch-button-inner"></div>
-                            </motion.div>
+                        <div className="zipper-instruction" style={{ opacity: 1 - swipeProgress }}>
+                            SWIPE UP TO UNZIP
                         </div>
-                        <div className="launch-instruction" style={{ opacity: 1 - swipeProgress }}>
-                            HOLD & SWIPE UP
-                        </div>
+                        <motion.div
+                            className="zipper-button"
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerUp}
+                            // Move the zipper button up as they swipe
+                            style={{ y: -swipeProgress * 100 }}
+                        >
+                            <div className="zipper-pull-inner">
+                                <ChevronUp size={24} color="#000" strokeWidth={2.5} />
+                            </div>
+                        </motion.div>
                     </motion.div>
                 </div>
             </motion.div>

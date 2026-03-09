@@ -32,10 +32,9 @@ const ProductViewer = ({
     const images = product.images && product.images.length > 0 ? product.images : ['/placeholder-image.png'];
     const currentImage = images[currentImageIndex] || images[0];
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (e) => {
         if (!product.soldOut) {
-            addToCart(product);
-            setIsCartOpen(true);
+            addToCart(product, e);
         }
     };
 
@@ -148,7 +147,7 @@ const ProductViewer = ({
 
                     <button
                         className="viewer-add-btn"
-                        onClick={handleAddToCart}
+                        onClick={(e) => handleAddToCart(e)}
                         disabled={product.soldOut}
                     >
                         {product.soldOut ? 'Sold Out' : 'Add to Cart — ₹' + product.price}
