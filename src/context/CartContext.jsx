@@ -46,7 +46,7 @@ export const CartProvider = ({ children }) => {
             setTimeout(() => {
                 setFlyingItems(prev => prev.filter(item => item.id !== newItem.id));
                 setIsCartOpen(true);
-            }, 800); // Wait 800ms for animation
+            }, 1800); // Wait 1800ms for longer animation
         } else {
             // No event provided (fallback), open drawer immediately
             setIsCartOpen(true);
@@ -133,7 +133,7 @@ export const CartProvider = ({ children }) => {
                                 rotate: [0, -15, 15, -10, 0]
                             }}
                             transition={{
-                                duration: 1.2, // increased duration so it's visible longer
+                                duration: 2.0, // increased duration so it's much slower and visible
                                 ease: [0.1, 0.7, 0.3, 1], // swoopy bezier curve
                                 times: [0, 0.2, 0.8, 1]
                             }}
