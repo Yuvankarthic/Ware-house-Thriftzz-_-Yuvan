@@ -10,6 +10,7 @@ import CartDrawer from './components/CartDrawer';
 import ProductPage from './components/ProductPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import ProductGrid from './components/ProductGrid';
+import Chatbot from './components/Chatbot';
 
 function HomePage() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
       </Routes>
+      <Chatbot />
       <Footer />
     </div>
   );
