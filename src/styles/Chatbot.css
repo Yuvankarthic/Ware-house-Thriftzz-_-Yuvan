@@ -18,6 +18,20 @@
     z-index: 1000;
 }
 
+.alien-glow {
+    animation: alienNeonGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes alienNeonGlow {
+    from {
+        filter: drop-shadow(0 0 2px rgba(100, 255, 100, 0.4));
+    }
+
+    to {
+        filter: drop-shadow(0 0 10px rgba(100, 255, 100, 0.9));
+    }
+}
+
 .chatbot-window {
     position: fixed;
     bottom: 100px;

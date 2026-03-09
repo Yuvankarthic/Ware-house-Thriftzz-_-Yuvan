@@ -10,7 +10,7 @@ import '../styles/Chatbot.css';
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi! I'm Alienbot 👽. How can I help you today? Try asking 'Show me black jackets' or 'What is your return policy?'", sender: 'bot', type: 'text' }
+        { id: 1, text: "Hi! I'm Alien 👽. How can I help you today? Try asking 'Show me black jackets' or 'What is your return policy?'", sender: 'bot', type: 'text' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef(null);
@@ -144,7 +144,7 @@ const Chatbot = () => {
                 whileTap={{ scale: 0.9 }}
                 aria-label="Toggle Chat"
             >
-                {isOpen ? <X size={24} color="#fff" /> : <span style={{ fontSize: '28px' }}>👽</span>}
+                {isOpen ? <X size={24} color="#fff" /> : <span className="alien-glow" style={{ fontSize: '28px' }}>👽</span>}
             </motion.button>
 
             <AnimatePresence>
@@ -158,7 +158,7 @@ const Chatbot = () => {
                     >
                         <div className="chatbot-header">
                             <div>
-                                <h3>Alienbot 🛸</h3>
+                                <h3>Alien 🛸</h3>
                                 <p>Always here to help</p>
                             </div>
                             <button className="chat-close" onClick={toggleChat}><X size={18} /></button>
