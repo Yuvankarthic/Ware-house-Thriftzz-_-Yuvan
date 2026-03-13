@@ -24,11 +24,11 @@
 
 @keyframes alienNeonGlow {
     from {
-        filter: drop-shadow(0 0 2px rgba(100, 255, 100, 0.4));
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
     }
 
     to {
-        filter: drop-shadow(0 0 10px rgba(100, 255, 100, 0.9));
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
     }
 }
 
@@ -172,7 +172,7 @@
 }
 
 .chatbot-input button:not(:disabled):hover {
-    color: #e83e8c;
+    color: #666;
     transform: translateX(2px);
 }
 
@@ -245,17 +245,21 @@
 .chat-add-btn {
     align-self: flex-start;
     margin-top: 4px;
-    background: none;
+    background: #000;
     border: none;
-    color: #e83e8c;
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 600;
-    padding: 0;
+    padding: 4px 12px;
     cursor: pointer;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s;
 }
 
 .chat-add-btn:hover {
-    text-decoration: underline;
+    background: #333;
 }
 
 .chat-product-more {

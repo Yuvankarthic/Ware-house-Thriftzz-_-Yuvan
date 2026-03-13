@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Star } from 'lucide-react';
+import { X, Heart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import '../styles/ProductViewer.css';
@@ -14,6 +14,11 @@ const ProductViewer = ({
     const { addToCart, setIsCartOpen } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Reviews State (local for now, ideally moved to a context/backend later)
+    const [reviews, setReviews] = useState([]);
+    const [isWritingReview, setIsWritingReview] = useState(false);
+    const [newReviewText, setNewReviewText] = useState('');
 
     const inWishlist = isInWishlist(product?.id);
 
@@ -35,6 +40,23 @@ const ProductViewer = ({
     const currentIndex = products.findIndex(p => p.id === product.id);
     const images = product.images && product.images.length > 0 ? product.images : ['/placeholder-image.png'];
     const currentImage = images[currentImageIndex] || images[0];
+
+    const handleAddReview = (e) => {
+        e.preventDefault();
+        if (!newReviewText.trim()) return;
+
+        const newReview = {
+            id: Date.now(),
+            text: newReviewText,
+            author: "Guest User",
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            rating: 5 // Defaulting to 5 for now
+        };
+
+        setReviews([newReview, ...reviews]);
+        setNewReviewText('');
+        setIsWritingReview(false);
+    };
 
     const handleAddToCart = (e) => {
         if (!product.soldOut) {
@@ -94,6 +116,32 @@ const ProductViewer = ({
                         className="viewer-main-image"
                         layoutId={`product-image-${product.id}`}
                     />
+
+                    {/* Navigation Arrows */}
+                    {images.length > 1 && (
+                        <>
+                            <button
+                                className="viewer-nav-arrow prev"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+                                }}
+                                aria-label="Previous image"
+                            >
+                                <ChevronLeft size={24} />
+                            </button>
+                            <button
+                                className="viewer-nav-arrow next"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+                                }}
+                                aria-label="Next image"
+                            >
+                                <ChevronRight size={24} />
+                            </button>
+                        </>
+                    )}
 
                     {/* Navigation dots for product images */}
                     <div className="viewer-navigation-hints">
@@ -158,6 +206,63 @@ const ProductViewer = ({
                         </button>
                     </div>
 
+                    {/* REVIEWS SECTION */}
+                    <div className="viewer-reviews-section">
+                        <div className="reviews-header-premium">
+                            <h3>Customer Reviews</h3>
+                            <div className="reviews-rating-premium">
+                                <span className="rating-number">4.8</span>
+                                <div className="stars">
+                                    <Star size={14} className="fill-current text-black" />
+                                    <Star size={14} className="fill-current text-black" />
+                                    <Star size={14} className="fill-current text-black" />
+                                    <Star size={14} className="fill-current text-black" />
+                                    <Star size={14} className="fill-current text-black" opacity={0.3} />
+                                </div>
+                                <span className="reviews-count-premium">(12)</span>
+                            </div>
+                        </div>
+
+                        <div className="reviews-list-premium">
+                            {reviews.length === 0 ? (
+                                <p className="no-reviews-msg">No reviews yet. Be the first to share your thoughts!</p>
+                            ) : (
+                                reviews.map((review) => (
+                                    <div key={review.id} className="review-message-ui">
+                                        <div className="review-meta-premium">
+                                            <span className="reviewer-name-premium">{review.author}</span>
+                                            <span className="review-date-premium">{review.date}</span>
+                                        </div>
+                                        <p className="review-text-premium">"{review.text}"</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {isWritingReview ? (
+                            <form className="add-review-form" onSubmit={handleAddReview}>
+                                <textarea
+                                    className="review-textarea"
+                                    placeholder="What did you think about this piece?..."
+                                    value={newReviewText}
+                                    onChange={(e) => setNewReviewText(e.target.value)}
+                                    rows="3"
+                                    required
+                                />
+                                <div className="review-form-actions">
+                                    <button type="button" className="cancel-review-btn" onClick={() => setIsWritingReview(false)}>Cancel</button>
+                                    <button type="submit" className="submit-review-btn">Post Review</button>
+                                </div>
+                            </form>
+                        ) : (
+                            <button 
+                                className="write-review-btn-premium"
+                                onClick={() => setIsWritingReview(true)}
+                            >
+                                Write a Review
+                            </button>
+                        )}
+                    </div>
 
                 </motion.div>
             </div>
