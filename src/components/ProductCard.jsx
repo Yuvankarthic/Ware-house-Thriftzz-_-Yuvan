@@ -1,15 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import '../styles/ProductCard.css';
 
 const ProductCard = ({ product, onSelect }) => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
     const cardRef = useRef(null);
     const [added, setAdded] = useState(false);
+    const inWishlist = isInWishlist(product.id);
 
     // Snappy spring config for "cartoon-cool" motion
     const springConfig = { damping: 15, stiffness: 150, mass: 0.5 };
@@ -54,8 +57,8 @@ const ProductCard = ({ product, onSelect }) => {
     };
 
     const handleTap = (e) => {
-        // Prevent navigation if clicking "Add to Cart" button or Plus button
-        if (e.target.closest('.btn-add-to-cart') || e.target.closest('.mobile-plus-btn')) return;
+        // Prevent navigation if clicking "Add to Cart" button or Plus button or Wishlist button
+        if (e.target.closest('.btn-add-to-cart') || e.target.closest('.mobile-plus-btn') || e.target.closest('.card-wishlist-btn')) return;
 
         // Use the onSelect prop if provided (for overlay viewers), else fallback to navigation
         if (onSelect) {
@@ -112,6 +115,19 @@ const ProductCard = ({ product, onSelect }) => {
                     animate={{ scale: isHovered ? 1.15 : 1 }}
                     transition={{ type: "spring", ...springConfig }}
                 />
+
+                <button 
+                    className={`card-wishlist-btn ${inWishlist ? 'active' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        toggleWishlist(product);
+                    }}
+                    style={{ transform: "translateZ(70px)" }}
+                    title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                    <Heart size={20} className={inWishlist ? "fill-current" : ""} />
+                </button>
 
                 {product.soldOut && (
                     <div className="card-sold-overlay" style={{ transform: "translateZ(30px)" }}>

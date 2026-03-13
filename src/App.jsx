@@ -7,6 +7,7 @@ import AboutPage from './components/AboutPage';
 import CtaSection from './components/CtaSection';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
+import WishlistDrawer from './components/WishlistDrawer';
 import ProductPage from './components/ProductPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import ProductGrid from './components/ProductGrid';
@@ -32,6 +33,7 @@ function App() {
       <AnnouncementBar />
       <Navbar />
       <CartDrawer />
+      <WishlistDrawer />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />

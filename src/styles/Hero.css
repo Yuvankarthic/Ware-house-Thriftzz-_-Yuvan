@@ -75,10 +75,12 @@
 
 .headline-line {
     display: block;
-    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-size: clamp(3rem, 8.5vw, 6rem);
     font-weight: 800;
     font-style: italic;
     letter-spacing: -0.02em;
+    white-space: nowrap;
+    margin-bottom: 8px;
 }
 
 .hero-subline {
@@ -92,25 +94,16 @@
     opacity: 0.8;
 }
 
-/* ── CTA ── */
-.hero-cta-btn {
-    display: inline-block;
-    padding: 16px 40px;
-    background-color: var(--white);
-    color: var(--text-main);
-    text-decoration: none;
-    font-family: var(--font-heading);
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    transition: all 0.3s var(--ease-out-expo);
-    border: 1px solid var(--white);
-}
-
-.hero-cta-btn:hover {
-    background-color: transparent;
+/* ── Brand Name ── */
+.hero-brand-name {
+    font-family: 'Pixelify Sans', sans-serif;
     color: var(--white);
+    font-size: clamp(1rem, 2.5vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    margin-top: 15px;
+    letter-spacing: 0.05em;
 }
 
 @media (max-width: 768px) {

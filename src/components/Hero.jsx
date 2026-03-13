@@ -54,16 +54,14 @@ const Hero = () => {
             <div className="hero-content">
                 <div className="hero-text-container">
                     <h1 className="hero-headline">
-                        <span className="headline-line">Big Flex.</span>
+                        <span className="headline-line">Big Flex,</span>
                         <span className="headline-line">Small Check.</span>
                     </h1>
                     <div className="hero-subline">
-                        <p>Premium Vintage Streetwear. Bengaluru.</p>
+                        <p>Premium Vintage Streetwear.</p>
                     </div>
-                    <div className="hero-actions">
-                        <a href="#latest-drop" className="hero-cta-btn">
-                            Shop the Drop
-                        </a>
+                    <div className="hero-brand-name">
+                        WearHouse Thriftxzz
                     </div>
                 </div>
             </div>

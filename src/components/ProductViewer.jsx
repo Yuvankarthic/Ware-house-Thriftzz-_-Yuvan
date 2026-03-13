@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Heart, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import '../styles/ProductViewer.css';
 
 const ProductViewer = ({
@@ -11,7 +12,10 @@ const ProductViewer = ({
     onNavigate
 }) => {
     const { addToCart, setIsCartOpen } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const inWishlist = isInWishlist(product?.id);
 
     // Using simple document.body block for quick scroll prevention
     useEffect(() => {
@@ -44,30 +48,18 @@ const ProductViewer = ({
         const offset = info.offset;
         const velocity = info.velocity;
 
-        // Horizontal Swipe
-        if (Math.abs(offset.x) > 100 || Math.abs(velocity.x) > 500) {
+        // Horizontal Swipe for Images
+        if (Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 300) {
             if (offset.x < 0) {
-                // Swipe Left
-                if (currentImageIndex < images.length - 1) {
-                    // Navigate to next image
-                    setCurrentImageIndex(prev => prev + 1);
-                } else if (currentIndex < products.length - 1) {
-                    // Reached end of images, go to next product
-                    onNavigate(products[currentIndex + 1].id);
-                }
+                // Swipe Left -> Next Image
+                setCurrentImageIndex((prev) => (prev + 1) % images.length);
             } else if (offset.x > 0) {
-                // Swipe Right
-                if (currentImageIndex > 0) {
-                    // Navigate to previous image
-                    setCurrentImageIndex(prev => prev - 1);
-                } else if (currentIndex > 0) {
-                    // Reached start of images, go to previous product
-                    onNavigate(products[currentIndex - 1].id);
-                }
+                // Swipe Right -> Previous Image
+                setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
             }
         }
         // Vertical Swipe (Pull down to close)
-        else if (offset.y > 150 || velocity.y > 800) {
+        else if (offset.y > 100 || velocity.y > 500) {
             onClose();
         }
     };
@@ -145,13 +137,28 @@ const ProductViewer = ({
                         </div>
                     </div>
 
-                    <button
-                        className="viewer-add-btn"
-                        onClick={(e) => handleAddToCart(e)}
-                        disabled={product.soldOut}
-                    >
-                        {product.soldOut ? 'Sold Out' : 'Add to Cart — ₹' + product.price}
-                    </button>
+                    <div className="viewer-actions">
+                        <button
+                            className="viewer-add-btn"
+                            onClick={(e) => handleAddToCart(e)}
+                            disabled={product.soldOut}
+                        >
+                            {product.soldOut ? 'Sold Out' : 'Add to Cart — ₹' + product.price}
+                        </button>
+                        
+                        <button 
+                            className={`viewer-wishlist-btn ${inWishlist ? 'active' : ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleWishlist(product);
+                            }}
+                            title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                            <Heart size={24} className={inWishlist ? "fill-current" : ""} />
+                        </button>
+                    </div>
+
+
                 </motion.div>
             </div>
         </motion.div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { ShoppingBag, Menu, X, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
@@ -10,7 +11,9 @@ const Navbar = () => {
     const [bump, setBump] = useState(false);
 
     const { cartCount, setIsCartOpen } = useCart();
+    const { wishlistItems, setIsWishlistOpen } = useWishlist();
     const prevCountRef = useRef(cartCount);
+    const wishlistCount = wishlistItems.length;
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -53,11 +56,28 @@ const Navbar = () => {
                             <ShoppingBag size={16} strokeWidth={1.5} />
                             View Cart {cartCount > 0 && `(${cartCount})`}
                         </button>
+                        <button
+                            className="nav-mobile-wishlist-btn"
+                            onClick={() => { setIsWishlistOpen(true); closeMenu(); }}
+                        >
+                            <Heart size={16} strokeWidth={1.5} />
+                            View Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                        </button>
                     </div>
                 </div>
 
                 {/* Actions */}
                 <div className="navbar-actions">
+                    <button
+                        className="icon-btn wishlist-btn"
+                        aria-label={`Wishlist (${wishlistCount} items)`}
+                        onClick={() => setIsWishlistOpen(true)}
+                    >
+                        <Heart size={20} strokeWidth={1.5} className="nav-icon" />
+                        {wishlistCount > 0 && (
+                            <span className="cart-count-dot wishlist-count-dot">{wishlistCount}</span>
+                        )}
+                    </button>
                     <button
                         className={`icon-btn cart-btn ${bump ? 'bump' : ''}`}
                         aria-label={`Cart (${cartCount} items)`}
