@@ -16,14 +16,14 @@ export const CartProvider = ({ children }) => {
         setCartItems(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
-                return prev.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                );
+                // Since items are 1-of-1, we do not increment quantity.
+                // We simply return the previous state.
+                return prev;
             }
             return [...prev, {
                 ...product,
                 image: product.images ? product.images[0] : null,
-                quantity: 1
+                quantity: 1 // Keeping quantity for legacy compatibility, but it will only ever be 1
             }];
         });
 
@@ -58,16 +58,12 @@ export const CartProvider = ({ children }) => {
     };
 
     const updateQuantity = (id, delta) => {
-        setCartItems(prev => prev.map(item => {
-            if (item.id === id) {
-                return { ...item, quantity: Math.max(1, item.quantity + delta) };
-            }
-            return item;
-        }));
+        // Disabled updating quantity since items are 1-of-1
+        console.warn("Items are 1-of-1. Quantity cannot be updated.");
     };
 
-    const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const cartTotal = cartItems.reduce((acc, item) => acc + item.price, 0); // Removed quantity multiplier
+    const cartCount = cartItems.length; // Simply count the number of unique items
 
     const clearCart = () => {
         setCartItems([]);

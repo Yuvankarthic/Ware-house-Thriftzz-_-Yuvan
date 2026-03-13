@@ -213,10 +213,8 @@ const CartDrawer = () => {
                                                     <p className="cart-item-meta">{item.size} · {item.condition}</p>
                                                     <div className="cart-item-price">₹{item.price}</div>
                                                     <div className="cart-controls">
-                                                        <div className="qty-controls">
-                                                            <button onClick={() => updateQuantity(item.id, -1)}><Minus size={13} /></button>
-                                                            <span>{item.quantity}</span>
-                                                            <button onClick={() => updateQuantity(item.id, 1)}><Plus size={13} /></button>
+                                                        <div className="qty-controls" style={{ padding: '4px 8px', fontSize: '0.75rem', color: '#666', background: '#f5f5f5', borderRadius: '4px' }}>
+                                                            <span>1 of 1</span>
                                                         </div>
                                                         <button className="remove-btn" onClick={() => removeFromCart(item.id)}><Trash2 size={15} /></button>
                                                     </div>
@@ -313,9 +311,9 @@ const CartDrawer = () => {
                                                 </div>
                                                 <div className="review-item-info">
                                                     <p className="review-item-name">{item.name}</p>
-                                                    <p className="review-item-meta">{item.size} · Qty {item.quantity}</p>
+                                                    <p className="review-item-meta">{item.size} · 1 of 1 vintage</p>
                                                 </div>
-                                                <p className="review-item-price">₹{item.price * item.quantity}</p>
+                                                <p className="review-item-price">₹{item.price}</p>
                                             </div>
                                         ))}
                                         <div className="review-total-row">
