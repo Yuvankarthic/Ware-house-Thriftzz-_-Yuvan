@@ -7,10 +7,68 @@ import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
 import '../styles/Chatbot.css';
 
+const UFOIcon = () => (
+    <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="ufo-icon">
+        <defs>
+            <filter id="ufoGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            <linearGradient id="tealBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00ced1" />
+                <stop offset="100%" stopColor="#008b8b" />
+            </linearGradient>
+            <linearGradient id="domeGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#E8F4F8" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#B8D4E3" stopOpacity="0.6" />
+            </linearGradient>
+        </defs>
+        
+        {/* Yellow Beam */}
+        <path d="M30 75 L50 95 L70 75" fill="url(#beamGradient)" opacity="0.6" className="ufo-beam"/>
+        <defs>
+            <linearGradient id="beamGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="#FFE066" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#FFE066" stopOpacity="0.1" />
+            </linearGradient>
+        </defs>
+        
+        {/* Dome glow */}
+        <ellipse cx="50" cy="45" rx="18" ry="12" fill="#FFE066" opacity="0.15" filter="url(#ufoGlow)"/>
+        
+        {/* Glass Dome */}
+        <ellipse cx="50" cy="42" rx="16" ry="14" fill="url(#domeGlass)" stroke="#D4A5B9" strokeWidth="1"/>
+        
+        {/* Alien inside dome */}
+        <circle cx="44" cy="40" r="2.5" fill="#2D3436"/>
+        <circle cx="56" cy="40" r="2.5" fill="#2D3436"/>
+        
+        {/* UFO Body - Saucer */}
+        <ellipse cx="50" cy="55" rx="32" ry="12" fill="url(#tealBody)" filter="url(#ufoGlow)"/>
+        <ellipse cx="50" cy="52" rx="32" ry="12" fill="url(#tealBody)"/>
+        
+        {/* Dome base */}
+        <ellipse cx="50" cy="48" rx="16" ry="6" fill="#FF8FB3"/>
+        
+        {/* Rim lights */}
+        <circle cx="20" cy="55" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
+        <circle cx="35" cy="63" r="2.5" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
+        <circle cx="50" cy="67" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
+        <circle cx="65" cy="63" r="2.5" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
+        <circle cx="80" cy="55" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
+        
+        {/* Highlight */}
+        <ellipse cx="40" cy="48" rx="10" ry="4" fill="white" opacity="0.3"/>
+    </svg>
+);
+
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi! I'm Alien 👽. How can I help you today? Try asking 'Show me black jackets' or 'What is your return policy?'", sender: 'bot', type: 'text' }
+        { id: 1, text: "Hi there! Welcome to WHT Fashion. How can I help you today? Try asking 'Show me black jackets' or 'What is your return policy?'", sender: 'bot', type: 'text' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef(null);
@@ -144,7 +202,7 @@ const Chatbot = () => {
                 whileTap={{ scale: 0.9 }}
                 aria-label="Toggle Chat"
             >
-                {isOpen ? <X size={24} color="#fff" /> : <span className="alien-glow" style={{ fontSize: '28px' }}>👽</span>}
+                {isOpen ? <X size={24} color="#fff" /> : <><span className="ufo-label">Chat with Alien</span><span className="ufo-wrapper"><UFOIcon /></span></>}
             </motion.button>
 
             <AnimatePresence>
@@ -158,8 +216,8 @@ const Chatbot = () => {
                     >
                         <div className="chatbot-header">
                             <div>
-                                <h3>Alien 🛸</h3>
-                                <p>Always here to help</p>
+                                <h3>Alien</h3>
+                                <p>We're here to help!</p>
                             </div>
                             <button className="chat-close" onClick={toggleChat}><X size={18} /></button>
                         </div>

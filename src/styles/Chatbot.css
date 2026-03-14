@@ -4,32 +4,91 @@
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 60px;
-    height: 60px;
+    width: 75px;
+    height: 75px;
     border-radius: 50%;
-    background-color: #000;
-    color: #fff;
+    background: transparent;
     border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.ufo-wrapper {
+    filter: drop-shadow(0 8px 20px rgba(255, 224, 102, 0.4));
+    animation: ufoHover 3s ease-in-out infinite;
     cursor: pointer;
-    z-index: 1000;
 }
 
-.alien-glow {
-    animation: alienNeonGlow 2s ease-in-out infinite alternate;
+.ufo-icon {
+    width: 70px;
+    height: 70px;
 }
 
-@keyframes alienNeonGlow {
-    from {
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
-    }
+.ufo-icon .ufo-beam {
+    animation: beamPulse 2s ease-in-out infinite;
+}
 
-    to {
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
-    }
+.ufo-icon .ufo-light {
+    animation: lightBlink 1.5s ease-in-out infinite;
+}
+
+.ufo-icon .ufo-light:nth-child(2) { animation-delay: 0.2s; }
+.ufo-icon .ufo-light:nth-child(3) { animation-delay: 0.4s; }
+.ufo-icon .ufo-light:nth-child(4) { animation-delay: 0.6s; }
+.ufo-icon .ufo-light:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes ufoHover {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes beamPulse {
+    0%, 100% { opacity: 0.6; transform: scaleX(1); }
+    50% { opacity: 0.9; transform: scaleX(1.1); }
+}
+
+@keyframes lightBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.chatbot-toggle:hover .ufo-wrapper {
+    animation: ufoHoverHover 0.6s ease-in-out infinite;
+}
+
+@keyframes ufoHoverHover {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.ufo-label {
+    position: absolute;
+    right: 85px;
+    bottom: 50%;
+    transform: translateY(50%);
+    background: linear-gradient(135deg, #00ced1 0%, #008b8b 100%);
+    color: #ffffff !important;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    z-index: 1001;
+}
+
+.chatbot-toggle:hover .ufo-label {
+    opacity: 1;
+    visibility: visible;
+    right: 95px;
 }
 
 .chatbot-window {
@@ -50,7 +109,7 @@
 }
 
 .chatbot-header {
-    background-color: #000;
+    background: linear-gradient(135deg, #00ced1 0%, #008b8b 100%);
     color: #fff;
     padding: 16px 20px;
     display: flex;
@@ -62,12 +121,20 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-header h3 svg {
+    width: 24px;
+    height: 24px;
 }
 
 .chatbot-header p {
     margin: 4px 0 0 0;
     font-size: 0.75rem;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .chat-close {
@@ -94,7 +161,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background-color: #fcfcfc;
+    background-color: #0d1a0d;
 }
 
 .chat-message {
@@ -126,9 +193,10 @@
 }
 
 .bot .message-content {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: #1a2e1a;
+    color: #00ff88;
     border-bottom-left-radius: 4px;
+    border: 1px solid #00ff88;
 }
 
 /* Chatbot Input Area */
@@ -184,13 +252,14 @@
 }
 
 .message-format-products .message-text {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: #1a2e1a;
+    color: #00ff88;
     padding: 12px 16px;
     border-radius: 12px;
     border-bottom-left-radius: 4px;
     font-size: 0.9rem;
     margin-bottom: 12px;
+    border: 1px solid #00ff88;
 }
 
 .chat-product-carousel {
@@ -283,7 +352,16 @@
     .chatbot-toggle {
         bottom: 20px;
         right: 20px;
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
+    }
+
+    .ufo-label {
+        display: none;
+    }
+
+    .ufo-icon {
+        width: 55px;
+        height: 55px;
     }
 }

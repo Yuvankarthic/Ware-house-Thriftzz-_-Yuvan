@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, ArrowRight, Loader2, User, Lock } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Loader2, Mail, Lock } from 'lucide-react';
 import '../styles/admin.css';
 
 const API = '/api';
@@ -44,10 +44,10 @@ export default function LoginPage({ onLogin }) {
             <div className="login-box">
                 <div className="login-header">
                     <div className="login-brand-icon">
-                        <Shield size={40} />
+                        <ShoppingBag size={32} />
                     </div>
-                    <h1>WHT <span>OPS</span></h1>
-                    <p>Internal Operations Control Center</p>
+                    <h1>WHT Fashion</h1>
+                    <p>Admin Portal</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
@@ -58,14 +58,14 @@ export default function LoginPage({ onLogin }) {
                     )}
 
                     <div className="input-field">
-                        <label>Username / Email</label>
+                        <label>Email</label>
                         <div className="input-wrapper">
-                            <User size={18} className="input-icon" />
+                            <Mail size={18} className="input-icon" />
                             <input 
                                 type="text" 
                                 value={email} 
                                 onChange={e => setEmail(e.target.value)}
-                                placeholder="Enter your identity" 
+                                placeholder="Enter your email" 
                                 required 
                                 autoFocus 
                             />
@@ -73,14 +73,14 @@ export default function LoginPage({ onLogin }) {
                     </div>
 
                     <div className="input-field">
-                        <label>Security Key</label>
+                        <label>Password</label>
                         <div className="input-wrapper">
                             <Lock size={18} className="input-icon" />
                             <input 
                                 type="password" 
                                 value={password} 
                                 onChange={e => setPassword(e.target.value)}
-                                placeholder="••••••••" 
+                                placeholder="Enter your password" 
                                 required 
                             />
                         </div>
@@ -91,7 +91,7 @@ export default function LoginPage({ onLogin }) {
                             <Loader2 className="spinner" size={20} />
                         ) : (
                             <>
-                                Access Control Center <ArrowRight size={18} />
+                                Sign In <ArrowRight size={16} />
                             </>
                         )}
                     </button>
@@ -99,8 +99,8 @@ export default function LoginPage({ onLogin }) {
 
                 <div className="login-footer">
                     <div className="status-indicator">
-                        <span className="dot pulse"></span>
-                        SYSTEM STATUS: ONLINE
+                        <span className="dot"></span>
+                        Secure Login
                     </div>
                 </div>
             </div>
