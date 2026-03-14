@@ -93,11 +93,11 @@ const CartDrawer = () => {
         }
     };
 
-    // Send order to backend → PostgreSQL + Shiprocket shipment
+    // Send order to backend → PostgreSQL
     const createBackendOrder = async (paymentId) => {
         try {
             for (const item of cartItems) {
-                await fetch('http://localhost:4000/create-order', {
+                await fetch('/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -113,7 +113,7 @@ const CartDrawer = () => {
                     }),
                 });
             }
-            console.log('✅ Backend order + Shiprocket shipment created');
+            console.log('✅ Backend order created');
         } catch (error) {
             // Never break checkout — backend errors are silent
             console.error('Backend order creation failed (non-blocking):', error);
@@ -136,7 +136,7 @@ const CartDrawer = () => {
                 items: JSON.stringify(cartItems.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, size: item.size })))
             },
             handler: async function (response) {
-                // Google Sheets (existing) + Backend/Shiprocket (new) — both fire in parallel
+                // Google Sheets (existing) + Backend (new) — both fire in parallel
                 await Promise.all([
                     saveOrderToGoogleSheet(response.razorpay_payment_id),
                     createBackendOrder(response.razorpay_payment_id),

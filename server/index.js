@@ -7,6 +7,9 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import orderRoutes from './routes/orders.js';
+import authRoutes from './routes/auth.js';
+import analyticsRoutes from './routes/analytics.js';
+import staffRoutes from './routes/staff.js';
 
 dotenv.config();
 
@@ -19,7 +22,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // ── Routes ──
-app.use('/', orderRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/staff', staffRoutes);
 
 // ── Health check ──
 app.get('/health', (_req, res) => {
@@ -35,8 +41,10 @@ app.use((err, _req, res, _next) => {
 // ── Start ──
 app.listen(PORT, () => {
     console.log(`\n🚀 WHT Fashion server running on http://localhost:${PORT}`);
-    console.log(`   POST /create-order`);
-    console.log(`   POST /create-delivery`);
-    console.log(`   GET  /track-order/:id`);
+    console.log(`   POST /api/orders          — create order`);
+    console.log(`   GET  /api/orders          — list orders (admin)`);
+    console.log(`   POST /api/auth/login      — admin login`);
+    console.log(`   GET  /api/analytics/*     — dashboard analytics`);
+    console.log(`   GET  /api/staff           — staff management`);
     console.log(`   GET  /health\n`);
 });

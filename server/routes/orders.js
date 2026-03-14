@@ -1,26 +1,22 @@
 // ─────────────────────────────────────────────
-//  Order Routes  —  /create-order, /create-delivery, /track-order/:id
+//  Order Routes  —  /api/orders/*
 // ─────────────────────────────────────────────
 import { Router } from 'express';
 import { query } from '../db.js';
-import { createShipment, getToken } from '../shiprocket.js';
+import { authMiddleware } from '../auth.js';
 
 const router = Router();
 
+// Valid status workflow
+const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
+
 // ────────────────────────────────────────────────────────────
-//  POST /create-order
-//  1. Validate input
-//  2. Check product stock (thrift: must be 1)
-//  3. Set stock → 0  (one-of-one item sold)
-//  4. Insert order in DB
-//  5. Try Shiprocket shipment
-//  6. Update order with shipment details (or leave as pending_shipment)
+//  POST /api/orders  (public — called from storefront checkout)
 // ────────────────────────────────────────────────────────────
-router.post('/create-order', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { customer_name, email, phone, address, city, pincode, product_id, quantity, payment_id } = req.body;
 
-        // ── Input validation ──
         const missing = [];
         if (!customer_name?.trim()) missing.push('customer_name');
         if (!phone?.trim())          missing.push('phone');
@@ -30,239 +26,284 @@ router.post('/create-order', async (req, res) => {
         if (!product_id)             missing.push('product_id');
 
         if (missing.length > 0) {
-            return res.status(400).json({
-                success: false,
-                error: `Missing required fields: ${missing.join(', ')}`,
-            });
+            return res.status(400).json({ success: false, error: `Missing: ${missing.join(', ')}` });
         }
 
-        // ── Check product exists & is in stock ──
-        const productResult = await query('SELECT * FROM products WHERE id = $1', [product_id]);
-
-        if (productResult.rows.length === 0) {
+        // Check product
+        const prodResult = await query('SELECT * FROM products WHERE id = $1', [product_id]);
+        if (prodResult.rows.length === 0) {
             return res.status(404).json({ success: false, error: 'Product not found' });
         }
-
-        const product = productResult.rows[0];
+        const product = prodResult.rows[0];
 
         if (product.stock <= 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'This item is sold out — it was a one-of-one piece.',
-            });
+            return res.status(400).json({ success: false, error: 'This item is sold out — one-of-one piece.' });
         }
 
-        // ── Mark item as sold (stock → 0, thrift one-of-one) ──
+        // Mark sold
         await query('UPDATE products SET stock = 0 WHERE id = $1', [product_id]);
 
-        const orderPrice = product.price * (quantity || 1);
+        const orderValue = product.price * (quantity || 1);
+        const fullAddress = `${address}, ${city} - ${pincode}`;
 
-        // ── Insert order ──
         const orderResult = await query(
             `INSERT INTO orders
-                (customer_name, email, phone, address, city, pincode,
-                 product_id, quantity, price, payment_id, order_status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'processing')
+                (customer_name, email, phone, full_address, city, pincode,
+                 product_name, product_id, quantity, order_value,
+                 payment_method, payment_status, payment_id, order_status)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'New Order')
              RETURNING *`,
-            [customer_name, email || null, phone, address, city, pincode,
-             product_id, quantity || 1, orderPrice, payment_id || null]
+            [customer_name, email || null, phone, fullAddress, city, pincode,
+             product.name, product_id, quantity || 1, orderValue,
+             'Prepaid', 'paid', payment_id || null]
         );
 
         const order = orderResult.rows[0];
-        console.log(`📦 Order #${order.id} created for "${product.name}"`);
 
-        // ── Try Shiprocket shipment (non-blocking on failure) ──
-        let shipmentData = null;
-        try {
-            shipmentData = await createShipment({
-                order_id: `WHT-${order.id}`,
-                customer_name,
-                email: email || '',
-                phone,
-                address,
-                city,
-                pincode,
-                items: [{
-                    name: product.name,
-                    product_id: product.id,
-                    quantity: quantity || 1,
-                    price: product.price,
-                }],
-                sub_total: orderPrice,
-            });
+        // Add timeline entry
+        await query(
+            `INSERT INTO order_timeline (order_id, status, note) VALUES ($1, 'New Order', 'Order placed by customer')`,
+            [order.id]
+        );
 
-            // Update order with shipment details
-            await query(
-                `UPDATE orders
-                 SET shipment_id   = $1,
-                     tracking_url  = $2,
-                     order_status  = 'shipped'
-                 WHERE id = $3`,
-                [
-                    String(shipmentData.shipment_id || shipmentData.order_id || ''),
-                    shipmentData.tracking_url || shipmentData.status_url || null,
-                    order.id,
-                ]
-            );
-
-            order.shipment_id  = shipmentData.shipment_id || shipmentData.order_id;
-            order.tracking_url = shipmentData.tracking_url || shipmentData.status_url;
-            order.order_status = 'shipped';
-
-            console.log(`🚚 Shipment created for order #${order.id}`);
-        } catch (shipError) {
-            // Shiprocket failed → keep order, mark as pending_shipment
-            console.error(`⚠️  Shiprocket shipment failed for order #${order.id}:`, shipError.message);
-
-            await query(
-                `UPDATE orders SET order_status = 'pending_shipment' WHERE id = $1`,
-                [order.id]
-            );
-
-            order.order_status = 'pending_shipment';
-            order.shipment_id  = null;
-            order.tracking_url = null;
-        }
+        console.log(`📦 New order #${order.id} — ${product.name} — ₹${orderValue}`);
 
         return res.status(201).json({
             success: true,
             message: 'Order placed successfully',
-            order: {
-                order_id: order.id,
-                customer_name: order.customer_name,
-                product: product.name,
-                price: order.price,
-                order_status: order.order_status,
-                shipment_id: order.shipment_id,
-                tracking_url: order.tracking_url,
-                created_at: order.created_at,
-            },
+            order: { order_id: order.id, product: product.name, order_value: orderValue, status: 'New Order' },
         });
     } catch (err) {
-        console.error('❌ /create-order error:', err);
+        console.error('❌ POST /api/orders error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-
 // ────────────────────────────────────────────────────────────
-//  POST /create-delivery
-//  Standalone endpoint to create a Shiprocket shipment
-//  (useful for retrying failed shipments or manual creation)
+//  GET /api/orders  (admin — list with search/filter/sort)
 // ────────────────────────────────────────────────────────────
-router.post('/create-delivery', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const {
-            order_id,
-            billing_customer_name,
-            billing_address,
-            billing_city,
-            billing_pincode,
-            billing_state,
-            billing_phone,
-            billing_email,
-            order_items,
-            payment_method,
-            sub_total,
-        } = req.body;
+        const { status, search, delivery_partner, assigned_to, city, date, sort, page, limit } = req.query;
 
-        if (!order_id || !billing_customer_name || !billing_phone) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields: order_id, billing_customer_name, billing_phone',
-            });
+        let sql = `
+            SELECT o.*, s.name AS assigned_name
+            FROM orders o
+            LEFT JOIN staff s ON o.assigned_to = s.id
+            WHERE 1=1
+        `;
+        const params = [];
+        let idx = 1;
+
+        if (status && status !== 'all') {
+            sql += ` AND o.order_status = $${idx++}`;
+            params.push(status);
         }
 
-        // Authenticate
-        const token = await getToken();
-
-        // Build Shiprocket payload
-        const shipmentData = await createShipment({
-            order_id: String(order_id),
-            customer_name: billing_customer_name,
-            email: billing_email || '',
-            phone: billing_phone,
-            address: billing_address,
-            city: billing_city,
-            pincode: billing_pincode,
-            state: billing_state || 'Karnataka',
-            items: (order_items || []).map(item => ({
-                name: item.name,
-                product_id: item.sku || item.name,
-                quantity: item.units || 1,
-                price: item.selling_price,
-            })),
-            sub_total: sub_total || 0,
-            payment_method: payment_method || 'Prepaid',
-        });
-
-        // If this is tied to a DB order, update it
-        const dbOrderId = String(order_id).replace('WHT-', '');
-        const numericId = parseInt(dbOrderId, 10);
-        if (!isNaN(numericId)) {
-            await query(
-                `UPDATE orders
-                 SET shipment_id  = $1,
-                     tracking_url = $2,
-                     order_status = 'shipped'
-                 WHERE id = $3`,
-                [
-                    String(shipmentData.shipment_id || shipmentData.order_id || ''),
-                    shipmentData.tracking_url || shipmentData.status_url || null,
-                    numericId,
-                ]
-            );
+        if (search) {
+            sql += ` AND (
+                o.customer_name ILIKE $${idx} OR
+                o.phone ILIKE $${idx} OR
+                CAST(o.id AS TEXT) ILIKE $${idx}
+            )`;
+            params.push(`%${search}%`);
+            idx++;
         }
 
-        return res.status(201).json({
-            success: true,
-            message: 'Shiprocket shipment created',
-            shipment: shipmentData,
-        });
+        if (delivery_partner) {
+            sql += ` AND o.delivery_partner = $${idx++}`;
+            params.push(delivery_partner);
+        }
+
+        if (assigned_to) {
+            sql += ` AND o.assigned_to = $${idx++}`;
+            params.push(parseInt(assigned_to));
+        }
+
+        if (city) {
+            sql += ` AND o.city ILIKE $${idx++}`;
+            params.push(`%${city}%`);
+        }
+
+        if (date) {
+            sql += ` AND DATE(o.created_at) = $${idx++}`;
+            params.push(date);
+        }
+
+        // Sort
+        const sortMap = {
+            newest: 'o.created_at DESC',
+            oldest: 'o.created_at ASC',
+            value_high: 'o.order_value DESC',
+            value_low: 'o.order_value ASC',
+        };
+        sql += ` ORDER BY ${sortMap[sort] || 'o.created_at DESC'}`;
+
+        // Pagination
+        const pageNum = parseInt(page) || 1;
+        const pageSize = parseInt(limit) || 50;
+        sql += ` LIMIT $${idx++} OFFSET $${idx++}`;
+        params.push(pageSize, (pageNum - 1) * pageSize);
+
+        const result = await query(sql, params);
+
+        // Get total count for pagination
+        let countSql = 'SELECT COUNT(*)::int AS total FROM orders WHERE 1=1';
+        // (simplified — doesn't repeat filters for count, fine for MVP)
+
+        return res.json({ success: true, orders: result.rows, page: pageNum, limit: pageSize });
     } catch (err) {
-        console.error('❌ /create-delivery error:', err);
-        return res.status(500).json({ success: false, error: 'Failed to create delivery' });
+        console.error('❌ GET /api/orders error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-
 // ────────────────────────────────────────────────────────────
-//  GET /track-order/:id
+//  GET /api/orders/:id  (admin — order detail)
 // ────────────────────────────────────────────────────────────
-router.get('/track-order/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
-        const { id } = req.params;
-
         const result = await query(
-            `SELECT o.*, p.name AS product_name
+            `SELECT o.*, s.name AS assigned_name
              FROM orders o
-             LEFT JOIN products p ON o.product_id = p.id
+             LEFT JOIN staff s ON o.assigned_to = s.id
              WHERE o.id = $1`,
-            [id]
+            [req.params.id]
         );
-
         if (result.rows.length === 0) {
             return res.status(404).json({ success: false, error: 'Order not found' });
         }
 
-        const order = result.rows[0];
+        // Get timeline
+        const timeline = await query(
+            `SELECT t.*, s.name AS changed_by_name
+             FROM order_timeline t
+             LEFT JOIN staff s ON t.changed_by = s.id
+             WHERE t.order_id = $1
+             ORDER BY t.created_at ASC`,
+            [req.params.id]
+        );
 
         return res.json({
             success: true,
-            order: {
-                order_id: order.id,
-                customer_name: order.customer_name,
-                product: order.product_name,
-                quantity: order.quantity,
-                price: order.price,
-                status: order.order_status,
-                shipment_id: order.shipment_id,
-                tracking_url: order.tracking_url,
-                created_at: order.created_at,
-            },
+            order: result.rows[0],
+            timeline: timeline.rows,
         });
     } catch (err) {
-        console.error('❌ /track-order error:', err);
+        console.error('❌ GET /api/orders/:id error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  PATCH /api/orders/:id/status  (admin — update status)
+// ────────────────────────────────────────────────────────────
+router.patch('/:id/status', authMiddleware, async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!STATUS_FLOW.includes(status)) {
+            return res.status(400).json({ success: false, error: `Invalid status. Must be one of: ${STATUS_FLOW.join(', ')}` });
+        }
+
+        const orderResult = await query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const order = orderResult.rows[0];
+
+        // If claiming (Accepted), auto-assign
+        let assignUpdate = '';
+        const params = [status, new Date(), req.params.id];
+        if (status === 'Accepted' && !order.assigned_to) {
+            assignUpdate = ', assigned_to = $4';
+            params.push(req.user.id);
+        }
+
+        await query(
+            `UPDATE orders SET order_status = $1, updated_at = $2 ${assignUpdate} WHERE id = $3`,
+            params
+        );
+
+        // Timeline entry
+        await query(
+            `INSERT INTO order_timeline (order_id, status, changed_by, note)
+             VALUES ($1, $2, $3, $4)`,
+            [req.params.id, status, req.user.id, `Status changed to "${status}" by ${req.user.name}`]
+        );
+
+        console.log(`📋 Order #${req.params.id} → ${status} (by ${req.user.name})`);
+
+        return res.json({ success: true, message: `Order updated to "${status}"` });
+    } catch (err) {
+        console.error('❌ PATCH /api/orders/:id/status error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  PATCH /api/orders/:id/assign  (admin — claim order)
+// ────────────────────────────────────────────────────────────
+router.patch('/:id/assign', authMiddleware, async (req, res) => {
+    try {
+        const orderResult = await query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const order = orderResult.rows[0];
+        if (order.assigned_to && order.assigned_to !== req.user.id) {
+            const staff = await query('SELECT name FROM staff WHERE id = $1', [order.assigned_to]);
+            const assignedName = staff.rows[0]?.name || 'another staff member';
+            return res.status(409).json({
+                success: false,
+                error: `Order already claimed by ${assignedName}`,
+            });
+        }
+
+        await query(
+            `UPDATE orders SET assigned_to = $1, updated_at = NOW() WHERE id = $2`,
+            [req.user.id, req.params.id]
+        );
+
+        await query(
+            `INSERT INTO order_timeline (order_id, status, changed_by, note)
+             VALUES ($1, $2, $3, $4)`,
+            [req.params.id, order.order_status, req.user.id, `Claimed by ${req.user.name}`]
+        );
+
+        return res.json({ success: true, message: 'Order claimed successfully' });
+    } catch (err) {
+        console.error('❌ PATCH /api/orders/:id/assign error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  PATCH /api/orders/:id/delivery  (admin — set delivery info)
+// ────────────────────────────────────────────────────────────
+router.patch('/:id/delivery', authMiddleware, async (req, res) => {
+    try {
+        const { delivery_partner, delivery_notes, rider_phone, tracking_ref } = req.body;
+
+        await query(
+            `UPDATE orders
+             SET delivery_partner = $1, delivery_notes = $2,
+                 rider_phone = $3, tracking_ref = $4, updated_at = NOW()
+             WHERE id = $5`,
+            [delivery_partner || null, delivery_notes || null,
+             rider_phone || null, tracking_ref || null, req.params.id]
+        );
+
+        await query(
+            `INSERT INTO order_timeline (order_id, status, changed_by, note)
+             VALUES ($1, (SELECT order_status FROM orders WHERE id = $1), $2, $3)`,
+            [req.params.id, req.user.id, `Delivery partner set: ${delivery_partner || 'none'}`]
+        );
+
+        return res.json({ success: true, message: 'Delivery info updated' });
+    } catch (err) {
+        console.error('❌ PATCH /api/orders/:id/delivery error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });

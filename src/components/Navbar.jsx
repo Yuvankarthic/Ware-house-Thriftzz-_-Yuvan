@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X, Heart } from 'lucide-react';
+import { ShoppingBag, Menu, X, Heart, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import '../styles/Navbar.css';
@@ -49,6 +49,10 @@ const Navbar = () => {
                     {/* Mobile-only extras */}
                     <div className="nav-mobile-extras">
                         <p className="nav-city-tag">📍 Bengaluru, India</p>
+                        <Link to="/admin" className="nav-mobile-admin-btn" onClick={closeMenu}>
+                            <ShieldCheck size={16} strokeWidth={1.5} />
+                            Admin Access
+                        </Link>
                         <button
                             className="nav-mobile-cart-btn"
                             onClick={() => { setIsCartOpen(true); closeMenu(); }}
@@ -68,6 +72,15 @@ const Navbar = () => {
 
                 {/* Actions */}
                 <div className="navbar-actions">
+                    <Link
+                        to="/admin"
+                        className="icon-btn admin-access-btn"
+                        aria-label="Admin Access"
+                        title="Admin Login"
+                    >
+                        <ShieldCheck size={18} strokeWidth={1.5} className="nav-icon" />
+                    </Link>
+
                     <button
                         className="icon-btn wishlist-btn"
                         aria-label={`Wishlist (${wishlistCount} items)`}

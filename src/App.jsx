@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AnnouncementBar from './components/AnnouncementBar';
@@ -13,13 +13,14 @@ import WelcomeOverlay from './components/WelcomeOverlay';
 import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
 
+import AdminRoot from './admin/AdminRoot';
+
 function HomePage() {
   return (
     <>
       <Hero />
       <main>
         <ProductGrid />
-
         <CtaSection />
       </main>
     </>
@@ -27,6 +28,17 @@ function HomePage() {
 }
 
 function App() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  if (isAdmin) {
+    return (
+      <Routes>
+        <Route path="/admin/*" element={<AdminRoot />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="app-container">
       <WelcomeOverlay />

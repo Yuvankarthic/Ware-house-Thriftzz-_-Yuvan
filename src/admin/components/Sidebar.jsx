@@ -1,0 +1,63 @@
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+
+export default function Sidebar({ user }) {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('wht_token');
+        localStorage.removeItem('wht_user');
+        navigate('/admin/login');
+        window.location.reload();
+    };
+
+    const isAdmin = user?.role === 'admin';
+
+    const links = [
+        { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
+        { to: '/admin/orders', label: 'Orders', icon: '📦' },
+        { to: '/admin/kanban', label: 'Board', icon: '📋' },
+    ];
+
+    if (isAdmin) {
+        links.push({ to: '/admin/analytics', label: 'Analytics', icon: '📈' });
+        links.push({ to: '/admin/team', label: 'Team', icon: '👥' });
+    }
+
+    return (
+        <aside className="admin-sidebar">
+            <div className="sidebar-logo">
+                <h2>WHT</h2>
+                <span>OPS</span>
+            </div>
+
+            <nav className="sidebar-nav">
+                {links.map(link => (
+                    <NavLink key={link.to} to={link.to} end={link.end}
+                             className={({ isActive }) => isActive ? 'active' : ''}>
+                        <span>{link.icon}</span>
+                        {link.label}
+                    </NavLink>
+                ))}
+
+                <div style={{ flex: 1 }} />
+
+                <button onClick={handleLogout} style={{ color: 'var(--admin-danger)' }}>
+                    <span>🚪</span> Logout
+                </button>
+            </nav>
+
+            {user && (
+                <div className="sidebar-user">
+                    <div className="sidebar-user-avatar">
+                        {user.name?.[0]?.toUpperCase() || 'A'}
+                    </div>
+                    <div className="sidebar-user-info">
+                        <p>{user.name}</p>
+                        <span>{user.role}</span>
+                    </div>
+                </div>
+            )}
+        </aside>
+    );
+}
