@@ -18,7 +18,7 @@ const router = Router();
 // ────────────────────────────────────────────────────────────
 router.post('/create-order', async (req, res) => {
     try {
-        const { customer_name, email, phone, address, city, pincode, product_id, quantity } = req.body;
+        const { customer_name, email, phone, address, city, pincode, product_id, quantity, payment_id } = req.body;
 
         // ── Input validation ──
         const missing = [];
@@ -61,11 +61,11 @@ router.post('/create-order', async (req, res) => {
         const orderResult = await query(
             `INSERT INTO orders
                 (customer_name, email, phone, address, city, pincode,
-                 product_id, quantity, price, order_status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'processing')
+                 product_id, quantity, price, payment_id, order_status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'processing')
              RETURNING *`,
             [customer_name, email || null, phone, address, city, pincode,
-             product_id, quantity || 1, orderPrice]
+             product_id, quantity || 1, orderPrice, payment_id || null]
         );
 
         const order = orderResult.rows[0];

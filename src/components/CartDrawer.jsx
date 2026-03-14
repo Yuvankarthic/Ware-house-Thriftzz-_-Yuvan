@@ -93,6 +93,33 @@ const CartDrawer = () => {
         }
     };
 
+    // Send order to backend → PostgreSQL + Shiprocket shipment
+    const createBackendOrder = async (paymentId) => {
+        try {
+            for (const item of cartItems) {
+                await fetch('http://localhost:4000/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        address: formData.address,
+                        city: formData.city,
+                        pincode: formData.pincode,
+                        product_id: item.id,
+                        quantity: item.quantity || 1,
+                        payment_id: paymentId,
+                    }),
+                });
+            }
+            console.log('✅ Backend order + Shiprocket shipment created');
+        } catch (error) {
+            // Never break checkout — backend errors are silent
+            console.error('Backend order creation failed (non-blocking):', error);
+        }
+    };
+
     const handlePayment = async () => {
         setIsProcessing(true);
         const options = {
@@ -109,7 +136,11 @@ const CartDrawer = () => {
                 items: JSON.stringify(cartItems.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, size: item.size })))
             },
             handler: async function (response) {
-                await saveOrderToGoogleSheet(response.razorpay_payment_id);
+                // Google Sheets (existing) + Backend/Shiprocket (new) — both fire in parallel
+                await Promise.all([
+                    saveOrderToGoogleSheet(response.razorpay_payment_id),
+                    createBackendOrder(response.razorpay_payment_id),
+                ]);
                 clearCart();
                 setIsPaymentSuccess(true);
                 setIsProcessing(false);
