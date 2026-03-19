@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Loader2, Mail, Lock } from 'lucide-react';
 import '../styles/admin.css';
 
-const API = '/api';
+const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
 
 export default function LoginPage({ onLogin }) {
     const [email, setEmail] = useState('');

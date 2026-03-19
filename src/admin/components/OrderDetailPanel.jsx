@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API = '/api';
+const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
 const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered'];
 
 export default function OrderDetailPanel({ orderId, token, user, onClose, onUpdate }) {

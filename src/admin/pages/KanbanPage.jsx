@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-const API = '/api';
+const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
 const COLUMNS = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered'];
 
 export default function KanbanPage({ token }) {

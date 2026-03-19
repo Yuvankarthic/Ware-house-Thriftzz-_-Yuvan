@@ -97,7 +97,7 @@ const CartDrawer = () => {
     const createBackendOrder = async (paymentId) => {
         try {
             for (const item of cartItems) {
-                await fetch('/api/orders', {
+                await fetch('https://ware-house-thriftzz-yuvan.onrender.com/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

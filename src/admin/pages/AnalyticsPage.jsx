@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const API = '/api';
+const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
 const COLORS = ['#6c5ce7', '#00c853', '#ffab00', '#40c4ff', '#ff5252', '#00e5ff', '#ff9100', '#aa00ff'];
 
 export default function AnalyticsPage({ token }) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API = '/api';
+const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
 
 export default function TeamPage({ token, user }) {
     const [staff, setStaff] = useState([]);
