@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Loader2, Mail, Lock, Wifi, WifiOff } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Loader2, Lock, Wifi, WifiOff } from 'lucide-react';
 import BASE_URL from '../../config/api';
 import '../styles/admin.css';
 
 const API = `${BASE_URL}/api`;
 
 export default function LoginPage({ onLogin }) {
-    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,14 +40,14 @@ export default function LoginPage({ onLogin }) {
         setError('');
         setLoading(true);
         try {
-            const res = await fetch(`${API}/auth/login`, {
+            const res = await fetch(`${API}/auth/quick-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ password }),
             });
             const data = await res.json();
             if (!data.success) {
-                setError(data.error || 'Invalid credentials. Please try again.');
+                setError(data.error || 'Invalid password. Please try again.');
                 setLoading(false);
                 return;
             }
@@ -82,21 +81,6 @@ export default function LoginPage({ onLogin }) {
                     )}
 
                     <div className="input-field">
-                        <label>Email</label>
-                        <div className="input-wrapper">
-                            <Mail size={18} className="input-icon" />
-                            <input 
-                                type="text" 
-                                value={email} 
-                                onChange={e => setEmail(e.target.value)}
-                                placeholder="Enter your email" 
-                                required 
-                                autoFocus 
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-field">
                         <label>Password</label>
                         <div className="input-wrapper">
                             <Lock size={18} className="input-icon" />
@@ -104,8 +88,9 @@ export default function LoginPage({ onLogin }) {
                                 type="password" 
                                 value={password} 
                                 onChange={e => setPassword(e.target.value)}
-                                placeholder="Enter your password" 
+                                placeholder="Enter warehouse password" 
                                 required 
+                                autoFocus 
                             />
                         </div>
                     </div>

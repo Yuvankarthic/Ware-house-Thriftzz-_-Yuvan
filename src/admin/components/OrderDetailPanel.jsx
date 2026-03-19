@@ -7,12 +7,31 @@ const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Deli
 export default function OrderDetailPanel({ orderId, token, user, onClose, onUpdate }) {
     const [order, setOrder] = useState(null);
     const [timeline, setTimeline] = useState([]);
+    const [staffList, setStaffList] = useState([]);
+    const [selectedStaff, setSelectedStaff] = useState('');
     const [deliveryPartner, setDeliveryPartner] = useState('');
     const [deliveryNotes, setDeliveryNotes] = useState('');
     const [riderPhone, setRiderPhone] = useState('');
     const [trackingRef, setTrackingRef] = useState('');
 
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    // Fetch staff list on mount
+    useEffect(() => {
+        const fetchStaff = async () => {
+            try {
+                const res = await fetch(`${API}/staff`, { headers });
+                const data = await res.json();
+                if (data.success) {
+                    setStaffList(data.staff || []);
+                    if (data.staff?.length > 0 && !selectedStaff) {
+                        setSelectedStaff(data.staff[0].name);
+                    }
+                }
+            } catch (err) { console.error('Staff fetch error:', err); }
+        };
+        fetchStaff();
+    }, []);
 
     useEffect(() => {
         fetchDetail();
@@ -139,6 +158,33 @@ Time: ${new Date().toLocaleString()}`;
                     <span className={`status-badge ${statusClass(order.order_status)}`} style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
                         {order.order_status}
                     </span>
+                </div>
+
+                {/* Staff Selector */}
+                <div className="detail-section">
+                    <h3>👤 Staff Handling Order</h3>
+                    <select 
+                        value={selectedStaff} 
+                        onChange={(e) => setSelectedStaff(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--admin-border)',
+                            backgroundColor: 'var(--admin-dark)',
+                            color: '#fff',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="">Select staff member...</option>
+                        {staffList.map(staff => (
+                            <option key={staff.id} value={staff.name}>{staff.name}</option>
+                        ))}
+                    </select>
+                    <small style={{ display: 'block', marginTop: '8px', color: '#aaa' }}>
+                        Pick who's handling this order
+                    </small>
                 </div>
 
                 {/* Customer */}

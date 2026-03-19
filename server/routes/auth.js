@@ -51,6 +51,39 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// ── POST /api/auth/quick-login (password-only) ──
+router.post('/quick-login', async (req, res) => {
+    try {
+        const { password } = req.body;
+        console.log('🔑 Quick login attempt (password-only)');
+
+        if (!password) {
+            return res.status(400).json({ success: false, error: 'Password required' });
+        }
+
+        // Check if password matches the warehouse password
+        const WAREHOUSE_PASSWORD = 'wearhouse';
+        if (password !== WAREHOUSE_PASSWORD) {
+            return res.status(401).json({ success: false, error: 'Invalid password' });
+        }
+
+        // Create a temporary token with a generic user ID (0)
+        // In OrderDetailPanel, user will select their name when handling an order
+        const tempUser = { id: 0, name: 'GuestStaff', email: 'staff@warehouse.local', role: 'staff' };
+        const token = generateToken(tempUser);
+
+        console.log('✅ Quick login successful');
+        return res.json({
+            success: true,
+            token,
+            user: tempUser,
+        });
+    } catch (err) {
+        console.error('❌ /api/auth/quick-login error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error: ' + err.message });
+    }
+});
+
 // ── GET /api/auth/me ──
 router.get('/me', authMiddleware, async (req, res) => {
     try {
