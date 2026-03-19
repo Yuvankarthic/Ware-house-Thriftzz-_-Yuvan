@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BASE_URL from '../../config/api';
 import OrderDetailPanel from '../components/OrderDetailPanel';
+import { Wifi, WifiOff } from 'lucide-react';
 
 const API = `${BASE_URL}/api`;
 const STATUSES = ['all', 'New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
@@ -9,6 +10,8 @@ const PARTNERS = ['Porter', 'Rapido Parcel', 'Self Delivery'];
 export default function OrdersPage({ token, user }) {
     const [orders, setOrders] = useState([]);
     const [staffList, setStaffList] = useState([]);
+    const [systemOnline, setSystemOnline] = useState(true);
+    const [lastUpdate, setLastUpdate] = useState(new Date());
     
     // Filters
     const [search, setSearch] = useState('');
@@ -41,14 +44,23 @@ export default function OrdersPage({ token, user }) {
             if (locationFilter) params.set('city', locationFilter);
             
             const res = await fetch(`${API}/orders?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error('API error');
+            
             const data = await res.json();
             if (data.success) setOrders(data.orders);
-        } catch (err) { console.error('Fetch orders error:', err); }
+            
+            setSystemOnline(true);
+            setLastUpdate(new Date());
+        } catch (err) { 
+            console.error('Fetch orders error:', err);
+            setSystemOnline(false);
+        }
     }, [search, statusFilter, dateFilter, deliveryFilter, assignedFilter, locationFilter, token]);
 
     useEffect(() => {
         fetchOrders();
-        const interval = setInterval(fetchOrders, 10000);
+        // Poll every 2 seconds for real-time updates
+        const interval = setInterval(fetchOrders, 2000);
         return () => clearInterval(interval);
     }, [fetchOrders]);
 
@@ -82,8 +94,28 @@ export default function OrdersPage({ token, user }) {
     return (
         <div>
             <div className="admin-page-header">
-                <h1>Order Management</h1>
-                <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>{orders.length} orders</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <div>
+                        <h1>Order Management</h1>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>{orders.length} orders</span>
+                    </div>
+                    <div className="system-status-indicator" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {systemOnline ? (
+                            <>
+                                <Wifi size={16} style={{ color: '#0ECC6Dff', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                                <span style={{ color: '#0ECC6Dff', fontSize: '0.82rem', fontWeight: 600 }}>System Online</span>
+                            </>
+                        ) : (
+                            <>
+                                <WifiOff size={16} style={{ color: '#FF6B6Bff' }} />
+                                <span style={{ color: '#FF6B6Bff', fontSize: '0.82rem', fontWeight: 600 }}>Offline</span>
+                            </>
+                        )}
+                        <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.72rem', marginLeft: '12px' }}>
+                            {lastUpdate.toLocaleTimeString()}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* Toolbar */}

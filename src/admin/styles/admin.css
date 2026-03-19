@@ -1130,6 +1130,26 @@
     to { opacity: 0; transform: translateX(30px); }
 }
 
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ═══════ SYSTEM STATUS INDICATOR ═══════ */
+.system-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(14, 204, 109, 0.08);
+    border-radius: var(--admin-radius);
+    transition: all 0.3s ease;
+}
+
+.system-status-indicator.offline {
+    background: rgba(255, 107, 107, 0.08);
+}
+
 /* ═══════ MOBILE MENU BUTTON ═══════ */
 .menu-toggle {
     display: none;

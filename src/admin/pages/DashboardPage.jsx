@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import BASE_URL from '../../config/api';
 import MetricCard from '../components/MetricCard';
+import { Wifi, WifiOff } from 'lucide-react';
 
 const API = `${BASE_URL}/api`;
 
@@ -8,6 +9,8 @@ export default function DashboardPage({ token }) {
     const [metrics, setMetrics] = useState(null);
     const [recentOrders, setRecentOrders] = useState([]);
     const [toast, setToast] = useState(null);
+    const [systemOnline, setSystemOnline] = useState(true);
+    const [lastUpdate, setLastUpdate] = useState(new Date());
     const prevCountRef = useRef(0);
     const audioRef = useRef(null);
 
@@ -19,6 +22,9 @@ export default function DashboardPage({ token }) {
                 fetch(`${API}/analytics/overview`, { headers }),
                 fetch(`${API}/orders?limit=8`, { headers }),
             ]);
+            
+            if (!mRes.ok || !oRes.ok) throw new Error('API error');
+            
             const mData = await mRes.json();
             const oData = await oRes.json();
 
@@ -39,14 +45,19 @@ export default function DashboardPage({ token }) {
                 setMetrics(mData.metrics);
             }
             if (oData.success) setRecentOrders(oData.orders);
+            
+            setSystemOnline(true);
+            setLastUpdate(new Date());
         } catch (err) {
             console.error('Dashboard fetch error:', err);
+            setSystemOnline(false);
         }
     };
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 5000); // Poll every 5 seconds for real-time feel
+        // Poll every 2 seconds for true real-time updates
+        const interval = setInterval(fetchData, 2000);
         return () => clearInterval(interval);
     }, []);
 
@@ -63,9 +74,27 @@ export default function DashboardPage({ token }) {
             {toast && <div className="new-order-toast">{toast}</div>}
 
             <div className="admin-page-header">
-                <h1>Dashboard</h1>
-                <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>
-                    Auto-refreshing every 10s
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <h1>Dashboard</h1>
+                    <div className="system-status-indicator" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {systemOnline ? (
+                            <>
+                                <Wifi size={16} style={{ color: '#0ECC6Dff', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                                <span style={{ color: '#0ECC6Dff', fontSize: '0.82rem', fontWeight: 600 }}>System Online</span>
+                            </>
+                        ) : (
+                            <>
+                                <WifiOff size={16} style={{ color: '#FF6B6Bff' }} />
+                                <span style={{ color: '#FF6B6Bff', fontSize: '0.82rem', fontWeight: 600 }}>Offline</span>
+                            </>
+                        )}
+                        <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.72rem', marginLeft: '12px' }}>
+                            Last update: {lastUpdate.toLocaleTimeString()}
+                        </span>
+                    </div>
+                </div>
+                <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem', marginTop: '4px', display: 'block' }}>
+                    Real-time data • Polling every 2 seconds
                 </span>
             </div>
 
