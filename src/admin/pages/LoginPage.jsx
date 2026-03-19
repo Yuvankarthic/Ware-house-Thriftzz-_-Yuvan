@@ -52,24 +52,36 @@ export default function LoginPage({ onLogin }) {
         setError('');
         setLoading(true);
         try {
-            const res = await fetch(`${API}/auth/quick-login`, {
+            const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan-production.up.railway.app';
+            const loginUrl = `${baseUrl}/api/auth/quick-login`;
+            
+            console.log('🔐 Attempting login to:', loginUrl);
+            
+            const res = await fetch(loginUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ password }),
             });
+            
+            console.log('📡 Login response status:', res.status);
             const data = await res.json();
+            
             if (!data.success) {
                 setError(data.error || 'Invalid credentials. Please try again.');
                 setLoading(false);
                 return;
             }
+            
             localStorage.setItem('wht_token', data.token);
             localStorage.setItem('wht_user', JSON.stringify(data.user));
             onLogin(data.user, data.token);
             history.push('/admin');
         } catch (err) {
-            console.error('Login error:', err);
-            setError('System offline. Cannot reach operations server.');
+            console.error('❌ Login error:', err);
+            setError('Cannot connect to backend. Please try again.');
             setLoading(false);
         }
     };

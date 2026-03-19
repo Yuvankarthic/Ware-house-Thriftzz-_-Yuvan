@@ -20,11 +20,27 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 // ── CORS Configuration ──
 app.use(cors({
     origin: '*',  // Allow all origins in production
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    maxAge: 86400  // 24 hours
 }));
+
+// ── Explicit CORS Headers Middleware ──
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.header('Access-Control-Max-Age', '86400');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    
+    next();
+});
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
