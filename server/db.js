@@ -17,8 +17,9 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-    console.error('❌ Unexpected PostgreSQL pool error:', err);
-    process.exit(-1);
+    console.error('❌ Unexpected PostgreSQL pool error:', err.message);
+    // Don't exit immediately, log and continue
+    // process.exit(-1);
 });
 
 /**
@@ -30,3 +31,6 @@ pool.on('error', (err) => {
 export const query = (text, params) => pool.query(text, params);
 
 export default pool;
+
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "✅ SET" : "❌ NOT SET");
+console.log("NODE_ENV:", process.env.NODE_ENV || 'development');

@@ -52,13 +52,8 @@ app.use((err, _req, res, _next) => {
 // ── Start Server ──
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n🚀 WHT Fashion server running on 0.0.0.0:${PORT}`);
-    console.log(`   GET  /                    — backend status`);
-    console.log(`   POST /api/orders          — create order`);
-    console.log(`   GET  /api/orders          — list orders (admin)`);
-    console.log(`   POST /api/auth/login      — admin login`);
-    console.log(`   GET  /api/analytics/*     — dashboard analytics`);
-    console.log(`   GET  /api/staff           — staff management`);
-    console.log(`   GET  /health              — health check\n`);
+    console.log(`📌 Environment: ${NODE_ENV}`);
+    console.log(`📦 Backend URL: https://ware-house-thriftzz-yuvan-production.up.railway.app`);
 });
 
 // ── Graceful shutdown ──
@@ -68,4 +63,16 @@ process.on('SIGTERM', () => {
         console.log('✅ Server closed');
         process.exit(0);
     });
+});
+
+// ── Handle unhandled errors ──
+process.on('uncaughtException', (err) => {
+    console.error('💥 Unhandled Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
 });
