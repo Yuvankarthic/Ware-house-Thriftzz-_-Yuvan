@@ -25,23 +25,39 @@ export default function LoginPage({ onLogin }) {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
                 
-                const res = await fetch(healthUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    signal: controller.signal,
-                });
-                
-                clearTimeout(timeoutId);
-                const isHealthy = res.ok || res.status === 200;
-                setIsOnline(isHealthy);
-                
-                console.log(`✅ [Health Check] Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${res.status})`);
-                console.log(`📊 [Health Check] Response:`, res.statusText);
+                try {
+                    const res = await fetch(healthUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        signal: controller.signal,
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    const isHealthy = res.ok || res.status === 200;
+                    setIsOnline(isHealthy);
+                    
+                    console.log(`✅ [Health Check] Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${res.status})`);
+                } catch (fetchErr) {
+                    console.error('⚠️ [Health Check] Fetch failed, trying simpler request...', fetchErr.message);
+                    
+                    // Try without headers if CORS is failing
+                    try {
+                        const simpleRes = await fetch(healthUrl);
+                        clearTimeout(timeoutId);
+                        const isHealthy = simpleRes.ok || simpleRes.status === 200;
+                        setIsOnline(isHealthy);
+                        console.log(`✅ [Health Check] Simple request Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${simpleRes.status})`);
+                    } catch (simpleErr) {
+                        clearTimeout(timeoutId);
+                        console.error('❌ [Health Check] Both fetch attempts failed:', simpleErr.message);
+                        setIsOnline(false);
+                    }
+                }
             } catch (err) {
-                console.error('❌ [Health Check] Failed:', {
+                console.error('❌ [Health Check] Outer error:', {
                     message: err.message,
                     code: err.code,
                     name: err.name

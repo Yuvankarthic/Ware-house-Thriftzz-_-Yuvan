@@ -61,7 +61,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/staff', staffRoutes);
 
-// ── Health check ──
+// ── Health check with explicit CORS ──
+app.options('/health', cors());
 app.get('/health', (_req, res) => {
     res.status(200).json({ 
         status: 'ok',
