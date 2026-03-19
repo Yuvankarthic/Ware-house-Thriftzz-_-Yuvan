@@ -5,8 +5,8 @@
   "description": "WHT Fashion backend — internal order operations dashboard",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "migrate": "node migrate.js"
   },
   "dependencies": {

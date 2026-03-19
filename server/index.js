@@ -15,11 +15,17 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // ── Middleware ──
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// ── Root route ──
+app.get('/', (_req, res) => {
+    res.json({ message: 'Backend working', version: '1.0.0', timestamp: new Date().toISOString() });
+});
 
 // ── Routes ──
 app.use('/api/orders', orderRoutes);
@@ -32,19 +38,34 @@ app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ── 404 handler ──
+app.use((_req, res) => {
+    res.status(404).json({ success: false, error: 'Route not found' });
+});
+
 // ── Global error handler ──
 app.use((err, _req, res, _next) => {
     console.error('💥 Unhandled error:', err);
     res.status(500).json({ success: false, error: 'Something went wrong' });
 });
 
-// ── Start ──
-app.listen(PORT, () => {
-    console.log(`\n🚀 WHT Fashion server running on http://localhost:${PORT}`);
+// ── Start Server ──
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n🚀 WHT Fashion server running on 0.0.0.0:${PORT}`);
+    console.log(`   GET  /                    — backend status`);
     console.log(`   POST /api/orders          — create order`);
     console.log(`   GET  /api/orders          — list orders (admin)`);
     console.log(`   POST /api/auth/login      — admin login`);
     console.log(`   GET  /api/analytics/*     — dashboard analytics`);
     console.log(`   GET  /api/staff           — staff management`);
-    console.log(`   GET  /health\n`);
+    console.log(`   GET  /health              — health check\n`);
+});
+
+// ── Graceful shutdown ──
+process.on('SIGTERM', () => {
+    console.log('📋 SIGTERM received, shutting down gracefully...');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
 });
