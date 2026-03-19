@@ -17,48 +17,8 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ── CORS Configuration (Production-Ready) ──
-// Define allowed frontend domains
-const allowedOrigins = [
-    'https://wearhousethrift.netlify.app',
-    'https://warehousethrriftzz.netlify.app',
-    'http://localhost:3000',        // Local development
-    'http://localhost:5173'         // Vite dev server
-];
-
-// CORS middleware
-app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            // In production, you might want to log unauthorized origins
-            console.warn(`⚠️ CORS blocked request from: ${origin}`);
-            callback(new Error('CORS policy: request origin not allowed'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: true,
-    maxAge: 86400,
-    optionsSuccessStatus: 200
-}));
-
-// Handle preflight requests explicitly
-app.options('*', cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS not allowed'));
-        }
-    },
-    credentials: true,
-    optionsSuccessStatus: 200
-}));
+// ── CORS Configuration (Simple, Production-Safe) ──
+app.use(cors({ origin: '*' }));
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
