@@ -71,6 +71,48 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
         } catch (err) { console.error('Delivery save error:', err); }
     };
 
+    const copyOrderDetails = () => {
+        const details = `ORDER #${order.id}
+═══════════════════════════════
+
+CUSTOMER DETAILS
+Name: ${order.customer_name}
+Phone: ${order.phone}
+Email: ${order.email || 'N/A'}
+
+DELIVERY ADDRESS
+${order.full_address}
+
+PRODUCT DETAILS
+Item: ${order.product_name}
+Quantity: ${order.quantity}
+Price: ₹${order.order_value}
+
+ORDER STATUS
+Current: ${order.order_status}
+
+PAYMENT
+Method: ${order.payment_method}
+Status: ${order.payment_status}
+Payment ID: ${order.payment_id || 'N/A'}
+
+DELIVERY PARTNER
+${deliveryPartner || 'Not assigned yet'}
+Rider Phone: ${riderPhone || 'Not provided'}
+Tracking Ref: ${trackingRef || 'Not provided'}
+
+═══════════════════════════════
+Prepared for: ${deliveryPartner || 'Manual booking'}
+Time: ${new Date().toLocaleString()}`;
+
+        navigator.clipboard.writeText(details).then(() => {
+            alert('✅ Order details copied to clipboard!');
+        }).catch(err => {
+            console.error('Copy error:', err);
+            alert('❌ Failed to copy details');
+        });
+    };
+
     const statusClass = (s) => s.toLowerCase().replace(/\s+/g, '-');
 
     if (!order) return null;
@@ -178,6 +220,9 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
 
                 {/* Actions */}
                 <div className="detail-actions">
+                    <button className="btn-admin primary" onClick={copyOrderDetails} style={{ marginBottom: 8 }}>
+                        📋 Copy Order Details
+                    </button>
                     {getNextStatus() && (
                         <button className="btn-admin success" onClick={() => updateStatus(getNextStatus())}>
                             ➡ Move to: {getNextStatus()}
