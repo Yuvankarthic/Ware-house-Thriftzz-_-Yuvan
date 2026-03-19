@@ -118,6 +118,26 @@ export default function OrdersPage({ token, user }) {
                 </div>
             </div>
 
+            {/* Real-Time Badge */}
+            <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ 
+                    backgroundColor: '#0ECC6D', 
+                    color: '#000', 
+                    padding: '4px 10px', 
+                    borderRadius: '20px', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 700,
+                    animation: 'pulse 2s ease-in-out infinite',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                }}>
+                    ⚡ REAL TIME
+                </span>
+                <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem' }}>
+                    • Live sync every 2s • Updates: {lastUpdate.toLocaleTimeString()}
+                </span>
+            </div>
+
             {/* Toolbar */}
             <div className="orders-toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
                 <input className="search-input" placeholder="Search ID, name, phone…"
