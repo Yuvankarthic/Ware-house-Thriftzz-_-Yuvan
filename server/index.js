@@ -17,28 +17,33 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ── CORS Configuration ──
-app.use(cors({
-    origin: '*',  // Allow all origins in production
+// ── CORS Configuration (enhanced for Railway) ──
+// Handle preflight requests FIRST before any other middleware
+app.options('*', cors({
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false,
     optionsSuccessStatus: 200,
-    maxAge: 86400  // 24 hours
+    maxAge: 86400
 }));
 
-// ── Explicit CORS Headers Middleware ──
+// Apply CORS to all routes
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
+    optionsSuccessStatus: 200,
+    maxAge: 86400
+}));
+
+// Apply explicit CORS headers to ensure they're present for challenging requests
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept');
     res.header('Access-Control-Max-Age', '86400');
-    
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    
     next();
 });
 
