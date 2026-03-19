@@ -47,7 +47,7 @@ export default function LoginPage({ onLogin }) {
             });
             const data = await res.json();
             if (!data.success) {
-                setError(data.error || 'Invalid password. Please try again.');
+                setError(data.error || 'Invalid credentials. Please try again.');
                 setLoading(false);
                 return;
             }
@@ -56,6 +56,7 @@ export default function LoginPage({ onLogin }) {
             onLogin(data.user, data.token);
             history.push('/admin');
         } catch (err) {
+            console.error('Login error:', err);
             setError('System offline. Cannot reach operations server.');
             setLoading(false);
         }

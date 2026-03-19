@@ -64,7 +64,7 @@ router.post('/quick-login', async (req, res) => {
         // Check if password matches the warehouse password
         const WAREHOUSE_PASSWORD = 'wearhouse';
         if (password !== WAREHOUSE_PASSWORD) {
-            return res.status(401).json({ success: false, error: 'Invalid password' });
+            return res.status(401).json({ success: false, error: 'Access Denied' });
         }
 
         // Create a temporary token with a generic user ID (0)
