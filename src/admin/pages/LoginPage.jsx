@@ -20,21 +20,32 @@ export default function LoginPage({ onLogin }) {
                 const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan-production.up.railway.app';
                 const healthUrl = `${baseUrl}/health`;
                 
-                console.log('🔍 Checking health endpoint:', healthUrl);
+                console.log('🔍 [Health Check] Calling:', healthUrl);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
                 
                 const res = await fetch(healthUrl, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    signal: AbortSignal.timeout(10000),
+                    signal: controller.signal,
                 });
                 
+                clearTimeout(timeoutId);
                 const isHealthy = res.ok || res.status === 200;
                 setIsOnline(isHealthy);
-                console.log(`✅ Health check: ${isHealthy ? 'ONLINE' : 'OFFLINE'} (${res.status})`, healthUrl);
+                
+                console.log(`✅ [Health Check] Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${res.status})`);
+                console.log(`📊 [Health Check] Response:`, res.statusText);
             } catch (err) {
-                console.error('❌ Health check failed:', err.message, err.code);
+                console.error('❌ [Health Check] Failed:', {
+                    message: err.message,
+                    code: err.code,
+                    name: err.name
+                });
                 setIsOnline(false);
             }
         };
@@ -42,8 +53,8 @@ export default function LoginPage({ onLogin }) {
         // Check immediately
         checkServerStatus();
 
-        // Check every 15 seconds
-        const interval = setInterval(checkServerStatus, 15000);
+        // Check every 20 seconds
+        const interval = setInterval(checkServerStatus, 20000);
         return () => clearInterval(interval);
     }, []);
 

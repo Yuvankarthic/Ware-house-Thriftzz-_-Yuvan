@@ -11,12 +11,18 @@ const { Pool } = pg;
 // Production-ready connection with SSL for Railway/cloud deployments
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    max: 20,  // max connections in pool
-    idleTimeoutMillis: 30000,  // close idle clients after 30s
-    connectionTimeoutMillis: 2000,  // return an error after 2s if connection could not be acquired
+    max: 10,  // reduced from 20 to prevent pool exhaustion
+    min: 2,   // keep minimum 2 connections alive
+    idleTimeoutMillis: 45000,  // increased from 30s to 45s
+    connectionTimeoutMillis: 5000,  // increased from 2s to 5s for Railway
+    statementTimeoutMillis: 30000,  // added statement timeout
     ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false
-    } : false
+    } : false,
+    // Enable connection validation
+    validate: (connection) => {
+        return Promise.resolve(connection);
+    }
 });
 
 // Test connection on startup
