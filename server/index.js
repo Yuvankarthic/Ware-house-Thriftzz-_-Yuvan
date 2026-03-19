@@ -17,8 +17,15 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ── Middleware ──
-app.use(cors());
+// ── CORS Configuration ──
+app.use(cors({
+    origin: '*',  // Allow all origins in production
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
+    optionsSuccessStatus: 200
+}));
+
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -35,7 +42,13 @@ app.use('/api/staff', staffRoutes);
 
 // ── Health check ──
 app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.status(200).json({ 
+        status: 'ok',
+        message: 'Backend is healthy',
+        timestamp: new Date().toISOString(),
+        environment: NODE_ENV,
+        uptime: process.uptime()
+    });
 });
 
 // ── 404 handler ──
@@ -51,9 +64,13 @@ app.use((err, _req, res, _next) => {
 
 // ── Start Server ──
 const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n🚀 WHT Fashion server running on 0.0.0.0:${PORT}`);
+    console.log(`\n🚀 WHT Fashion Backend Server`);
     console.log(`📌 Environment: ${NODE_ENV}`);
-    console.log(`📦 Backend URL: https://ware-house-thriftzz-yuvan-production.up.railway.app`);
+    console.log(`🔌 Listening on: 0.0.0.0:${PORT}`);
+    console.log(`🌐 Public URL: https://ware-house-thriftzz-yuvan-production.up.railway.app`);
+    console.log(`✅ CORS enabled: *`);
+    console.log(`📡 Health check: /health`);
+    console.log(`\n✨ Server is ready to accept connections\n`);
 });
 
 // ── Graceful shutdown ──

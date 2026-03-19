@@ -17,15 +17,24 @@ export default function LoginPage({ onLogin }) {
     useEffect(() => {
         const checkServerStatus = async () => {
             try {
-                const healthUrl = `${API.replace('/api', '')}/health`;
+                const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan-production.up.railway.app';
+                const healthUrl = `${baseUrl}/health`;
+                
+                console.log('🔍 Checking health endpoint:', healthUrl);
+                
                 const res = await fetch(healthUrl, {
                     method: 'GET',
-                    signal: AbortSignal.timeout(8000),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(10000),
                 });
-                setIsOnline(res.ok);
-                console.log('✅ Health check:', res.ok, healthUrl);
+                
+                const isHealthy = res.ok || res.status === 200;
+                setIsOnline(isHealthy);
+                console.log(`✅ Health check: ${isHealthy ? 'ONLINE' : 'OFFLINE'} (${res.status})`, healthUrl);
             } catch (err) {
-                console.error('❌ Health check failed:', err.message);
+                console.error('❌ Health check failed:', err.message, err.code);
                 setIsOnline(false);
             }
         };
@@ -33,8 +42,8 @@ export default function LoginPage({ onLogin }) {
         // Check immediately
         checkServerStatus();
 
-        // Check every 10 seconds
-        const interval = setInterval(checkServerStatus, 10000);
+        // Check every 15 seconds
+        const interval = setInterval(checkServerStatus, 15000);
         return () => clearInterval(interval);
     }, []);
 
