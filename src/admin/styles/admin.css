@@ -224,12 +224,59 @@
 }
 
 .status-indicator {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: #999;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.status-indicator.online {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.status-indicator.offline {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.status-light {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse-light 2s infinite;
+}
+
+.status-light.online {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+}
+
+.status-light.offline {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+    animation: none;
+}
+
+@keyframes pulse-light {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 8px currentColor;
+    }
+    50% {
+        opacity: 0.5;
+        box-shadow: 0 0 4px currentColor;
+    }
 }
 
 .status-indicator .dot {

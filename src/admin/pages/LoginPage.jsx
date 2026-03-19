@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Loader2, Mail, Lock } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Loader2, Mail, Lock, Wifi, WifiOff } from 'lucide-react';
 import '../styles/admin.css';
 
 const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
@@ -10,7 +10,30 @@ export default function LoginPage({ onLogin }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isOnline, setIsOnline] = useState(true);
     const history = useHistory();
+
+    // Check server status on mount and periodically
+    useEffect(() => {
+        const checkServerStatus = async () => {
+            try {
+                const res = await fetch(`${API.replace('/api', '')}/health`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(5000),
+                });
+                setIsOnline(res.ok);
+            } catch (err) {
+                setIsOnline(false);
+            }
+        };
+
+        // Check immediately
+        checkServerStatus();
+
+        // Check every 10 seconds
+        const interval = setInterval(checkServerStatus, 10000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -98,9 +121,19 @@ export default function LoginPage({ onLogin }) {
                 </form>
 
                 <div className="login-footer">
-                    <div className="status-indicator">
-                        <span className="dot"></span>
-                        Secure Login
+                    <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
+                        <span className={`status-light ${isOnline ? 'online' : 'offline'}`}></span>
+                        {isOnline ? (
+                            <>
+                                <Wifi size={14} />
+                                System Online
+                            </>
+                        ) : (
+                            <>
+                                <WifiOff size={14} />
+                                System Offline
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
