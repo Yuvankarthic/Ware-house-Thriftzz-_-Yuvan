@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
+import { X } from 'lucide-react';
 
-export default function Sidebar({ user }) {
+export default function Sidebar({ user, isOpen, onClose }) {
     const history = useHistory();
 
     const handleLogout = () => {
@@ -25,16 +26,20 @@ export default function Sidebar({ user }) {
     }
 
     return (
-        <aside className="admin-sidebar">
+        <aside className={`admin-sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-logo">
                 <h2>WHT</h2>
                 <span>OPS</span>
+                <button className="sidebar-close-btn" onClick={onClose} aria-label="Close menu">
+                    <X size={20} />
+                </button>
             </div>
 
             <nav className="sidebar-nav">
                 {links.map(link => (
                     <NavLink key={link.to} to={link.to} end={link.end}
-                             className={({ isActive }) => isActive ? 'active' : ''}>
+                             className={({ isActive }) => isActive ? 'active' : ''}
+                             onClick={onClose}>
                         <span>{link.icon}</span>
                         {link.label}
                     </NavLink>

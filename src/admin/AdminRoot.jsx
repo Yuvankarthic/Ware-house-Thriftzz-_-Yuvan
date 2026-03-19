@@ -13,6 +13,7 @@ export default function AdminRoot() {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('wht_token'));
     const [loading, setLoading] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('wht_user');
@@ -42,8 +43,16 @@ export default function AdminRoot() {
 
     return (
         <div className="admin-root">
-            <Sidebar user={user} />
+            {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+            <Sidebar user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <main className="admin-main">
+                <div className="admin-header-mobile">
+                    <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
                 <Switch>
                     <Route exact path="/admin" render={() => <DashboardPage token={token} />} />
                     <Route path="/admin/orders" render={() => <OrdersPage token={token} />} />

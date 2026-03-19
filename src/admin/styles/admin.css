@@ -1130,6 +1130,66 @@
     to { opacity: 0; transform: translateX(30px); }
 }
 
+/* ═══════ MOBILE MENU BUTTON ═══════ */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 12px;
+}
+
+.menu-toggle span {
+    width: 24px;
+    height: 3px;
+    background: var(--admin-text);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.admin-header-mobile {
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    animation: fadeIn 0.2s ease;
+}
+
+.sidebar-close-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--admin-text);
+    cursor: pointer;
+    padding: 4px;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
 /* ═══════ RESPONSIVE ═══════ */
 @media (max-width: 1024px) {
     .kanban-board {
@@ -1137,29 +1197,543 @@
     }
 }
 
+/* ═══════ TABLET & SMALL SCREENS ═══════ */
 @media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+
+    .admin-header-mobile {
+        display: flex;
+    }
+
+    .sidebar-overlay {
+        display: block;
+    }
+
+    .sidebar-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    :root {
+        --sidebar-width: 0;
+    }
+
     .admin-sidebar {
         transform: translateX(-100%);
+        width: 100%;
+        max-width: 280px;
     }
 
     .admin-sidebar.open {
         transform: translateX(0);
+        box-shadow: 2px 0 12px rgba(0,0,0,0.5);
     }
 
     .admin-main {
         margin-left: 0;
-        padding: 20px 16px;
+        padding: 16px 14px;
+    }
+
+    .admin-page-header {
+        margin-bottom: 20px;
+    }
+
+    .admin-page-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .metric-card {
+        padding: 16px;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
     }
 
     .kanban-board {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .kanban-column {
+        min-height: 350px;
     }
 
     .analytics-grid {
         grid-template-columns: 1fr;
     }
 
+    .orders-table {
+        font-size: 0.75rem;
+    }
+
+    .orders-table th {
+        padding: 10px 10px;
+        font-size: 0.65rem;
+    }
+
+    .orders-table td {
+        padding: 10px 8px;
+    }
+
+    .order-detail-panel {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* ═══════ MOBILE PHONES (480px - 768px) ═══════ */
+@media (max-width: 480px) {
+    :root {
+        --admin-radius: 8px;
+        --admin-radius-sm: 5px;
+    }
+
+    .admin-main {
+        padding: 12px 10px;
+    }
+
+    .admin-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .admin-page-header h1 {
+        font-size: 1.1rem;
+        width: 100%;
+    }
+
+    .header-actions {
+        width: 100%;
+        gap: 8px;
+    }
+
+    /* ── Mobile Metrics Grid ── */
     .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .metric-card {
+        padding: 12px 14px;
+        border-radius: 8px;
+    }
+
+    .metric-card::after {
+        height: 2px;
+    }
+
+    .metric-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 10px;
+    }
+
+    .metric-value {
+        font-size: 1.3rem;
+    }
+
+    .metric-label {
+        font-size: 0.7rem;
+    }
+
+    /* ── Mobile Orders Table ── */
+    .orders-toolbar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .search-input {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    .orders-table-wrapper {
+        border-radius: 8px;
+        font-size: 0.75rem;
+        max-height: 400px;
+    }
+
+    .orders-table {
+        font-size: 0.72rem;
+    }
+
+    .orders-table th {
+        padding: 8px 6px;
+        font-size: 0.6rem;
+        letter-spacing: 0.03em;
+    }
+
+    .orders-table td {
+        padding: 8px 6px;
+    }
+
+    .status-badge {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+    }
+
+    .action-btns {
+        gap: 4px;
+    }
+
+    .btn-admin {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+    }
+
+    /* ── Mobile Kanban ── */
+    .kanban-board {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        overflow-x: visible;
+    }
+
+    .kanban-column {
+        min-height: 300px;
+    }
+
+    .kanban-column-header {
+        padding: 12px 12px;
+        font-size: 0.75rem;
+    }
+
+    .kanban-card {
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .kanban-card .card-order-id {
+        font-size: 0.65rem;
+    }
+
+    .kanban-card .card-customer {
+        font-size: 0.75rem;
+    }
+
+    .kanban-card .card-product {
+        font-size: 0.7rem;
+    }
+
+    /* ── Mobile Detail Panel ── */
+    .order-detail-panel {
+        width: 100%;
+        max-width: none;
+        right: 0;
+        left: 0;
+    }
+
+    .detail-header {
+        padding: 16px 16px;
+    }
+
+    .detail-header h2 {
+        font-size: 1rem;
+    }
+
+    .detail-section {
+        padding: 16px;
+    }
+
+    .detail-section h3 {
+        margin-bottom: 10px;
+    }
+
+    .detail-row {
+        padding: 5px 0;
+        font-size: 0.8rem;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .detail-actions {
+        padding: 16px;
+        gap: 8px;
+    }
+
+    /* ── Mobile Forms ── */
+    .delivery-form {
+        gap: 8px;
+    }
+
+    .delivery-form select,
+    .delivery-form input,
+    .delivery-form textarea {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .delivery-form textarea {
+        min-height: 50px;
+    }
+
+    /* ── Mobile Analytics ── */
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .chart-card h3 {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+    }
+
+    /* ── Mobile Sidebar ── */
+    .admin-sidebar {
+        max-width: 100%;
+    }
+
+    .sidebar-logo {
+        padding: 16px 14px;
+    }
+
+    .sidebar-logo h2 {
+        font-size: 1rem;
+    }
+
+    .sidebar-nav {
+        padding: 12px 8px;
+        gap: 2px;
+    }
+
+    .sidebar-nav a,
+    .sidebar-nav button {
+        padding: 10px 12px;
+        gap: 10px;
+        font-size: 0.85rem;
+    }
+
+    .sidebar-user {
+        padding: 12px;
+    }
+
+    .sidebar-user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .sidebar-user-info p {
+        font-size: 0.8rem;
+    }
+
+    .sidebar-user-info span {
+        font-size: 0.68rem;
+    }
+
+    /* ── Mobile Notifications ── */
+    .new-order-toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        margin: auto;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+
+    /* ── Mobile Login ── */
+    .login-box {
+        width: 95%;
+        padding: 32px 20px;
+        border-radius: 8px;
+    }
+
+    .login-header {
+        margin-bottom: 24px;
+    }
+
+    .login-header h1 {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+    }
+
+    .login-header p {
+        font-size: 0.75rem;
+    }
+
+    .login-brand-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px;
+    }
+
+    .input-field {
+        margin-bottom: 16px;
+    }
+
+    .login-form input {
+        padding: 12px 12px 12px 40px;
+        font-size: 0.9rem;
+    }
+
+    .input-icon {
+        left: 12px;
+    }
+
+    .login-submit-btn {
+        height: 44px;
+        font-size: 0.8rem;
+        margin-top: 20px;
+    }
+
+    .login-footer {
+        margin-top: 20px;
+        padding-top: 16px;
+    }
+
+    .status-indicator {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+
+    .login-card {
+        padding: 24px 16px;
+        border-radius: 8px;
+        margin: 16px;
+    }
+
+    .login-card h1 {
+        font-size: 1.2rem;
+    }
+
+    .login-card .form-group {
+        margin-bottom: 12px;
+    }
+
+    .login-card input {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 6px;
+    }
+
+    .login-card .login-btn {
+        padding: 10px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+}
+
+/* ═══════ SMALL PHONES (320px - 480px) ═══════ */
+@media (max-width: 380px) {
+    .admin-main {
+        padding: 10px 8px;
+    }
+
+    .admin-page-header h1 {
+        font-size: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .metric-card {
+        padding: 10px 12px;
+    }
+
+    .metric-value {
+        font-size: 1.2rem;
+    }
+
+    .metric-label {
+        font-size: 0.65rem;
+    }
+
+    .metric-icon {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 6px;
+    }
+
+    .orders-table-wrapper {
+        font-size: 0.7rem;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 6px 4px;
+    }
+
+    .status-badge {
+        padding: 2px 6px;
+        font-size: 0.6rem;
+    }
+
+    .btn-admin {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+
+    .login-box {
+        padding: 24px 16px;
+    }
+
+    .login-header h1 {
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .login-brand-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .login-form input {
+        padding: 10px 10px 10px 36px;
+        font-size: 0.85rem;
+    }
+
+    .input-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 0.85rem;
+    }
+
+    .login-submit-btn {
+        height: 40px;
+        font-size: 0.75rem;
+    }
+
+    .detail-section {
+        padding: 12px 12px;
+    }
+
+    .detail-row {
+        font-size: 0.75rem;
+    }
+
+    .kanban-card .card-customer {
+        font-size: 0.7rem;
+    }
+
+    .kanban-card .card-product {
+        font-size: 0.65rem;
     }
 }
