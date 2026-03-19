@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2, ArrowLeft, MapPin, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BASE_URL from '../config/api';
 import '../styles/CartDrawer.css';
 import OrderSuccess from './OrderSuccess';
 import LocationPicker from './LocationPicker';
@@ -97,7 +98,7 @@ const CartDrawer = () => {
     const createBackendOrder = async (paymentId) => {
         try {
             for (const item of cartItems) {
-                await fetch('https://ware-house-thriftzz-yuvan.onrender.com/api/orders', {
+                await fetch(`${BASE_URL}/api/orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

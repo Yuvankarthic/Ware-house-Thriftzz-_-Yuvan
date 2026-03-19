@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import BASE_URL from '../../config/api';
 import MetricCard from '../components/MetricCard';
 
-const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
+const API = `${BASE_URL}/api`;
 
 export default function DashboardPage({ token }) {
     const [metrics, setMetrics] = useState(null);

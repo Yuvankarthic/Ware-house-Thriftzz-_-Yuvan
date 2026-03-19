@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Loader2, Mail, Lock, Wifi, WifiOff } from 'lucide-react';
+import BASE_URL from '../../config/api';
 import '../styles/admin.css';
 
-const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
+const API = `${BASE_URL}/api`;
 
 export default function LoginPage({ onLogin }) {
     const [email, setEmail] = useState('');

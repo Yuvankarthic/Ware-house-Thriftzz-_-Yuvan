@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import BASE_URL from '../../config/api';
 import OrderDetailPanel from '../components/OrderDetailPanel';
 
-const API = 'https://ware-house-thriftzz-yuvan.onrender.com/api';
+const API = `${BASE_URL}/api`;
 const STATUSES = ['all', 'New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
 const PARTNERS = ['Porter', 'Rapido Parcel', 'Self Delivery'];
 
