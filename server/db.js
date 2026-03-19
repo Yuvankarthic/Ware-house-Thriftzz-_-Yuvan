@@ -22,16 +22,19 @@ const pool = new Pool({
 });
 
 // Test connection on startup (non-blocking)
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('❌ Database connection failed on startup:', err.message);
-        console.warn('⚠️ Server will continue without database. Requests will fail.');
-    } else {
-        console.log('✅ Database connected successfully at:', res.rows[0].now);
-    }
-}).catch((err) => {
-    console.error('❌ Database query error:', err.message);
-});
+const testConnection = () => {
+    pool.query('SELECT NOW()', (err, res) => {
+        if (err) {
+            console.error('❌ Database connection failed on startup:', err.message);
+            console.warn('⚠️ Database unavailable - server will continue.');
+        } else {
+            console.log('✅ Database connected successfully at:', res.rows[0].now);
+        }
+    });
+};
+
+// Run test asynchronously
+setTimeout(testConnection, 100);
 
 // Better error handling
 pool.on('error', (err) => {
