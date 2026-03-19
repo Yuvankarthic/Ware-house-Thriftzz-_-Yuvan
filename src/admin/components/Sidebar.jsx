@@ -1,13 +1,13 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 
 export default function Sidebar({ user }) {
-    const navigate = useNavigate();
+    const history = useHistory();
 
     const handleLogout = () => {
         localStorage.removeItem('wht_token');
         localStorage.removeItem('wht_user');
-        navigate('/admin/login');
+        history.push('/admin/login');
         window.location.reload();
     };
 

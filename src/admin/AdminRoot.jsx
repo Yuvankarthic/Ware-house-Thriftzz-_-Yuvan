@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import OrdersPage from './pages/OrdersPage';
@@ -32,10 +32,10 @@ export default function AdminRoot() {
     if (!token) {
         return (
             <div className="admin-root">
-                <Routes>
-                    <Route path="login" element={<LoginPage onLogin={handleLogin} />} />
-                    <Route path="*" element={<Navigate to="/admin/login" replace />} />
-                </Routes>
+                <Switch>
+                    <Route path="/admin/login" render={() => <LoginPage onLogin={handleLogin} />} />
+                    <Redirect to="/admin/login" />
+                </Switch>
             </div>
         );
     }
@@ -44,15 +44,14 @@ export default function AdminRoot() {
         <div className="admin-root">
             <Sidebar user={user} />
             <main className="admin-main">
-                <Routes>
-                    <Route index element={<DashboardPage token={token} />} />
-                    <Route path="orders" element={<OrdersPage token={token} />} />
-                    <Route path="kanban" element={<KanbanPage token={token} />} />
-                    <Route path="team" element={<TeamPage token={token} />} />
-                    <Route path="analytics" element={<AnalyticsPage token={token} />} />
-                    <Route path="login" element={<Navigate to="/admin" replace />} />
-                    <Route path="*" element={<Navigate to="/admin" replace />} />
-                </Routes>
+                <Switch>
+                    <Route exact path="/admin" render={() => <DashboardPage token={token} />} />
+                    <Route path="/admin/orders" render={() => <OrdersPage token={token} />} />
+                    <Route path="/admin/kanban" render={() => <KanbanPage token={token} />} />
+                    <Route path="/admin/team" render={() => <TeamPage token={token} />} />
+                    <Route path="/admin/analytics" render={() => <AnalyticsPage token={token} />} />
+                    <Redirect to="/admin" />
+                </Switch>
             </main>
         </div>
     );

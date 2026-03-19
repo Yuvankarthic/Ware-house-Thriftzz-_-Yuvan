@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
 import ProductImageSlider from './ProductImageSlider'; // NEW: Import the slider component
@@ -7,7 +7,7 @@ import '../styles/ProductPage.css';
 
 const ProductPage = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
+    const history = useHistory();
     const { addToCart, setIsCartOpen } = useCart();
     const [product, setProduct] = useState(null);
 
@@ -18,9 +18,9 @@ const ProductPage = () => {
             window.scrollTo(0, 0);
         } else {
             // If product not found, redirect to home or a 404 page
-            navigate('/');
+            history.push('/');
         }
-    }, [id, navigate]);
+    }, [id, history]);
 
     if (!product) {
         // Render nothing or a loading spinner while the product is being found
@@ -34,7 +34,7 @@ const ProductPage = () => {
     return (
         <div className="product-page-container">
             {/* Back button */}
-            <button className="product-page__back" onClick={() => navigate(-1)} aria-label="Go back">
+            <button className="product-page__back" onClick={() => history.goBack()} aria-label="Go back">
                 <span className="product-page__back-arrow">←</span>
                 <span>Back</span>
             </button>

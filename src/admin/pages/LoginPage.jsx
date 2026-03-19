@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Loader2, Mail, Lock } from 'lucide-react';
 import '../styles/admin.css';
 
@@ -10,7 +10,7 @@ export default function LoginPage({ onLogin }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const history = useHistory();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,7 +31,7 @@ export default function LoginPage({ onLogin }) {
             localStorage.setItem('wht_token', data.token);
             localStorage.setItem('wht_user', JSON.stringify(data.user));
             onLogin(data.user, data.token);
-            navigate('/admin');
+            history.push('/admin');
         } catch (err) {
             setError('System offline. Cannot reach operations server.');
             setLoading(false);

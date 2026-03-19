@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Switch, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AnnouncementBar from './components/AnnouncementBar';
@@ -33,9 +33,9 @@ function App() {
 
   if (isAdmin) {
     return (
-      <Routes>
-        <Route path="/admin/*" element={<AdminRoot />} />
-      </Routes>
+      <Switch>
+        <Route path="/admin" component={AdminRoot} />
+      </Switch>
     );
   }
 
@@ -46,11 +46,11 @@ function App() {
       <Navbar />
       <CartDrawer />
       <WishlistDrawer />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/product/:id" element={<ProductPage />} />
-      </Routes>
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="/product/:id" component={ProductPage} />
+      </Switch>
       <Chatbot />
       <Footer />
     </div>

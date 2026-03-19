@@ -1,15 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import BrandIntro from './BrandIntro';
 import '../styles/AboutPage.css';
 
 const AboutPage = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
 
     return (
         <div className="about-page">
             {/* Back Button */}
-            <button className="about-page__back" onClick={() => navigate(-1)} aria-label="Go back">
+            <button className="about-page__back" onClick={() => history.goBack()} aria-label="Go back">
                 <span className="about-page__back-arrow">←</span>
                 <span className="about-page__back-label">Back</span>
             </button>

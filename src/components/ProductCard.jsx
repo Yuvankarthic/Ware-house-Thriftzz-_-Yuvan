@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { Plus, Check, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -7,7 +7,7 @@ import { useWishlist } from '../context/WishlistContext';
 import '../styles/ProductCard.css';
 
 const ProductCard = ({ product, onSelect }) => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const cardRef = useRef(null);
@@ -66,7 +66,7 @@ const ProductCard = ({ product, onSelect }) => {
         } else {
             // Mobile tactile feedback delay before navigation
             setTimeout(() => {
-                navigate(`/product/${product.id}`);
+                history.push(`/product/${product.id}`);
             }, 200);
         }
     };
