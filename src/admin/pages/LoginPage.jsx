@@ -17,12 +17,15 @@ export default function LoginPage({ onLogin }) {
     useEffect(() => {
         const checkServerStatus = async () => {
             try {
-                const res = await fetch(`${API.replace('/api', '')}/health`, {
+                const healthUrl = `${API.replace('/api', '')}/health`;
+                const res = await fetch(healthUrl, {
                     method: 'GET',
-                    signal: AbortSignal.timeout(5000),
+                    signal: AbortSignal.timeout(8000),
                 });
                 setIsOnline(res.ok);
+                console.log('✅ Health check:', res.ok, healthUrl);
             } catch (err) {
+                console.error('❌ Health check failed:', err.message);
                 setIsOnline(false);
             }
         };
