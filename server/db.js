@@ -11,24 +11,63 @@ const { Pool } = pg;
 // Production-ready connection with SSL for Railway/cloud deployments
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
+    max: 20,  // max connections in pool
+    idleTimeoutMillis: 30000,  // close idle clients after 30s
+    connectionTimeoutMillis: 2000,  // return an error after 2s if connection could not be acquired
+    ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false
+    } : false
+});
+
+// Test connection on startup
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+        console.error('❌ Database connection failed on startup:', err.message);
+    } else {
+        console.log('✅ Database connected successfully at:', res.rows[0].now);
     }
 });
 
 pool.on('error', (err) => {
     console.error('❌ Unexpected PostgreSQL pool error:', err.message);
-    // Don't exit immediately, log and continue
-    // process.exit(-1);
+    // Attempt to reconnect
+    setTimeout(() => {
+        console.log('🔄 Attempting to reconnect to database...');
+        pool.query('SELECT NOW()', (err, res) => {
+            if (err) {
+                console.error('❌ Reconnection failed:', err.message);
+            } else {
+                console.log('✅ Reconnected to database successfully');
+            }
+        });
+    }, 5000);
+});
+
+pool.on('connect', () => {
+    console.log('📡 New database connection established');
 });
 
 /**
- * Execute a SQL query against the pool.
+ * Execute a SQL query against the pool with automatic retry.
  * @param {string} text - SQL query string
  * @param {Array}  params - Parameterized values
  * @returns {Promise<pg.QueryResult>}
  */
-export const query = (text, params) => pool.query(text, params);
+export const query = (text, params) => {
+    return pool.query(text, params).catch((err) => {
+        console.error('Query error:', err.message);
+        // If connection lost, retry once after a short delay
+        if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT') {
+            console.log('🔄 Retrying query after connection error...');
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(pool.query(text, params));
+                }, 1000);
+            });
+        }
+        throw err;
+    });
+};
 
 export default pool;
 
