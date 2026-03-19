@@ -23,38 +23,44 @@ export default function LoginPage({ onLogin }) {
                 console.log('🔍 [Health Check] Calling:', healthUrl);
                 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    console.warn('⚠️ [Health Check] Timeout after 15 seconds');
+                }, 15000);
                 
                 try {
                     const res = await fetch(healthUrl, {
                         method: 'GET',
                         headers: {
-                            'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },
                         signal: controller.signal,
+                        credentials: 'omit'
                     });
                     
                     clearTimeout(timeoutId);
-                    const isHealthy = res.ok || res.status === 200;
-                    setIsOnline(isHealthy);
+                    console.log(`✅ [Health Check] Response Status: ${res.status}`);
+                    console.log(`✅ [Health Check] Response OK: ${res.ok}`);
                     
-                    console.log(`✅ [Health Check] Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${res.status})`);
-                } catch (fetchErr) {
-                    console.error('⚠️ [Health Check] Fetch failed, trying simpler request...', fetchErr.message);
-                    
-                    // Try without headers if CORS is failing
-                    try {
-                        const simpleRes = await fetch(healthUrl);
-                        clearTimeout(timeoutId);
-                        const isHealthy = simpleRes.ok || simpleRes.status === 200;
-                        setIsOnline(isHealthy);
-                        console.log(`✅ [Health Check] Simple request Result: ${isHealthy ? 'ONLINE ✓' : 'OFFLINE ✗'} (Status: ${simpleRes.status})`);
-                    } catch (simpleErr) {
-                        clearTimeout(timeoutId);
-                        console.error('❌ [Health Check] Both fetch attempts failed:', simpleErr.message);
+                    if (res.ok && (res.status === 200 || res.status === 304)) {
+                        setIsOnline(true);
+                        console.log(`✅ [Health Check] ONLINE ✓ (Status: ${res.status})`);
+                    } else {
                         setIsOnline(false);
+                        console.warn(`⚠️ [Health Check] Server returned status: ${res.status}`);
                     }
+                } catch (fetchErr) {
+                    clearTimeout(timeoutId);
+                    
+                    if (fetchErr.name === 'AbortError') {
+                        console.error('❌ [Health Check] Request timeout after 15 seconds');
+                    } else {
+                        console.error('⚠️ [Health Check] Fetch error:', {
+                            name: fetchErr.name,
+                            message: fetchErr.message,
+                        });
+                    }
+                    setIsOnline(false);
                 }
             } catch (err) {
                 console.error('❌ [Health Check] Outer error:', {
@@ -69,8 +75,8 @@ export default function LoginPage({ onLogin }) {
         // Check immediately
         checkServerStatus();
 
-        // Check every 20 seconds
-        const interval = setInterval(checkServerStatus, 20000);
+        // Check every 15 seconds instead of 20 to be more responsive
+        const interval = setInterval(checkServerStatus, 15000);
         return () => clearInterval(interval);
     }, []);
 
