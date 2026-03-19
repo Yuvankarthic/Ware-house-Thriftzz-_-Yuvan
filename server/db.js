@@ -11,42 +11,31 @@ const { Pool } = pg;
 // Production-ready connection with SSL for Railway/cloud deployments
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    max: 10,  // reduced from 20 to prevent pool exhaustion
-    min: 2,   // keep minimum 2 connections alive
-    idleTimeoutMillis: 45000,  // increased from 30s to 45s
-    connectionTimeoutMillis: 5000,  // increased from 2s to 5s for Railway
-    statementTimeoutMillis: 30000,  // added statement timeout
+    max: 10,
+    min: 1,   // changed to 1 to avoid waiting for 2 connections
+    idleTimeoutMillis: 45000,
+    connectionTimeoutMillis: 5000,
+    statementTimeoutMillis: 30000,
     ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false
-    } : false,
-    // Enable connection validation
-    validate: (connection) => {
-        return Promise.resolve(connection);
-    }
+    } : false
 });
 
-// Test connection on startup
+// Test connection on startup (non-blocking)
 pool.query('SELECT NOW()', (err, res) => {
     if (err) {
         console.error('❌ Database connection failed on startup:', err.message);
+        console.warn('⚠️ Server will continue without database. Requests will fail.');
     } else {
         console.log('✅ Database connected successfully at:', res.rows[0].now);
     }
+}).catch((err) => {
+    console.error('❌ Database query error:', err.message);
 });
 
+// Better error handling
 pool.on('error', (err) => {
-    console.error('❌ Unexpected PostgreSQL pool error:', err.message);
-    // Attempt to reconnect
-    setTimeout(() => {
-        console.log('🔄 Attempting to reconnect to database...');
-        pool.query('SELECT NOW()', (err, res) => {
-            if (err) {
-                console.error('❌ Reconnection failed:', err.message);
-            } else {
-                console.log('✅ Reconnected to database successfully');
-            }
-        });
-    }, 5000);
+    console.error('❌ Database pool error:', err.message);
 });
 
 pool.on('connect', () => {

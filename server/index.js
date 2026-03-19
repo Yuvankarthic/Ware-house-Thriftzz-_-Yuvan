@@ -69,12 +69,15 @@ app.use((err, _req, res, _next) => {
 
 // ── Start Server ──
 const server = app.listen(PORT, '0.0.0.0', () => {
+    const dbUrl = process.env.DATABASE_URL ? '✅ Connected' : '⚠️ Not configured';
+    
     console.log(`\n🚀 WHT Fashion Backend Server`);
     console.log(`📌 Environment: ${NODE_ENV}`);
     console.log(`🔌 Listening on: 0.0.0.0:${PORT}`);
     console.log(`🌐 Public URL: https://ware-house-thriftzz-yuvan-production.up.railway.app`);
     console.log(`✅ CORS enabled: *`);
     console.log(`📡 Health check: /health`);
+    console.log(`💾 Database: ${dbUrl}`);
     console.log(`\n✨ Server is ready to accept connections\n`);
 });
 

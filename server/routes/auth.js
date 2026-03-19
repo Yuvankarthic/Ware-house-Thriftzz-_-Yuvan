@@ -79,8 +79,8 @@ router.post('/quick-login', async (req, res) => {
             user: tempUser,
         });
     } catch (err) {
-        console.error('❌ /api/auth/quick-login error:', err);
-        return res.status(500).json({ success: false, error: 'Internal server error: ' + err.message });
+        console.error('❌ /api/auth/quick-login error:', err.message);
+        return res.status(500).json({ success: false, error: 'Login failed: ' + err.message });
     }
 });
 
