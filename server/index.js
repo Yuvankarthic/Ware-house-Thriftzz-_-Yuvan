@@ -17,35 +17,48 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ── CORS Configuration (enhanced for Railway) ──
-// Handle preflight requests FIRST before any other middleware
-app.options('*', cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: false,
-    optionsSuccessStatus: 200,
-    maxAge: 86400
-}));
+// ── CORS Configuration (Production-Ready) ──
+// Define allowed frontend domains
+const allowedOrigins = [
+    'https://wearhousethrift.netlify.app',
+    'https://warehousethrriftzz.netlify.app',
+    'http://localhost:3000',        // Local development
+    'http://localhost:5173'         // Vite dev server
+];
 
-// Apply CORS to all routes
+// CORS middleware
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: false,
-    optionsSuccessStatus: 200,
-    maxAge: 86400
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            // In production, you might want to log unauthorized origins
+            console.warn(`⚠️ CORS blocked request from: ${origin}`);
+            callback(new Error('CORS policy: request origin not allowed'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+    maxAge: 86400,
+    optionsSuccessStatus: 200
 }));
 
-// Apply explicit CORS headers to ensure they're present for challenging requests
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept');
-    res.header('Access-Control-Max-Age', '86400');
-    next();
-});
+// Handle preflight requests explicitly
+app.options('*', cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS not allowed'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200
+}));
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
