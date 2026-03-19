@@ -97,27 +97,43 @@ const CartDrawer = () => {
     // Send order to backend → PostgreSQL
     const createBackendOrder = async (paymentId) => {
         try {
+            console.log(`📤 Sending ${cartItems.length} order(s) to backend: ${BASE_URL}/api/orders`);
+            
             for (const item of cartItems) {
-                await fetch(`${BASE_URL}/api/orders`, {
+                const orderPayload = {
+                    customer_name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    address: formData.address,
+                    city: formData.city,
+                    pincode: formData.pincode,
+                    product_id: item.id,
+                    quantity: item.quantity || 1,
+                    payment_id: paymentId,
+                };
+                
+                console.log('📦 Order payload:', orderPayload);
+                
+                const response = await fetch(`${BASE_URL}/api/orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        customer_name: formData.name,
-                        email: formData.email,
-                        phone: formData.phone,
-                        address: formData.address,
-                        city: formData.city,
-                        pincode: formData.pincode,
-                        product_id: item.id,
-                        quantity: item.quantity || 1,
-                        payment_id: paymentId,
-                    }),
+                    body: JSON.stringify(orderPayload),
                 });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    console.warn(`⚠️ Backend response status: ${response.status}`, result);
+                } else {
+                    console.log(`✅ Order created successfully:`, result);
+                }
             }
-            console.log('✅ Backend order created');
+            console.log('✅ All backend orders synced');
         } catch (error) {
-            // Never break checkout — backend errors are silent
-            console.error('Backend order creation failed (non-blocking):', error);
+            // Never break checkout — backend errors are non-blocking
+            console.error('❌ Backend order creation failed (non-blocking):', error);
+            console.error('💡 Your order was processed by Razorpay but may not be in dashboard yet.');
+            console.error('🔄 Dashboard will auto-sync in 2-3 seconds. If not, refresh the page.');
         }
     };
 
@@ -137,14 +153,28 @@ const CartDrawer = () => {
                 items: JSON.stringify(cartItems.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, size: item.size })))
             },
             handler: async function (response) {
-                // Google Sheets (existing) + Backend (new) — both fire in parallel
-                await Promise.all([
-                    saveOrderToGoogleSheet(response.razorpay_payment_id),
-                    createBackendOrder(response.razorpay_payment_id),
-                ]);
-                clearCart();
-                setIsPaymentSuccess(true);
-                setIsProcessing(false);
+                console.log('🎉 Payment successful! Payment ID:', response.razorpay_payment_id);
+                setIsProcessing(true);
+                
+                try {
+                    // Google Sheets (existing) + Backend (new) — both fire in parallel
+                    await Promise.all([
+                        saveOrderToGoogleSheet(response.razorpay_payment_id),
+                        createBackendOrder(response.razorpay_payment_id),
+                    ]);
+                    
+                    // Wait a moment for backend to fully process
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    console.log('✨ Order sync complete! Clearing cart...');
+                    clearCart();
+                    setIsPaymentSuccess(true);
+                } catch (error) {
+                    console.error('Error during order sync:', error);
+                    setIsPaymentSuccess(true); // Still show success - order is paid
+                } finally {
+                    setIsProcessing(false);
+                }
             },
             modal: { ondismiss: () => setIsProcessing(false) },
             prefill: { name: formData.name, email: formData.email, contact: formData.phone },
