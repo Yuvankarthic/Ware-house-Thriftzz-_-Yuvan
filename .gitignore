@@ -18,6 +18,10 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Prevent embedded git repos from being tracked
+project/
+.git/modules/
 .env
 
 # Editor directories and files
