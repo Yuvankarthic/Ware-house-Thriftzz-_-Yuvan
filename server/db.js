@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-//  PostgreSQL Connection Pool
+//  PostgreSQL Connection Pool (Cloud-Ready)
 // ─────────────────────────────────────────────
 import pg from 'pg';
 import dotenv from 'dotenv';
@@ -8,8 +8,12 @@ dotenv.config();
 
 const { Pool } = pg;
 
+// Production-ready connection with SSL for Railway/cloud deployments
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 pool.on('error', (err) => {
