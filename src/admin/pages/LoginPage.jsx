@@ -25,10 +25,11 @@ export default function LoginPage({ onLogin }) {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
                     controller.abort();
-                    console.warn('⚠️ [Health Check] Timeout after 15 seconds');
-                }, 15000);
+                    console.warn('⚠️ [Health Check] Timeout after 10 seconds');
+                }, 10000);
                 
                 try {
+                    // Try GET first
                     const res = await fetch(healthUrl, {
                         method: 'GET',
                         headers: {
@@ -39,35 +40,27 @@ export default function LoginPage({ onLogin }) {
                     });
                     
                     clearTimeout(timeoutId);
-                    console.log(`✅ [Health Check] Response Status: ${res.status}`);
-                    console.log(`✅ [Health Check] Response OK: ${res.ok}`);
+                    console.log(`✅ [Health Check] GET Response Status: ${res.status}`);
                     
-                    if (res.ok && (res.status === 200 || res.status === 304)) {
+                    if (res.ok) {
                         setIsOnline(true);
                         console.log(`✅ [Health Check] ONLINE ✓ (Status: ${res.status})`);
                     } else {
-                        setIsOnline(false);
+                        setIsOnline(res.status < 500); // Server error means offline
                         console.warn(`⚠️ [Health Check] Server returned status: ${res.status}`);
                     }
                 } catch (fetchErr) {
                     clearTimeout(timeoutId);
                     
                     if (fetchErr.name === 'AbortError') {
-                        console.error('❌ [Health Check] Request timeout after 15 seconds');
+                        console.error('❌ [Health Check] Request timeout');
                     } else {
-                        console.error('⚠️ [Health Check] Fetch error:', {
-                            name: fetchErr.name,
-                            message: fetchErr.message,
-                        });
+                        console.error('⚠️ [Health Check] Fetch error:', fetchErr.name);
                     }
                     setIsOnline(false);
                 }
             } catch (err) {
-                console.error('❌ [Health Check] Outer error:', {
-                    message: err.message,
-                    code: err.code,
-                    name: err.name
-                });
+                console.error('❌ [Health Check] Error:', err.name);
                 setIsOnline(false);
             }
         };
@@ -75,8 +68,8 @@ export default function LoginPage({ onLogin }) {
         // Check immediately
         checkServerStatus();
 
-        // Check every 15 seconds instead of 20 to be more responsive
-        const interval = setInterval(checkServerStatus, 15000);
+        // Check every 20 seconds
+        const interval = setInterval(checkServerStatus, 20000);
         return () => clearInterval(interval);
     }, []);
 

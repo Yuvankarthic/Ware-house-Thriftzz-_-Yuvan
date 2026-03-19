@@ -63,10 +63,16 @@ app.use('/api/staff', staffRoutes);
 
 // ── Health check with explicit CORS ──
 app.options('/health', cors());
+app.head('/health', (_req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Accept');
+    res.sendStatus(200);
+});
 app.get('/health', (_req, res) => {
     // Send minimal response as quickly as possible
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Accept');
     res.status(200).json({ 
         status: 'ok',
