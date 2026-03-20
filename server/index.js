@@ -18,7 +18,11 @@ const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // ── CORS Configuration (Simple, Production-Safe) ──
-app.use(cors({ origin: '*' }));
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -35,16 +39,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/staff', staffRoutes);
 
 // ── Health check ──
-app.get('/health', async (req, res) => {
-    try {
-        res.status(200).json({
-            status: 'ok',
-            time: new Date()
-        });
-    } catch (err) {
-        console.error('❌ HEALTH ERROR:', err);
-        res.status(500).json({ error: err.message });
-    }
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
 });
 
 // ── 404 handler ──
@@ -54,11 +50,10 @@ app.use((_req, res) => {
 
 // ── Global error handler ──
 app.use((err, req, res, next) => {
-    console.error('🔥 FULL ERROR:', err);
+    console.error('🔥 ERROR:', err.stack);
     res.status(500).json({
-        success: false,
-        error: err.message,
-        stack: err.stack
+        error: 'Internal Server Error',
+        message: err.message
     });
 });
 
