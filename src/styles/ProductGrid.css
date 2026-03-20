@@ -232,3 +232,118 @@
     color: var(--text-muted);
     letter-spacing: 0.06em;
 }
+
+/* Shop cards mirror admin product card design */
+.shop-admin-product-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(98, 72, 53, 0.2);
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow: 0 18px 28px rgba(42, 30, 22, 0.08);
+}
+
+.shop-admin-product-card .admin-product-image-wrap {
+    position: relative;
+    height: 220px;
+    background: linear-gradient(135deg, #ede5d8, #f6f2eb);
+}
+
+.shop-admin-product-card .admin-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.shop-admin-product-card .admin-product-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7a685a;
+    font-weight: 600;
+}
+
+.shop-admin-product-card .admin-product-content {
+    padding: 14px;
+}
+
+.shop-admin-product-card .admin-product-content h3 {
+    margin: 0 0 8px;
+    color: #2a1f1a;
+    font-size: 1.02rem;
+}
+
+.shop-admin-product-card .admin-product-price {
+    margin: 0 0 10px;
+    font-weight: 800;
+    color: #9f4327;
+    font-size: 1.06rem;
+}
+
+.shop-admin-product-card .admin-product-meta {
+    margin: 0;
+    color: #6d5b4f;
+    font-size: 0.84rem;
+}
+
+.shop-card-wishlist {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(98, 72, 53, 0.24);
+    background: rgba(255, 255, 255, 0.9);
+    color: #7a685a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.shop-card-wishlist:hover,
+.shop-card-wishlist.active {
+    color: #bb3a3a;
+    border-color: rgba(187, 58, 58, 0.4);
+    background: #fff;
+}
+
+.shop-add-to-cart-btn {
+    margin-top: 12px;
+    width: 100%;
+    border: 1px solid #2a1f1a;
+    background: #2a1f1a;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+    .shop-add-to-cart-btn {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    .shop-admin-product-card:hover .shop-add-to-cart-btn {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.shop-add-to-cart-btn:hover {
+    background: #fff;
+    color: #2a1f1a;
+}
