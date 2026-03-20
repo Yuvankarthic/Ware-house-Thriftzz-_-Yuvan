@@ -47,7 +47,7 @@
 
 .category-banner {
     position: relative;
-    min-height: 300px;
+    min-height: 250px;
     border: 1px solid rgba(255, 255, 255, 0.22);
     background-size: cover;
     background-position: center;
@@ -74,14 +74,16 @@
 .category-banner-title {
     color: #fff;
     font-family: var(--font-heading);
-    font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+    font-size: 48px;
     font-weight: 800;
     letter-spacing: 0.08em;
+    text-align: center;
 }
 
 .category-banner-button {
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border: 2px solid #fff;
+    background: transparent;
     padding: 10px 20px;
     font-family: var(--font-heading);
     font-size: 11px;
@@ -92,12 +94,11 @@
 }
 
 .category-banner:hover::before {
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(0, 0, 0, 0.25);
 }
 
 .category-banner:hover .category-banner-button {
     transform: scale(1.05);
-    background-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ─── Category Filter Bar ─── */
@@ -133,9 +134,9 @@
 }
 
 .category-pill.active {
-    background-color: var(--text-main);
-    border-color: var(--text-main);
-    color: var(--white);
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
     font-weight: 800;
 }
 
@@ -172,9 +173,23 @@
         min-height: 300px;
     }
 
+    .category-banner-title {
+        font-size: 48px;
+    }
+
     .product-grid-inner {
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .category-banner {
+        min-height: 250px;
+    }
+
+    .category-banner-title {
+        font-size: 34px;
     }
 }
 

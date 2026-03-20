@@ -7,9 +7,9 @@ import '../styles/ProductGrid.css';
 const PLACEHOLDER_IMAGE = '/images/placeholder.jpg';
 const CATEGORY_OPTIONS = ['All', 'Jackets', 'Shirts', 'Pants'];
 const CATEGORY_BANNERS = {
-  Jackets: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=800',
-  Shirts: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800',
-  Pants: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800',
+  Jackets: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1200',
+  Shirts: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=1200',
+  Pants: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=1200',
 };
 
 const mapApiProductToCard = (product) => ({
@@ -89,11 +89,6 @@ export default function Shop() {
 
   return (
     <section className="product-grid-section" id="shop-grid">
-      <div className="section-header-block">
-        <span className="section-eyebrow">Shop</span>
-        <h2 className="section-title">Fresh Reset</h2>
-      </div>
-
       <div className="shop-category-banners" aria-label="Shop Categories">
         <button
           type="button"
@@ -138,6 +133,11 @@ export default function Shop() {
             {category.toUpperCase()}
           </button>
         ))}
+      </div>
+
+      <div className="section-header-block">
+        <span className="section-eyebrow">Shop</span>
+        <h2 className="section-title">New Arrivals</h2>
       </div>
 
       <div className="size-filter-bar">
