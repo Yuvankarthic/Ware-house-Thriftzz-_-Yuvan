@@ -47,7 +47,7 @@ app.get('/', (_req, res) => {
 // ── Routes ──
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
-// app.use('/api/analytics', analyticsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 // app.use('/api/staff', staffRoutes);
 
 app.get('/debug/routes', (_req, res) => {
@@ -56,7 +56,7 @@ app.get('/debug/routes', (_req, res) => {
         routes: {
             orders: true,
             auth: true,
-            analytics: false,
+            analytics: true,
             staff: false
         }
     });

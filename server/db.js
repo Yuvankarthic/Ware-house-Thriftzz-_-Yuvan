@@ -21,9 +21,9 @@ const pool = new Pool({
     idleTimeoutMillis: 45000,
     connectionTimeoutMillis: 5000,
     statementTimeoutMillis: 30000,
-    ssl: process.env.NODE_ENV === 'production' ? {
+    ssl: {
         rejectUnauthorized: false
-    } : false
+    }
 });
 
 // Test connection on startup (non-blocking)
