@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import BASE_URL from '../../config/api';
 
 const API = `${BASE_URL}/api`;
@@ -155,6 +156,20 @@ export default function Products({ token }) {
     }
   };
 
+  const toggleMainVisibility = async (id) => {
+    try {
+      const res = await fetch(`${API}/products/${id}/visibility`, {
+        method: 'PATCH',
+        headers: authHeaders,
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to toggle visibility');
+      await fetchProducts();
+    } catch (err) {
+      setError(err.message || 'Visibility update failed');
+    }
+  };
+
   return (
     <div className="admin-products-page">
       <div className="admin-page-header">
@@ -202,6 +217,15 @@ export default function Products({ token }) {
                   </p>
 
                   <div className="admin-product-actions">
+                    <button
+                      type="button"
+                      className={`btn-admin btn-visibility ${p.show_on_main === false ? 'off' : 'on'}`}
+                      onClick={() => toggleMainVisibility(p.id)}
+                      title={p.show_on_main === false ? 'Turn ON for main website' : 'Turn OFF from main website'}
+                    >
+                      {p.show_on_main === false ? <EyeOff size={14} /> : <Eye size={14} />}
+                      {p.show_on_main === false ? 'OFF Main' : 'ON Main'}
+                    </button>
                     <button type="button" className="btn-admin" onClick={() => openEdit(p)}>Edit</button>
                     <button type="button" className={`btn-admin ${sold ? 'success' : 'warning'}`} onClick={() => toggleSold(p.id)}>
                       {sold ? 'Mark as Available' : 'Mark as Sold'}

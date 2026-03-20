@@ -2222,6 +2222,24 @@
     gap: 8px;
 }
 
+.btn-visibility {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-visibility.on {
+    background: linear-gradient(135deg, #2f8f62, #23754f);
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-visibility.off {
+    background: linear-gradient(135deg, #7e6f64, #64564d);
+    color: #fff;
+    border-color: transparent;
+}
+
 .admin-modal-overlay {
     position: fixed;
     inset: 0;

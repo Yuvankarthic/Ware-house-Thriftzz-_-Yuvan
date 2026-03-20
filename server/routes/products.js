@@ -135,6 +135,28 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
   }
 });
 
+// PATCH /api/products/:id/visibility - toggle homepage visibility
+router.patch('/:id/visibility', authMiddleware, async (req, res) => {
+  try {
+    const result = await query(
+      `UPDATE products
+       SET show_on_main = NOT COALESCE(show_on_main, true)
+       WHERE id = $1
+       RETURNING *`,
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    return res.json({ success: true, product: result.rows[0] });
+  } catch (err) {
+    console.error('❌ PATCH /api/products/:id/visibility error:', err.message);
+    return res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 // DELETE /api/products/:id - delete product
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
