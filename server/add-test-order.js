@@ -1,6 +1,7 @@
 // Quick script to add a fake order for dashboard testing
 import dotenv from 'dotenv';
-import { query } from './db.js';
+import pool from './db.js';
+const query = (text, params) => pool.query(text, params);
 
 dotenv.config();
 
@@ -77,3 +78,4 @@ async function addTestOrder() {
 }
 
 addTestOrder();
+

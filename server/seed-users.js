@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { query } from './db.js';
+import pool from './db.js';
+const query = (text, params) => pool.query(text, params);
 
 async function seedNewUsers() {
     try {
@@ -28,3 +29,4 @@ async function seedNewUsers() {
 }
 
 seedNewUsers();
+

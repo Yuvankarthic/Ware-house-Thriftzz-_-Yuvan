@@ -2,7 +2,8 @@
 //  Analytics Routes  —  /api/analytics/*
 // ─────────────────────────────────────────────
 import { Router } from 'express';
-import { query } from '../db.js';
+import pool from '../db.js';
+const query = (text, params) => pool.query(text, params);
 import { authMiddleware } from '../auth.js';
 
 const router = Router();
@@ -97,3 +98,4 @@ router.get('/by-location', authMiddleware, async (req, res) => {
 });
 
 export default router;
+

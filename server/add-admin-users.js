@@ -1,7 +1,8 @@
 // Add new admin users to the dashboard
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { query } from './db.js';
+import pool from './db.js';
+const query = (text, params) => pool.query(text, params);
 
 dotenv.config();
 
@@ -85,3 +86,4 @@ async function addAdminUsers() {
 }
 
 addAdminUsers();
+

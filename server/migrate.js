@@ -4,7 +4,8 @@
 // ─────────────────────────────────────────────
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { query } from './db.js';
+import pool from './db.js';
+const query = (text, params) => pool.query(text, params);
 
 dotenv.config();
 
@@ -133,3 +134,4 @@ migrate().catch((err) => {
     console.error('❌ Migration failed:', err);
     process.exit(1);
 });
+

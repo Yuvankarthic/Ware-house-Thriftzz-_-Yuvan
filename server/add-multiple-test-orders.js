@@ -1,6 +1,7 @@
 // Add multiple test orders with different statuses
 import dotenv from 'dotenv';
-import { query } from './db.js';
+import pool from './db.js';
+const query = (text, params) => pool.query(text, params);
 
 dotenv.config();
 
@@ -114,3 +115,4 @@ async function addMultipleTestOrders() {
 }
 
 addMultipleTestOrders();
+

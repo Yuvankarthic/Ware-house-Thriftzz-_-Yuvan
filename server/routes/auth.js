@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import { query } from '../db.js';
+import pool from '../db.js';
+const query = (text, params) => pool.query(text, params);
 import { generateToken, authMiddleware, roleMiddleware } from '../auth.js';
 
 const router = Router();
@@ -126,3 +127,4 @@ router.post('/register', authMiddleware, roleMiddleware('admin'), async (req, re
 });
 
 export default router;
+

@@ -2,7 +2,8 @@
 //  Staff Routes  —  /api/staff/*
 // ─────────────────────────────────────────────
 import { Router } from 'express';
-import { query } from '../db.js';
+import pool from '../db.js';
+const query = (text, params) => pool.query(text, params);
 import { authMiddleware, roleMiddleware } from '../auth.js';
 
 const router = Router();
@@ -35,3 +36,4 @@ router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) 
 });
 
 export default router;
+
