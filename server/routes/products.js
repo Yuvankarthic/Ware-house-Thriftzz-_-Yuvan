@@ -1,15 +1,21 @@
 import { Router } from 'express';
+import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import pool from '../db.js';
-import cloudinary from '../cloudinary.js';
 import { authMiddleware } from '../auth.js';
 
 const router = Router();
 const query = (text, params) => pool.query(text, params);
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const storage = new CloudinaryStorage({
-  cloudinary,
+  cloudinary: cloudinary,
   params: {
     folder: 'wht-products',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
