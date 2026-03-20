@@ -12,6 +12,7 @@ import ProductPage from './components/ProductPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
+import Shop from './pages/Shop';
 
 import AdminRoot from './admin/AdminRoot';
 
@@ -48,6 +49,7 @@ function App() {
       <WishlistDrawer />
       <Switch>
         <Route exact path="/" component={HomePage} />
+        <Route path="/shop" component={Shop} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
       </Switch>

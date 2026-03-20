@@ -12,6 +12,7 @@ import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
 import analyticsRoutes from './routes/analytics.js';
 import staffRoutes from './routes/staff.js';
+import productRoutes from './routes/products.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,7 @@ app.get('/', (_req, res) => {
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/products', productRoutes);
 // app.use('/api/staff', staffRoutes);
 
 app.get('/debug/routes', (_req, res) => {

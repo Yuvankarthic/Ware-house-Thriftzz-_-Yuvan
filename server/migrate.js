@@ -25,6 +25,7 @@ async function migrate() {
             created_at  TIMESTAMPTZ DEFAULT NOW()
         );
     `);
+    await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT;`);
     console.log('  ✅ products table ready');
 
     // ── Staff table ──

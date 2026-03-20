@@ -17,6 +17,7 @@ export default function Sidebar({ user, isOpen, onClose }) {
     const links = [
         { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
         { to: '/admin/orders', label: 'Orders', icon: '📦' },
+        { to: '/admin/products', label: 'Products', icon: '🛍️' },
         { to: '/admin/kanban', label: 'Board', icon: '📋' },
     ];
 
