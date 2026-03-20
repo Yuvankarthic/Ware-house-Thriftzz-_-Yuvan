@@ -7,6 +7,7 @@ const API = `${BASE_URL}/api`;
 const initialForm = {
   name: '',
   price: '',
+  category: 'Jackets',
   size: '',
   fit: '',
   condition: '',
@@ -58,6 +59,7 @@ export default function Products({ token }) {
     setForm({
       name: product.name || '',
       price: product.price || '',
+      category: product.category || 'Jackets',
       size: product.size || '',
       fit: product.fit || '',
       condition: product.condition || '',
@@ -85,6 +87,7 @@ export default function Products({ token }) {
           body: JSON.stringify({
             name: form.name,
             price: Number(form.price),
+            category: form.category,
             size: form.size,
             fit: form.fit,
             condition: form.condition,
@@ -101,6 +104,7 @@ export default function Products({ token }) {
         fd.append('image', imageFile);
         fd.append('name', form.name);
         fd.append('price', form.price);
+        fd.append('category', form.category);
         fd.append('size', form.size);
         fd.append('fit', form.fit);
         fd.append('condition', form.condition);
@@ -206,6 +210,7 @@ export default function Products({ token }) {
                   <h3>{p.name}</h3>
                   <p className="admin-product-price">₹{p.price}</p>
                   <p className="admin-product-meta">Size: {p.size || '—'} | Fit: {p.fit || '—'}</p>
+                  <p className="admin-product-meta">Category: {p.category || 'Jackets'}</p>
                   <p className="admin-product-meta">Condition: {p.condition || '—'}</p>
                   {(p.chest_length || p.shoulder_length) && (
                     <p className="admin-product-meta">
@@ -258,11 +263,16 @@ export default function Products({ token }) {
             <div className="admin-product-form-grid">
               <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="search-input" />
               <input required type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="search-input" />
+              <select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="search-input">
+                <option value="Jackets">Jackets</option>
+                <option value="Shirts">Shirts</option>
+                <option value="Pants">Pants</option>
+              </select>
               <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
               <input placeholder="Fit" value={form.fit} onChange={(e) => setForm({ ...form, fit: e.target.value })} className="search-input" />
               <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
-              <input placeholder="Chest Length (e.g. 42 inches)" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
-              <input placeholder="Shoulder Length (e.g. 18 inches)" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
+              <input placeholder="e.g. 42 inches" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
+              <input placeholder="e.g. 18 inches" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
               <select value={form.show_on_main ? 'true' : 'false'} onChange={(e) => setForm({ ...form, show_on_main: e.target.value === 'true' })} className="search-input">
                 <option value="true">Show on Main Website</option>
                 <option value="false">Keep Hidden from Main Website</option>

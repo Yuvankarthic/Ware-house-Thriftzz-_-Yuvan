@@ -11,6 +11,7 @@ let productColumnsReady = false;
 const ensureProductColumns = async () => {
   if (productColumnsReady) return;
 
+  await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT 'Jackets';`);
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);`);
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);`);
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS show_on_main BOOLEAN NOT NULL DEFAULT true;`);
@@ -49,15 +50,20 @@ const uploadToCloudinary = (buffer) => {
   });
 };
 
-// GET /api/products - all products
-router.get('/', async (_req, res) => {
+// GET /api/products - all products (optional category filter)
+router.get('/', async (req, res) => {
   try {
     await ensureProductColumns();
 
+    const category = typeof req.query.category === 'string' ? req.query.category.trim() : '';
+
+    const baseQuery = 'SELECT * FROM products';
+    const whereClause = category ? ' WHERE category = $1' : '';
+    const params = category ? [category] : [];
+
     const result = await query(
-      `SELECT id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at
-       FROM products
-       ORDER BY created_at DESC`
+      `${baseQuery}${whereClause} ORDER BY created_at DESC`,
+      params
     );
     return res.json({ success: true, products: result.rows });
   } catch (err) {
@@ -71,7 +77,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   try {
     await ensureProductColumns();
 
-    const { name, price, size, fit, condition, chest_length, shoulder_length, show_on_main } = req.body;
+    const { name, price, size, fit, condition, category, chest_length, shoulder_length, show_on_main } = req.body;
 
     if (!name || !price) {
       return res.status(400).json({ success: false, error: 'Name and price are required' });
@@ -81,12 +87,13 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     const image_url = imageUploadResult?.secure_url || null;
 
     const showOnMain = parseBoolean(show_on_main, true);
+    const productCategory = category?.trim() || 'Jackets';
 
     const result = await query(
-      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main)
-       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at`,
-      [name, price, size || null, fit || null, condition || null, image_url, chest_length || null, shoulder_length || null, showOnMain]
+      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, category, chest_length, shoulder_length, show_on_main)
+       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *`,
+      [name, price, size || null, fit || null, condition || null, image_url, productCategory, chest_length || null, shoulder_length || null, showOnMain]
     );
 
     return res.status(201).json({ success: true, product: result.rows[0] });
@@ -101,7 +108,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
   try {
     await ensureProductColumns();
 
-    const { name, price, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main } = req.body;
+    const { name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, show_on_main } = req.body;
     const showOnMain = parseBoolean(show_on_main);
 
     const result = await query(
@@ -112,12 +119,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
            fit = COALESCE($4, fit),
            condition = COALESCE($5, condition),
            image_url = COALESCE($6, image_url),
-           chest_length = COALESCE($7, chest_length),
-           shoulder_length = COALESCE($8, shoulder_length),
-           show_on_main = COALESCE($9, show_on_main)
-         WHERE id = $10
-         RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at`,
-        [name, price, size, fit, condition, image_url, chest_length, shoulder_length, showOnMain, req.params.id]
+           category = COALESCE($7, category),
+           chest_length = COALESCE($8, chest_length),
+           shoulder_length = COALESCE($9, shoulder_length),
+           show_on_main = COALESCE($10, show_on_main)
+         WHERE id = $11
+         RETURNING *`,
+        [name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, showOnMain, req.params.id]
     );
 
     if (result.rows.length === 0) {

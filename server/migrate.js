@@ -130,6 +130,11 @@ async function migrate() {
         console.log('\n  ℹ️  Staff already exist — skipping seed');
     }
 
+    await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT 'Jackets';`);
+    await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);`);
+    await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);`);
+    console.log('  ✅ product columns updated');
+
     console.log('\n🎉 Migration complete!');
     process.exit(0);
 }

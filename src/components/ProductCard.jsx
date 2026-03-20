@@ -119,6 +119,11 @@ const ProductCard = ({ product, onSelect }) => {
         >
             {/* STAGGERED DEPTH: Image leaps out most (Z: 60px) */}
             <div className="card-image-wrapper" style={{ transform: "translateZ(60px)" }}>
+                <div className="card-badges" style={{ transform: 'translateZ(65px)' }}>
+                    <span className="card-size-badge">{product.size || 'N/A'}</span>
+                    <span className="card-condition-badge">{product.condition || 'Vintage'}</span>
+                </div>
+
                 <motion.img
                     src={isHovered && !product.soldOut ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
@@ -152,9 +157,6 @@ const ProductCard = ({ product, onSelect }) => {
 
             {/* Info floats at intermediate depth (Z: 30px) */}
             <div className="card-info" style={{ transform: "translateZ(30px)" }}>
-                <div className="card-meta">
-                    <span className="card-size">{product.size}</span>
-                </div>
                 <h3 className="card-name">{product.name}</h3>
                 {(product.chest_length || product.shoulder_length) && (
                     <p className="card-measurements">
@@ -203,7 +205,7 @@ const ProductCard = ({ product, onSelect }) => {
                     disabled={product.soldOut}
                     style={{ transform: "translateZ(40px)" }}
                 >
-                    {product.soldOut ? 'Sold Out' : 'Add to Cart'}
+                    {product.soldOut ? 'SOLD OUT' : 'ADD TO CART'}
                 </button>
             </div>
         </motion.div>

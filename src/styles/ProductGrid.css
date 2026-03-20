@@ -35,6 +35,110 @@
     display: block;
 }
 
+/* ─── Category Banners ─── */
+.shop-category-banners {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 0 var(--page-px);
+    max-width: 1320px;
+    margin: 0 auto 24px;
+}
+
+.category-banner {
+    position: relative;
+    min-height: 300px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.25s ease;
+}
+
+.category-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    transition: background 0.25s ease;
+    z-index: -1;
+}
+
+.category-banner-title {
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.category-banner-button {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.category-banner:hover::before {
+    background: rgba(0, 0, 0, 0.32);
+}
+
+.category-banner:hover .category-banner-button {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Category Filter Bar ─── */
+.category-filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0 var(--page-px);
+    max-width: 1320px;
+    margin: 0 auto 16px;
+}
+
+.category-pill {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.category-pill:hover {
+    border-color: var(--text-main);
+    color: var(--text-main);
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.category-pill.active {
+    background-color: var(--text-main);
+    border-color: var(--text-main);
+    color: var(--white);
+    font-weight: 800;
+}
+
 /* ─── Grid ─── */
 .product-grid-inner {
     display: grid;
@@ -46,6 +150,28 @@
 }
 
 @media (min-width: 768px) {
+    .shop-category-banners {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            'jackets shirts'
+            'pants pants';
+    }
+
+    .category-banner-jackets {
+        grid-area: jackets;
+        min-height: 500px;
+    }
+
+    .category-banner-shirts {
+        grid-area: shirts;
+        min-height: 500px;
+    }
+
+    .category-banner-pants {
+        grid-area: pants;
+        min-height: 300px;
+    }
+
     .product-grid-inner {
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
