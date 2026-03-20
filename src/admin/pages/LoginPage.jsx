@@ -17,7 +17,7 @@ export default function LoginPage({ onLogin }) {
     useEffect(() => {
         const checkServerStatus = async () => {
             try {
-                const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan-production.up.railway.app';
+                const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan.onrender.com';
                 const healthUrl = `${baseUrl}/health`;
                 
                 console.log('🔍 [Health Check] Calling:', healthUrl);
@@ -78,7 +78,7 @@ export default function LoginPage({ onLogin }) {
         setError('');
         setLoading(true);
         try {
-            const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan-production.up.railway.app';
+            const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan.onrender.com';
             const loginUrl = `${baseUrl}/api/auth/quick-login`;
             
             console.log('🔐 Attempting login to:', loginUrl);
