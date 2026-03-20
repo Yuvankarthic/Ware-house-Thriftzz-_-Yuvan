@@ -40,8 +40,6 @@ export default function Products({ token }) {
 
   useEffect(() => {
     fetchProducts();
-    const id = setInterval(fetchProducts, 5000);
-    return () => clearInterval(id);
   }, []);
 
   const openAdd = () => {
@@ -146,82 +144,74 @@ export default function Products({ token }) {
   };
 
   return (
-    <div>
-      <div className="admin-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="admin-products-page">
+      <div className="admin-page-header">
         <div>
           <h1>Products</h1>
-          <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{products.length} total items</span>
+          <span className="admin-subtext">{products.length} total items</span>
         </div>
-        <button className="btn-admin primary" onClick={openAdd}>Add Product</button>
+        <div className="header-actions">
+          <button type="button" className="btn-admin ghost" onClick={fetchProducts}>Refresh</button>
+          <button type="button" className="btn-admin primary" onClick={openAdd}>Add Product</button>
+        </div>
       </div>
 
-      {error && (
-        <div style={{ background: 'var(--admin-danger-soft)', border: '1px solid var(--admin-danger)', color: 'var(--admin-danger)', padding: '10px', borderRadius: '10px', marginBottom: '14px' }}>
-          {error}
-        </div>
-      )}
+      {error && <div className="admin-alert error">{error}</div>}
 
       {loading ? (
-        <p style={{ color: 'var(--admin-text-muted)' }}>Loading products...</p>
+        <p className="admin-subtext">Loading products...</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+        <div className="admin-products-grid">
           {products.map((p) => {
             const sold = Number(p.stock) === 0;
             return (
-              <div key={p.id} className="admin-card" style={{ position: 'relative', padding: 0, overflow: 'hidden' }}>
-                <div style={{ position: 'relative', height: 220, background: 'rgba(255,255,255,0.04)' }}>
+              <article key={p.id} className="admin-product-card">
+                <div className="admin-product-image-wrap">
                   {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={p.image_url} alt={p.name} className="admin-product-image" />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>No Image</div>
+                    <div className="admin-product-no-image">No Image</div>
                   )}
-                  {sold && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>
-                      SOLD
-                    </div>
-                  )}
+                  {sold && <div className="admin-product-sold-overlay">Sold</div>}
                 </div>
 
-                <div style={{ padding: '12px' }}>
-                  <h3 style={{ margin: 0, marginBottom: 6 }}>{p.name}</h3>
-                  <p style={{ margin: 0, marginBottom: 8, color: 'var(--admin-accent)', fontWeight: 700 }}>₹{p.price}</p>
-                  <p style={{ margin: 0, color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
-                    Size: {p.size || '—'} | Fit: {p.fit || '—'}
-                  </p>
-                  <p style={{ margin: 0, color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
-                    Condition: {p.condition || '—'}
-                  </p>
+                <div className="admin-product-content">
+                  <h3>{p.name}</h3>
+                  <p className="admin-product-price">₹{p.price}</p>
+                  <p className="admin-product-meta">Size: {p.size || '—'} | Fit: {p.fit || '—'}</p>
+                  <p className="admin-product-meta">Condition: {p.condition || '—'}</p>
 
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
-                    <button className="btn-admin" onClick={() => openEdit(p)}>Edit</button>
-                    <button className="btn-admin warning" onClick={() => toggleSold(p.id)}>{sold ? 'Mark In Stock' : 'Mark as Sold'}</button>
-                    <button className="btn-admin danger" onClick={() => remove(p.id)}>Delete</button>
+                  <div className="admin-product-actions">
+                    <button type="button" className="btn-admin" onClick={() => openEdit(p)}>Edit</button>
+                    <button type="button" className="btn-admin warning" onClick={() => toggleSold(p.id)}>
+                      {sold ? 'Mark In Stock' : 'Mark as Sold'}
+                    </button>
+                    <button type="button" className="btn-admin danger" onClick={() => remove(p.id)}>Delete</button>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
       )}
 
       {open && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
-          <form onSubmit={submit} className="admin-card" style={{ width: '100%', maxWidth: 520, padding: 18 }}>
-            <h2 style={{ marginTop: 0 }}>{editing ? 'Edit Product' : 'Add Product'}</h2>
+        <div className="admin-modal-overlay">
+          <form onSubmit={submit} className="admin-modal-card">
+            <h2>{editing ? 'Edit Product' : 'Add Product'}</h2>
 
             {!editing && (
-              <label style={{ display: 'block', marginBottom: 10 }}>
-                <span style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-muted)' }}>Image Upload (Drag & Drop supported)</span>
+              <label className="admin-file-upload">
+                <span>Image Upload</span>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                  style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px dashed var(--admin-border)', background: 'var(--admin-surface-2)', color: 'var(--admin-text)' }}
                 />
               </label>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="admin-product-form-grid">
               <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="search-input" />
               <input required type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="search-input" />
               <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
@@ -229,8 +219,8 @@ export default function Products({ token }) {
               <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
-              <button type="button" className="btn-admin" onClick={() => setOpen(false)}>Cancel</button>
+            <div className="admin-modal-actions">
+              <button type="button" className="btn-admin ghost" onClick={() => setOpen(false)}>Cancel</button>
               <button type="submit" className="btn-admin primary" disabled={saving}>{saving ? 'Saving...' : 'Save Product'}</button>
             </div>
           </form>

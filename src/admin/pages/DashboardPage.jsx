@@ -56,8 +56,8 @@ export default function DashboardPage({ token }) {
 
     useEffect(() => {
         fetchData();
-        // Poll every 2 seconds for true real-time updates
-        const interval = setInterval(fetchData, 2000);
+        // Dashboard stays live, but less aggressive to reduce UI churn
+        const interval = setInterval(fetchData, 3000);
         return () => clearInterval(interval);
     }, []);
 
@@ -108,7 +108,7 @@ export default function DashboardPage({ token }) {
                         ⚡ REAL TIME
                     </span>
                     <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem' }}>
-                        • Live sync every 2s • Updates: {lastUpdate.toLocaleTimeString()}
+                        • Live sync every 3s • Updates: {lastUpdate.toLocaleTimeString()}
                     </span>
                 </div>
             </div>
