@@ -1,23 +1,69 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
 import ProductCard from './ProductCard';
 import ProductViewer from './ProductViewer';
 import '../styles/ProductGrid.css';
+import BASE_URL from '../config/api';
 import { products } from '../data/products';
 
-// Extract all unique sizes from products
-const ALL_SIZES = ['All', ...Array.from(new Set(products.map(p => p.size)))];
+const API = `${BASE_URL}/api`;
+const normalizeName = (value = '') => value.trim().toLowerCase();
+
+const mapApiProductToCard = (product) => ({
+    id: `api-${product.id}`,
+    name: product.name,
+    price: Number(product.price) || 0,
+    size: product.size || 'N/A',
+    fit: product.fit || 'Regular',
+    condition: product.condition || 'Vintage',
+    images: product.image_url ? [product.image_url] : [],
+    soldOut: Number(product.stock) <= 0,
+    stock: Number(product.stock) || 0,
+    show_on_main: product.show_on_main !== false,
+    chest_length: product.chest_length || '',
+    shoulder_length: product.shoulder_length || '',
+});
 
 const ProductGrid = () => {
     const [activeSize, setActiveSize] = useState('All');
     const [selectedProductId, setSelectedProductId] = useState(null);
+    const [apiProducts, setApiProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchProducts = () => {
+            fetch(`${API}/products`)
+                .then((res) => res.json())
+                .then((data) => {
+                    const list = Array.isArray(data) ? data : data?.products || [];
+                    setApiProducts(list);
+                })
+                .catch(() => setApiProducts([]));
+        };
+
+        fetchProducts();
+        const id = setInterval(fetchProducts, 30000);
+        return () => clearInterval(id);
+    }, []);
+
+    const mergedProducts = useMemo(() => {
+        const apiVisible = apiProducts
+            .map(mapApiProductToCard)
+            .filter((p) => p.show_on_main && p.stock > 0);
+
+        const apiNames = new Set(apiVisible.map((p) => normalizeName(p.name)));
+        const hardcodedOnly = products.filter((p) => !apiNames.has(normalizeName(p.name)));
+
+        return [...apiVisible, ...hardcodedOnly];
+    }, [apiProducts]);
+
+    const allSizes = useMemo(() => ['All', ...Array.from(new Set(mergedProducts.map((p) => p.size)))], [mergedProducts]);
 
     const filtered = activeSize === 'All'
-        ? products
-        : products.filter(p => p.size === activeSize);
+        ? mergedProducts
+        : mergedProducts.filter(p => p.size === activeSize);
 
     const selectedProduct = selectedProductId
-        ? products.find(p => p.id === selectedProductId)
+        ? mergedProducts.find(p => p.id === selectedProductId)
         : null;
 
     return (
@@ -30,7 +76,7 @@ const ProductGrid = () => {
 
                 {/* Size filter pills */}
                 <div className="size-filter-bar">
-                    {ALL_SIZES.map(size => (
+                    {allSizes.map(size => (
                         <button
                             key={size}
                             className={`size-pill ${activeSize === size ? 'active' : ''}`}

@@ -6,6 +6,16 @@ import { authMiddleware } from '../auth.js';
 
 const router = Router();
 const query = (text, params) => pool.query(text, params);
+const parseBoolean = (value, fallback = null) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+    if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+  }
+  return fallback;
+};
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -31,7 +41,7 @@ const uploadToCloudinary = (buffer) => {
 router.get('/', async (_req, res) => {
   try {
     const result = await query(
-      `SELECT id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at
+      `SELECT id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at
        FROM products
        ORDER BY created_at DESC`
     );
@@ -45,7 +55,7 @@ router.get('/', async (_req, res) => {
 // POST /api/products - create product with image upload
 router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   try {
-    const { name, price, size, fit, condition, chest_length, shoulder_length } = req.body;
+    const { name, price, size, fit, condition, chest_length, shoulder_length, show_on_main } = req.body;
 
     if (!name || !price) {
       return res.status(400).json({ success: false, error: 'Name and price are required' });
@@ -54,11 +64,13 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     const imageUploadResult = req.file ? await uploadToCloudinary(req.file.buffer) : null;
     const image_url = imageUploadResult?.secure_url || null;
 
+    const showOnMain = parseBoolean(show_on_main, true);
+
     const result = await query(
-      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length)
-       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8)
-       RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at`,
-      [name, price, size || null, fit || null, condition || null, image_url, chest_length || null, shoulder_length || null]
+      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main)
+       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at`,
+      [name, price, size || null, fit || null, condition || null, image_url, chest_length || null, shoulder_length || null, showOnMain]
     );
 
     return res.status(201).json({ success: true, product: result.rows[0] });
@@ -71,7 +83,8 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
 // PUT /api/products/:id - edit product details
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, price, size, fit, condition, image_url, chest_length, shoulder_length } = req.body;
+    const { name, price, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main } = req.body;
+    const showOnMain = parseBoolean(show_on_main);
 
     const result = await query(
       `UPDATE products
@@ -82,10 +95,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
            condition = COALESCE($5, condition),
            image_url = COALESCE($6, image_url),
            chest_length = COALESCE($7, chest_length),
-           shoulder_length = COALESCE($8, shoulder_length)
-         WHERE id = $9
-         RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at`,
-        [name, price, size, fit, condition, image_url, chest_length, shoulder_length, req.params.id]
+           shoulder_length = COALESCE($8, shoulder_length),
+           show_on_main = COALESCE($9, show_on_main)
+         WHERE id = $10
+         RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at`,
+        [name, price, size, fit, condition, image_url, chest_length, shoulder_length, showOnMain, req.params.id]
     );
 
     if (result.rows.length === 0) {

@@ -8,8 +8,7 @@ export default function Sidebar({ user, isOpen, onClose }) {
     const handleLogout = () => {
         localStorage.removeItem('wht_token');
         localStorage.removeItem('wht_user');
-        history.push('/admin/login');
-        window.location.reload();
+        history.push('/');
     };
 
     const isAdmin = user?.role === 'admin';

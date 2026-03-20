@@ -11,6 +11,7 @@ const initialForm = {
   condition: '',
   chest_length: '',
   shoulder_length: '',
+  show_on_main: true,
 };
 
 export default function Products({ token }) {
@@ -61,6 +62,7 @@ export default function Products({ token }) {
       condition: product.condition || '',
       chest_length: product.chest_length || '',
       shoulder_length: product.shoulder_length || '',
+      show_on_main: product.show_on_main !== false,
     });
     setImageFile(null);
     setOpen(true);
@@ -87,6 +89,7 @@ export default function Products({ token }) {
             condition: form.condition,
             chest_length: form.chest_length,
             shoulder_length: form.shoulder_length,
+            show_on_main: form.show_on_main,
           }),
         });
         const data = await res.json();
@@ -102,6 +105,7 @@ export default function Products({ token }) {
         fd.append('condition', form.condition);
         fd.append('chest_length', form.chest_length);
         fd.append('shoulder_length', form.shoulder_length);
+        fd.append('show_on_main', String(form.show_on_main));
 
         const res = await fetch(`${API}/products`, {
           method: 'POST',
@@ -193,6 +197,9 @@ export default function Products({ token }) {
                       Chest: {p.chest_length || '—'} | Shoulder: {p.shoulder_length || '—'}
                     </p>
                   )}
+                  <p className="admin-product-meta">
+                    Main Website: {p.show_on_main === false ? 'Hidden' : 'Visible'}
+                  </p>
 
                   <div className="admin-product-actions">
                     <button type="button" className="btn-admin" onClick={() => openEdit(p)}>Edit</button>
@@ -232,6 +239,10 @@ export default function Products({ token }) {
               <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
               <input placeholder="Chest Length (e.g. 42 inches)" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
               <input placeholder="Shoulder Length (e.g. 18 inches)" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
+              <select value={form.show_on_main ? 'true' : 'false'} onChange={(e) => setForm({ ...form, show_on_main: e.target.value === 'true' })} className="search-input">
+                <option value="true">Show on Main Website</option>
+                <option value="false">Keep Hidden from Main Website</option>
+              </select>
             </div>
 
             <div className="admin-modal-actions">
