@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import pool from '../db.js';
 import { authMiddleware } from '../auth.js';
 
@@ -14,15 +13,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'wht-products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-  },
-});
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({ storage });
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: 'wht-products' },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    ).end(buffer);
+  });
+};
 
 // GET /api/products - all products
 router.get('/', async (_req, res) => {
@@ -48,13 +51,14 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       return res.status(400).json({ success: false, error: 'Name and price are required' });
     }
 
-    const imageUrl = req.file?.path || null;
+    const imageUploadResult = req.file ? await uploadToCloudinary(req.file.buffer) : null;
+    const image_url = imageUploadResult?.secure_url || null;
 
     const result = await query(
       `INSERT INTO products (name, price, stock, size, fit, condition, image_url)
        VALUES ($1, $2, 1, $3, $4, $5, $6)
        RETURNING id, name, price, stock, size, fit, condition, image_url, created_at`,
-      [name, price, size || null, fit || null, condition || null, imageUrl]
+      [name, price, size || null, fit || null, condition || null, image_url]
     );
 
     return res.status(201).json({ success: true, product: result.rows[0] });
