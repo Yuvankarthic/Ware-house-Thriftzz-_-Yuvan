@@ -21,12 +21,20 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ── CORS Configuration (Simple, Production-Safe) ──
-app.use(cors({
-    origin: '*',
+// ── CORS Configuration ──
+const corsOptions = {
+    origin: [
+        'https://wearhousethrift.netlify.app',
+        'https://wearhousethriftzz.netlify.app',
+        'http://localhost:3000',
+        'http://localhost:5173'
+    ],
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -58,8 +66,7 @@ app.get('/debug/routes', (_req, res) => {
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
-        message: 'Server is working',
-        time: new Date().toISOString()
+        timestamp: new Date()
     });
 });
 
