@@ -29,9 +29,22 @@ const ProductCard = ({ product, onSelect }) => {
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
 
     const [isHovered, setIsHovered] = useState(false);
+    const fallbackImage = '/images/placeholder.jpg';
 
-    const primaryImage = product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.png';
+    const primaryImage = product.images && product.images.length > 0 ? product.images[0] : fallbackImage;
     const hoverImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage;
+
+    const handleImageError = (e) => {
+        if (e.currentTarget.src.includes('/images/placeholder.jpg')) {
+            e.currentTarget.style.display = 'none';
+            if (e.currentTarget.parentElement) {
+                e.currentTarget.parentElement.style.background = '#f0f0f0';
+            }
+            return;
+        }
+
+        e.currentTarget.src = fallbackImage;
+    };
 
     const handleMouseMove = (e) => {
         if (!cardRef.current) return;
@@ -109,6 +122,7 @@ const ProductCard = ({ product, onSelect }) => {
                 <motion.img
                     src={isHovered && !product.soldOut ? hoverImage : primaryImage}
                     alt={product.name || 'Product Image'}
+                    onError={handleImageError}
                     className="card-image"
                     layoutId={`product-image-${product.id}`}
                     loading="lazy"

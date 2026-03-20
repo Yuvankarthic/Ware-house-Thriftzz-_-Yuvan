@@ -4,6 +4,8 @@ import ProductCard from '../components/ProductCard';
 import ProductViewer from '../components/ProductViewer';
 import '../styles/ProductGrid.css';
 
+const PLACEHOLDER_IMAGE = '/images/placeholder.jpg';
+
 const mapApiProductToCard = (product) => ({
   id: `api-${product.id}`,
   name: product.name,
@@ -11,7 +13,8 @@ const mapApiProductToCard = (product) => ({
   size: product.size || 'N/A',
   fit: product.fit || 'Regular',
   condition: product.condition || 'Vintage',
-  images: product.image_url ? [product.image_url] : [],
+  image_url: product.image_url || PLACEHOLDER_IMAGE,
+  images: [product.image_url || PLACEHOLDER_IMAGE],
   soldOut: Number(product.stock) <= 0,
   stock: Number(product.stock) || 0,
   chest_length: product.chest_length || '',
