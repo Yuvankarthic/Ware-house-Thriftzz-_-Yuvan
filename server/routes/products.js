@@ -31,7 +31,7 @@ const uploadToCloudinary = (buffer) => {
 router.get('/', async (_req, res) => {
   try {
     const result = await query(
-      `SELECT id, name, price, stock, size, fit, condition, image_url, created_at
+      `SELECT id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at
        FROM products
        ORDER BY created_at DESC`
     );
@@ -45,7 +45,7 @@ router.get('/', async (_req, res) => {
 // POST /api/products - create product with image upload
 router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   try {
-    const { name, price, size, fit, condition } = req.body;
+    const { name, price, size, fit, condition, chest_length, shoulder_length } = req.body;
 
     if (!name || !price) {
       return res.status(400).json({ success: false, error: 'Name and price are required' });
@@ -55,10 +55,10 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     const image_url = imageUploadResult?.secure_url || null;
 
     const result = await query(
-      `INSERT INTO products (name, price, stock, size, fit, condition, image_url)
-       VALUES ($1, $2, 1, $3, $4, $5, $6)
-       RETURNING id, name, price, stock, size, fit, condition, image_url, created_at`,
-      [name, price, size || null, fit || null, condition || null, image_url]
+      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length)
+       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8)
+       RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at`,
+      [name, price, size || null, fit || null, condition || null, image_url, chest_length || null, shoulder_length || null]
     );
 
     return res.status(201).json({ success: true, product: result.rows[0] });
@@ -71,7 +71,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
 // PUT /api/products/:id - edit product details
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, price, size, fit, condition, image_url } = req.body;
+    const { name, price, size, fit, condition, image_url, chest_length, shoulder_length } = req.body;
 
     const result = await query(
       `UPDATE products
@@ -80,10 +80,12 @@ router.put('/:id', authMiddleware, async (req, res) => {
            size = COALESCE($3, size),
            fit = COALESCE($4, fit),
            condition = COALESCE($5, condition),
-           image_url = COALESCE($6, image_url)
-       WHERE id = $7
-       RETURNING id, name, price, stock, size, fit, condition, image_url, created_at`,
-      [name, price, size, fit, condition, image_url, req.params.id]
+           image_url = COALESCE($6, image_url),
+           chest_length = COALESCE($7, chest_length),
+           shoulder_length = COALESCE($8, shoulder_length)
+         WHERE id = $9
+         RETURNING id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, created_at`,
+        [name, price, size, fit, condition, image_url, chest_length, shoulder_length, req.params.id]
     );
 
     if (result.rows.length === 0) {
@@ -102,9 +104,9 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
   try {
     const result = await query(
       `UPDATE products
-       SET stock = CASE WHEN stock = 1 THEN 0 ELSE 1 END
+       SET stock = CASE WHEN stock > 0 THEN 0 ELSE 1 END
        WHERE id = $1
-       RETURNING id, name, price, stock, size, fit, condition, image_url, created_at`,
+       RETURNING *`,
       [req.params.id]
     );
 

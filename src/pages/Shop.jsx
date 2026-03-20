@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import ProductViewer from '../components/ProductViewer';
-import { products as hardcodedProducts } from '../data/products';
 import '../styles/ProductGrid.css';
-
-const normalizeName = (value = '') => value.trim().toLowerCase();
 
 const mapApiProductToCard = (product) => ({
   id: `api-${product.id}`,
@@ -16,6 +13,9 @@ const mapApiProductToCard = (product) => ({
   condition: product.condition || 'Vintage',
   images: product.image_url ? [product.image_url] : [],
   soldOut: Number(product.stock) <= 0,
+  stock: Number(product.stock) || 0,
+  chest_length: product.chest_length || '',
+  shoulder_length: product.shoulder_length || '',
 });
 
 export default function Shop() {
@@ -25,29 +25,30 @@ export default function Shop() {
   const [selectedProductId, setSelectedProductId] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products`)
-      .then((res) => res.json())
-      .then((data) => {
-        const list = Array.isArray(data) ? data : data?.products || [];
-        setProducts(list.filter((p) => Number(p.stock) > 0));
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
+    const fetchProducts = () => {
+      fetch(`${import.meta.env.VITE_API_URL}/api/products`)
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data?.products || [];
+          setProducts(list.filter((p) => Number(p.stock) > 0));
+        })
+        .catch(() => setProducts([]))
+        .finally(() => setLoading(false));
+    };
+
+    fetchProducts();
+    const id = setInterval(fetchProducts, 30000);
+    return () => clearInterval(id);
   }, []);
 
-  const mergedProducts = useMemo(() => {
-    const apiMapped = products.map(mapApiProductToCard);
-    const apiNames = new Set(apiMapped.map((p) => normalizeName(p.name)));
-    const hardcodedOnly = hardcodedProducts.filter((p) => !apiNames.has(normalizeName(p.name)));
-    return [...apiMapped, ...hardcodedOnly];
-  }, [products]);
+  const liveProducts = useMemo(() => products.map(mapApiProductToCard).filter((p) => p.stock > 0), [products]);
 
-  const allSizes = useMemo(() => ['All', ...Array.from(new Set(mergedProducts.map((p) => p.size)))], [mergedProducts]);
+  const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
   const filteredProducts = useMemo(() => {
-    if (activeSize === 'All') return mergedProducts;
-    return mergedProducts.filter((p) => p.size === activeSize);
-  }, [activeSize, mergedProducts]);
+    if (activeSize === 'All') return liveProducts;
+    return liveProducts.filter((p) => p.size === activeSize);
+  }, [activeSize, liveProducts]);
 
   const selectedProduct = selectedProductId ? filteredProducts.find((p) => p.id === selectedProductId) : null;
 

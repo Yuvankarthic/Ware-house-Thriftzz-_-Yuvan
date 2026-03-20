@@ -9,6 +9,8 @@ const initialForm = {
   size: '',
   fit: '',
   condition: '',
+  chest_length: '',
+  shoulder_length: '',
 };
 
 export default function Products({ token }) {
@@ -57,6 +59,8 @@ export default function Products({ token }) {
       size: product.size || '',
       fit: product.fit || '',
       condition: product.condition || '',
+      chest_length: product.chest_length || '',
+      shoulder_length: product.shoulder_length || '',
     });
     setImageFile(null);
     setOpen(true);
@@ -81,6 +85,8 @@ export default function Products({ token }) {
             size: form.size,
             fit: form.fit,
             condition: form.condition,
+            chest_length: form.chest_length,
+            shoulder_length: form.shoulder_length,
           }),
         });
         const data = await res.json();
@@ -94,6 +100,8 @@ export default function Products({ token }) {
         fd.append('size', form.size);
         fd.append('fit', form.fit);
         fd.append('condition', form.condition);
+        fd.append('chest_length', form.chest_length);
+        fd.append('shoulder_length', form.shoulder_length);
 
         const res = await fetch(`${API}/products`, {
           method: 'POST',
@@ -180,11 +188,16 @@ export default function Products({ token }) {
                   <p className="admin-product-price">₹{p.price}</p>
                   <p className="admin-product-meta">Size: {p.size || '—'} | Fit: {p.fit || '—'}</p>
                   <p className="admin-product-meta">Condition: {p.condition || '—'}</p>
+                  {(p.chest_length || p.shoulder_length) && (
+                    <p className="admin-product-meta">
+                      Chest: {p.chest_length || '—'} | Shoulder: {p.shoulder_length || '—'}
+                    </p>
+                  )}
 
                   <div className="admin-product-actions">
                     <button type="button" className="btn-admin" onClick={() => openEdit(p)}>Edit</button>
-                    <button type="button" className="btn-admin warning" onClick={() => toggleSold(p.id)}>
-                      {sold ? 'Mark In Stock' : 'Mark as Sold'}
+                    <button type="button" className={`btn-admin ${sold ? 'success' : 'warning'}`} onClick={() => toggleSold(p.id)}>
+                      {sold ? 'Mark as Available' : 'Mark as Sold'}
                     </button>
                     <button type="button" className="btn-admin danger" onClick={() => remove(p.id)}>Delete</button>
                   </div>
@@ -217,6 +230,8 @@ export default function Products({ token }) {
               <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
               <input placeholder="Fit" value={form.fit} onChange={(e) => setForm({ ...form, fit: e.target.value })} className="search-input" />
               <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
+              <input placeholder="Chest Length (e.g. 42 inches)" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
+              <input placeholder="Shoulder Length (e.g. 18 inches)" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
             </div>
 
             <div className="admin-modal-actions">

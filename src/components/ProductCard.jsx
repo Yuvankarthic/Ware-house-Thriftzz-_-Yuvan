@@ -142,6 +142,11 @@ const ProductCard = ({ product, onSelect }) => {
                     <span className="card-size">{product.size}</span>
                 </div>
                 <h3 className="card-name">{product.name}</h3>
+                {(product.chest_length || product.shoulder_length) && (
+                    <p className="card-measurements">
+                        Chest: {product.chest_length || '-'} | Shoulder: {product.shoulder_length || '-'}
+                    </p>
+                )}
                 <div className="card-price-row">
                     <p className="card-price">₹{product.price}</p>
 

@@ -139,6 +139,13 @@
     margin: 0;
 }
 
+.card-measurements {
+    margin: 2px 0 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+}
+
 .card-price {
     font-family: var(--font-heading);
     font-size: 16px;
