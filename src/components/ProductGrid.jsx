@@ -71,7 +71,7 @@ const ProductGrid = () => {
             <section className="product-grid-section" id="latest-drop">
                 <div className="section-header-block">
                     <span className="section-eyebrow">Latest Drop</span>
-                    <h2 className="section-title">New Arrivals</h2>
+                    <h2 className="section-title">Fresh Canvas</h2>
                 </div>
 
                 {/* Size filter pills */}
@@ -100,7 +100,7 @@ const ProductGrid = () => {
                             />
                         ))
                     ) : (
-                        <p className="grid-empty">No products in this size. Check back soon!</p>
+                        <p className="grid-empty">All previous cards are cleared. New pieces will appear here soon.</p>
                     )}
                 </div>
             </section>
