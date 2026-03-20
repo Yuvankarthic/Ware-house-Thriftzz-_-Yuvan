@@ -7,20 +7,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { Pool } = pg;
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
+if (!process.env.DATABASE_URL) {
     console.warn('⚠️ DATABASE_URL is not set. Database features may fail until it is configured.');
 }
 
 // Production-ready connection with SSL for Railway/cloud deployments
 const pool = new Pool({
-    connectionString,
-    max: 10,
-    min: 1,   // changed to 1 to avoid waiting for 2 connections
-    idleTimeoutMillis: 45000,
-    connectionTimeoutMillis: 5000,
-    statementTimeoutMillis: 30000,
+    connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }
