@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm --prefix server install --omit=dev",
+    "start": "node server/index.js"
   },
   "dependencies": {
     "framer-motion": "^6.5.0",

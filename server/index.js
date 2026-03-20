@@ -5,13 +5,17 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
 import analyticsRoutes from './routes/analytics.js';
 import staffRoutes from './routes/staff.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -99,10 +103,8 @@ process.on('SIGTERM', () => {
 // ── Handle unhandled errors ──
 process.on('uncaughtException', (err) => {
     console.error('💥 Unhandled Exception:', err);
-    process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
-    process.exit(1);
 });
