@@ -93,6 +93,14 @@ export default function LoginPage({ onLogin }) {
             });
             
             console.log('📡 Login response status:', res.status);
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                if (res.status === 404) {
+                    throw new Error('Login route not found on backend (/api/auth/quick-login)');
+                }
+                throw new Error(`Unexpected backend response type (${contentType || 'unknown'})`);
+            }
+
             const data = await res.json();
             
             if (!data.success) {
@@ -107,7 +115,7 @@ export default function LoginPage({ onLogin }) {
             history.push('/admin');
         } catch (err) {
             console.error('❌ Login error:', err);
-            setError('Cannot connect to backend. Please try again.');
+            setError(err.message || 'Cannot connect to backend. Please try again.');
             setLoading(false);
         }
     };

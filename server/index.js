@@ -35,12 +35,28 @@ app.get('/', (_req, res) => {
 // ── Routes ──
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/staff', staffRoutes);
+// app.use('/api/analytics', analyticsRoutes);
+// app.use('/api/staff', staffRoutes);
+
+app.get('/debug/routes', (_req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        routes: {
+            orders: true,
+            auth: true,
+            analytics: false,
+            staff: false
+        }
+    });
+});
 
 // ── Health check ──
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({
+        status: 'ok',
+        message: 'Server is working',
+        time: new Date().toISOString()
+    });
 });
 
 // ── 404 handler ──
