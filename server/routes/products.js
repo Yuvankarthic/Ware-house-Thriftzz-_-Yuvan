@@ -6,6 +6,18 @@ import { authMiddleware } from '../auth.js';
 
 const router = Router();
 const query = (text, params) => pool.query(text, params);
+let productColumnsReady = false;
+
+const ensureProductColumns = async () => {
+  if (productColumnsReady) return;
+
+  await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);`);
+  await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);`);
+  await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS show_on_main BOOLEAN NOT NULL DEFAULT true;`);
+
+  productColumnsReady = true;
+};
+
 const parseBoolean = (value, fallback = null) => {
   if (value === undefined || value === null || value === '') return fallback;
   if (typeof value === 'boolean') return value;
@@ -40,6 +52,8 @@ const uploadToCloudinary = (buffer) => {
 // GET /api/products - all products
 router.get('/', async (_req, res) => {
   try {
+    await ensureProductColumns();
+
     const result = await query(
       `SELECT id, name, price, stock, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main, created_at
        FROM products
@@ -55,6 +69,8 @@ router.get('/', async (_req, res) => {
 // POST /api/products - create product with image upload
 router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   try {
+    await ensureProductColumns();
+
     const { name, price, size, fit, condition, chest_length, shoulder_length, show_on_main } = req.body;
 
     if (!name || !price) {
@@ -83,6 +99,8 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
 // PUT /api/products/:id - edit product details
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
+    await ensureProductColumns();
+
     const { name, price, size, fit, condition, image_url, chest_length, shoulder_length, show_on_main } = req.body;
     const showOnMain = parseBoolean(show_on_main);
 
@@ -116,6 +134,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
 // PATCH /api/products/:id/sold - toggle stock 1 <-> 0
 router.patch('/:id/sold', authMiddleware, async (req, res) => {
   try {
+    await ensureProductColumns();
+
     const result = await query(
       `UPDATE products
        SET stock = CASE WHEN stock > 0 THEN 0 ELSE 1 END
@@ -138,6 +158,8 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
 // PATCH /api/products/:id/visibility - toggle homepage visibility
 router.patch('/:id/visibility', authMiddleware, async (req, res) => {
   try {
+    await ensureProductColumns();
+
     const result = await query(
       `UPDATE products
        SET show_on_main = NOT COALESCE(show_on_main, true)
@@ -160,6 +182,8 @@ router.patch('/:id/visibility', authMiddleware, async (req, res) => {
 // DELETE /api/products/:id - delete product
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    await ensureProductColumns();
+
     const result = await query('DELETE FROM products WHERE id = $1 RETURNING id', [req.params.id]);
 
     if (result.rows.length === 0) {
