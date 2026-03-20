@@ -34,26 +34,17 @@ app.use('/api/auth', authRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/staff', staffRoutes);
 
-// ── Health check with explicit CORS ──
-app.options('/health', cors());
-app.head('/health', (_req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Accept');
-    res.sendStatus(200);
-});
-app.get('/health', (_req, res) => {
-    // Send minimal response as quickly as possible
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Accept');
-    res.status(200).json({ 
-        status: 'ok',
-        message: 'Backend is healthy',
-        timestamp: new Date().toISOString(),
-        environment: NODE_ENV,
-        uptime: process.uptime()
-    });
+// ── Health check ──
+app.get('/health', async (req, res) => {
+    try {
+        res.status(200).json({
+            status: 'ok',
+            time: new Date()
+        });
+    } catch (err) {
+        console.error('❌ HEALTH ERROR:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ── 404 handler ──
@@ -62,9 +53,13 @@ app.use((_req, res) => {
 });
 
 // ── Global error handler ──
-app.use((err, _req, res, _next) => {
-    console.error('💥 Unhandled error:', err);
-    res.status(500).json({ success: false, error: 'Something went wrong' });
+app.use((err, req, res, next) => {
+    console.error('🔥 FULL ERROR:', err);
+    res.status(500).json({
+        success: false,
+        error: err.message,
+        stack: err.stack
+    });
 });
 
 // ── Start Server ──
