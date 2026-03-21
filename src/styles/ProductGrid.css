@@ -48,6 +48,17 @@
     display: block;
 }
 
+.category-page-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-title-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
 /* ─── Grid ─── */
 .product-grid-inner {
     display: grid;
@@ -247,6 +258,10 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-main);
+}
+
+.category-type-header {
+    margin-bottom: 14px;
 }
 
 .shop-category-grid {

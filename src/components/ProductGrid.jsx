@@ -4,10 +4,8 @@ import ProductCard from './ProductCard';
 import ProductViewer from './ProductViewer';
 import '../styles/ProductGrid.css';
 import BASE_URL from '../config/api';
-import { products } from '../data/products';
 
 const API = `${BASE_URL}/api`;
-const normalizeName = (value = '') => value.trim().toLowerCase();
 
 const mapApiProductToCard = (product) => ({
     id: `api-${product.id}`,
@@ -45,25 +43,20 @@ const ProductGrid = () => {
         return () => clearInterval(id);
     }, []);
 
-    const mergedProducts = useMemo(() => {
-        const apiVisible = apiProducts
+    const liveProducts = useMemo(() => {
+        return apiProducts
             .map(mapApiProductToCard)
             .filter((p) => p.show_on_main && p.stock > 0);
-
-        const apiNames = new Set(apiVisible.map((p) => normalizeName(p.name)));
-        const hardcodedOnly = products.filter((p) => !apiNames.has(normalizeName(p.name)));
-
-        return [...apiVisible, ...hardcodedOnly];
     }, [apiProducts]);
 
-    const allSizes = useMemo(() => ['All', ...Array.from(new Set(mergedProducts.map((p) => p.size)))], [mergedProducts]);
+    const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
     const filtered = activeSize === 'All'
-        ? mergedProducts
-        : mergedProducts.filter(p => p.size === activeSize);
+        ? liveProducts
+        : liveProducts.filter(p => p.size === activeSize);
 
     const selectedProduct = selectedProductId
-        ? mergedProducts.find(p => p.id === selectedProductId)
+        ? liveProducts.find(p => p.id === selectedProductId)
         : null;
 
     return (
