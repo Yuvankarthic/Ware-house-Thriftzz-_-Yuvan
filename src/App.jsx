@@ -12,6 +12,7 @@ import ProductPage from './components/ProductPage';
 import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
 import Shop from './pages/Shop';
+import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
 
@@ -38,6 +39,10 @@ function App() {
         <Route path="/admin" component={AdminRoot} />
       </Switch>
     );
+  }
+
+  if (location.pathname === '/') {
+    return <WelcomeOverlay />;
   }
 
   return (
