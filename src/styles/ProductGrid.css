@@ -7,6 +7,19 @@
     background-color: var(--bg-color);
 }
 
+.shop-banners-section {
+    padding-top: clamp(28px, 4vw, 44px);
+    padding-bottom: 10px;
+}
+
+.shop-banners-section .shop-category-banners {
+    margin-bottom: 12px;
+}
+
+.fresh-canvas-section {
+    padding-top: 20px;
+}
+
 /* ─── Section header — aligned block ─── */
 .section-header-block {
     padding: 0 var(--page-px);

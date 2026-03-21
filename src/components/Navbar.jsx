@@ -42,8 +42,8 @@ const Navbar = () => {
 
                 {/* Desktop + Mobile nav links */}
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
-                    <a href="/#latest-drop" onClick={closeMenu}>Shop</a>
-                    <a href="/#latest-drop" onClick={closeMenu}>New Arrivals</a>
+                    <Link to="/shop" onClick={closeMenu}>Shop</Link>
+                    <Link to="/shop#latest-drop" onClick={closeMenu}>New Arrivals</Link>
                     <Link to="/about" onClick={closeMenu}>Our Story</Link>
 
                     {/* Mobile-only extras */}

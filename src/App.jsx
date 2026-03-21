@@ -12,6 +12,7 @@ import ProductPage from './components/ProductPage';
 import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
 import Shop from './pages/Shop';
+import CategoryPage from './pages/CategoryPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
@@ -54,6 +55,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomeAndShopPage} />
         <Route exact path="/shop" component={HomeAndShopPage} />
+        <Route path="/shop/:category" component={CategoryPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
       </Switch>

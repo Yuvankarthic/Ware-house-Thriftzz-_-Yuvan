@@ -68,7 +68,7 @@ const ProductGrid = () => {
 
     return (
         <LayoutGroup>
-            <section className="product-grid-section" id="latest-drop">
+            <section className="product-grid-section fresh-canvas-section" id="latest-drop">
                 <div className="section-header-block">
                     <span className="section-eyebrow">Latest Drop</span>
                     <h2 className="section-title">Fresh Canvas</h2>
