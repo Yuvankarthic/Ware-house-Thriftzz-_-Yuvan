@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
+import { SlidersHorizontal } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductViewer from './ProductViewer';
 import '../styles/ProductGrid.css';
@@ -14,6 +15,7 @@ const mapApiProductToCard = (product) => ({
     size: product.size || 'N/A',
     fit: product.fit || 'Regular',
     condition: product.condition || 'Vintage',
+    category: product.category || 'Jackets',
     images: product.image_url ? [product.image_url] : [],
     soldOut: Number(product.stock) <= 0,
     stock: Number(product.stock) || 0,
@@ -22,7 +24,20 @@ const mapApiProductToCard = (product) => ({
     shoulder_length: product.shoulder_length || '',
 });
 
+const CATEGORY_OPTIONS = ['All', 'Jackets', 'Shirts', 'Pants'];
+const normalizeCategory = (value = '') => {
+    const normalized = String(value).trim().toLowerCase();
+    if (!normalized) return '';
+    if (['jacket', 'jackets'].includes(normalized)) return 'Jackets';
+    if (['shirt', 'shirts'].includes(normalized)) return 'Shirts';
+    if (['pant', 'pants', 'trouser', 'trousers'].includes(normalized)) return 'Pants';
+    return '';
+};
+
 const ProductGrid = () => {
+    const panelRef = useRef(null);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeCategory, setActiveCategory] = useState('All');
     const [activeSize, setActiveSize] = useState('All');
     const [selectedProductId, setSelectedProductId] = useState(null);
     const [apiProducts, setApiProducts] = useState([]);
@@ -43,6 +58,17 @@ const ProductGrid = () => {
         return () => clearInterval(id);
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (panelRef.current && !panelRef.current.contains(event.target)) {
+                setIsFilterOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const liveProducts = useMemo(() => {
         return apiProducts
             .map(mapApiProductToCard)
@@ -51,9 +77,14 @@ const ProductGrid = () => {
 
     const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
-    const filtered = activeSize === 'All'
-        ? liveProducts
-        : liveProducts.filter(p => p.size === activeSize);
+    const activeFilterCount = (activeCategory !== 'All' ? 1 : 0) + (activeSize !== 'All' ? 1 : 0);
+
+    const filtered = liveProducts.filter((product) => {
+        const productCategory = normalizeCategory(product.category) || 'Jackets';
+        const categoryMatch = activeCategory === 'All' || productCategory === activeCategory;
+        const sizeMatch = activeSize === 'All' || product.size === activeSize;
+        return categoryMatch && sizeMatch;
+    });
 
     const selectedProduct = selectedProductId
         ? liveProducts.find(p => p.id === selectedProductId)
@@ -62,9 +93,82 @@ const ProductGrid = () => {
     return (
         <LayoutGroup>
             <section className="product-grid-section fresh-canvas-section" id="latest-drop">
-                <div className="section-header-block">
-                    <span className="section-eyebrow">Latest Drop</span>
-                    <h2 className="section-title">Fresh Canvas</h2>
+                <div className="section-header-block shop-header-row" ref={panelRef}>
+                    <div>
+                        <span className="section-eyebrow">Latest Drop</span>
+                        <h2 className="section-title">Fresh Canvas</h2>
+                    </div>
+
+                    <button
+                        className="filter-btn"
+                        type="button"
+                        onClick={() => setIsFilterOpen((prev) => !prev)}
+                    >
+                        <SlidersHorizontal size={14} />
+                        FILTER
+                        {activeFilterCount > 0 && <span className="filter-badge">{activeFilterCount}</span>}
+                    </button>
+
+                    {isFilterOpen && (
+                        <div className="filter-panel" role="dialog" aria-label="Filter products panel">
+                            <p className="filter-section-label">CATEGORY</p>
+                            {CATEGORY_OPTIONS.map((category) => (
+                                <button
+                                    key={category}
+                                    type="button"
+                                    className={`filter-option ${activeCategory === category ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setActiveCategory(category);
+                                        setSelectedProductId(null);
+                                    }}
+                                >
+                                    <span className="filter-dot" />
+                                    {category}
+                                </button>
+                            ))}
+
+                            <div className="filter-divider" />
+
+                            <p className="filter-section-label">SIZE</p>
+                            <div className="filter-size-row">
+                                {allSizes.map((size) => (
+                                    <button
+                                        key={size}
+                                        type="button"
+                                        className={`filter-size-btn ${activeSize === size ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setActiveSize(size);
+                                            setSelectedProductId(null);
+                                        }}
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {activeFilterCount > 0 && (
+                                <button
+                                    type="button"
+                                    className="filter-clear"
+                                    onClick={() => {
+                                        setActiveCategory('All');
+                                        setActiveSize('All');
+                                        setSelectedProductId(null);
+                                    }}
+                                >
+                                    CLEAR FILTERS
+                                </button>
+                            )}
+
+                            <button
+                                type="button"
+                                className="filter-apply"
+                                onClick={() => setIsFilterOpen(false)}
+                            >
+                                APPLY
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Size filter pills */}
