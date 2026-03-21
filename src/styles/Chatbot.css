@@ -4,64 +4,21 @@
     position: fixed;
     bottom: 30px;
     right: 30px;
-    min-width: 220px;
-    height: 72px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #00ced1 0%, #008b8b 100%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
     cursor: pointer;
     z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 10px 26px rgba(0, 139, 139, 0.35);
-    padding: 6px 10px;
+    transition: transform 0.3s ease;
 }
 
 .chatbot-toggle:hover {
-    box-shadow: 0 14px 34px rgba(0, 139, 139, 0.45);
-}
-
-.chatbot-toggle-inner {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.chatbot-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex: 0 0 56px;
-}
-
-.chatbot-toggle-copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    color: #ffffff;
-    line-height: 1.15;
-    text-align: left;
-}
-
-.chatbot-toggle-copy strong {
-    font-size: 0.95rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-}
-
-.chatbot-toggle-copy small {
-    margin-top: 2px;
-    font-size: 0.72rem;
-    opacity: 0.95;
+    transform: scale(1.08);
 }
 
 .ufo-wrapper {
@@ -71,8 +28,8 @@
 }
 
 .ufo-icon {
-    width: 52px;
-    height: 52px;
+    width: 70px;
+    height: 70px;
 }
 
 .ufo-icon .ufo-beam {
@@ -125,17 +82,15 @@
     font-weight: 600;
     white-space: nowrap;
     box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.2s ease;
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     z-index: 1001;
 }
 
 .chatbot-toggle:hover .ufo-label {
-    opacity: 1;
-    visibility: visible;
-    right: 95px;
+    right: 90px;
 }
 
 .chatbot-window {
@@ -399,30 +354,12 @@
     .chatbot-toggle {
         bottom: 20px;
         right: 20px;
-        min-width: 176px;
-        height: 62px;
-    }
-
-    .ufo-label {
-        display: none;
+        width: 60px;
+        height: 60px;
     }
 
     .ufo-icon {
-        width: 44px;
-        height: 44px;
-    }
-
-    .chatbot-avatar {
-        width: 46px;
-        height: 46px;
-        flex-basis: 46px;
-    }
-
-    .chatbot-toggle-copy strong {
-        font-size: 0.84rem;
-    }
-
-    .chatbot-toggle-copy small {
-        font-size: 0.66rem;
+        width: 55px;
+        height: 55px;
     }
 }

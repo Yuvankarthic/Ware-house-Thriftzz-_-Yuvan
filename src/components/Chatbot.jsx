@@ -226,13 +226,10 @@ const Chatbot = () => {
                 {isOpen ? (
                     <X size={24} color="#fff" />
                 ) : (
-                    <span className="chatbot-toggle-inner">
-                        <span className="chatbot-avatar"><UFOIcon /></span>
-                        <span className="chatbot-toggle-copy">
-                            <strong>{BOT_NAME}</strong>
-                            <small>Ask me about Wearhouse</small>
-                        </span>
-                    </span>
+                    <>
+                        <span className="ufo-label">Alien</span>
+                        <span className="ufo-wrapper"><UFOIcon /></span>
+                    </>
                 )}
             </motion.button>
 
