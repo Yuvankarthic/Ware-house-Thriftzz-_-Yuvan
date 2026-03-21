@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { default as MessageCircle } from 'lucide-react/dist/esm/icons/message-circle';
 import { default as X } from 'lucide-react/dist/esm/icons/x';
 import { default as Send } from 'lucide-react/dist/esm/icons/send';
 import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
 import '../styles/Chatbot.css';
+
+const BOT_NAME = 'Alien';
 
 const UFOIcon = () => (
     <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="ufo-icon">
@@ -68,7 +69,7 @@ const UFOIcon = () => (
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi there! Welcome to WHT Fashion. How can I help you today? Try asking 'Show me black jackets' or 'What is your return policy?'", sender: 'bot', type: 'text' }
+        { id: 1, text: "Hi, I am Alien, your Wearhouse assistant. Ask me: 'What is Wearhouse?', 'What is the motive of this website?', or 'Show me jackets'.", sender: 'bot', type: 'text' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef(null);
@@ -86,22 +87,42 @@ const Chatbot = () => {
 
     const processInput = (text) => {
         const lowerText = text.toLowerCase();
+        const normalized = lowerText.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
         let responseText = "I'm sorry, I don't understand that. You can ask me to show you products (e.g., 'black jackets', 'size M') or ask about our policies.";
         let responseProducts = null;
 
         // 1. Greetings
-        if (lowerText.match(/^(hi|hello|hey|help|start)/)) {
+        if (normalized.match(/^(hi|hello|hey|help|start)/)) {
             responseText = "Hello! Looking for something specific? I can help you find products by color, type, or size.";
         }
-        // 2. FAQ - Policies
+        // 2. Brand identity questions
+        else if (
+            normalized.includes('what is wearhouse') ||
+            normalized.includes('what is warehouse') ||
+            normalized.includes('about wearhouse') ||
+            normalized.includes('about warehouse')
+        ) {
+            responseText = "Wearhouse (WHT Fashion) is a curated online thrift and streetwear store where we drop handpicked pieces across jackets, shirts, and pants.";
+        }
+        // 3. Mission/motive questions
+        else if (
+            normalized.includes('motive') ||
+            normalized.includes('mission') ||
+            normalized.includes('purpose') ||
+            normalized.includes('goal of this website') ||
+            normalized.includes('why this website')
+        ) {
+            responseText = "Our motive is to make unique fashion easy to discover. We curate quality pieces, organize them clearly, and help shoppers buy quickly with a clean experience.";
+        }
+        // 4. FAQ - Policies
         else if (lowerText.includes('return') || lowerText.includes('refund')) {
             responseText = "We accept returns within 14 days of delivery. Items must be unworn with original tags attached.";
         }
-        // 3. FAQ - Shipping
+        // 5. FAQ - Shipping
         else if (lowerText.includes('shipping') || lowerText.includes('delivery')) {
             responseText = "Standard shipping usually takes 3-5 business days. We offer free shipping on orders over ₹2000.";
         }
-        // 4. Product Search Rules
+        // 6. Product Search Rules
         else {
             // Check for colors
             const colors = ['black', 'blue', 'brown', 'multicolor', 'pattern'];
@@ -202,7 +223,17 @@ const Chatbot = () => {
                 whileTap={{ scale: 0.9 }}
                 aria-label="Toggle Chat"
             >
-                {isOpen ? <X size={24} color="#fff" /> : <><span className="ufo-label">Chat with Alien</span><span className="ufo-wrapper"><UFOIcon /></span></>}
+                {isOpen ? (
+                    <X size={24} color="#fff" />
+                ) : (
+                    <span className="chatbot-toggle-inner">
+                        <span className="chatbot-avatar"><UFOIcon /></span>
+                        <span className="chatbot-toggle-copy">
+                            <strong>{BOT_NAME}</strong>
+                            <small>Ask me about Wearhouse</small>
+                        </span>
+                    </span>
+                )}
             </motion.button>
 
             <AnimatePresence>
@@ -216,7 +247,7 @@ const Chatbot = () => {
                     >
                         <div className="chatbot-header">
                             <div>
-                                <h3>Alien</h3>
+                                <h3>{BOT_NAME}</h3>
                                 <p>We're here to help!</p>
                             </div>
                             <button className="chat-close" onClick={toggleChat}><X size={18} /></button>
