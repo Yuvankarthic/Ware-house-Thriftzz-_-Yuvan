@@ -222,6 +222,40 @@
     color: #2a1f1a;
 }
 
+.shop-category-group {
+    grid-column: 1 / -1;
+    margin-bottom: 20px;
+}
+
+.shop-category-heading {
+    margin: 0 0 14px;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-main);
+}
+
+.shop-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+@media (min-width: 768px) {
+    .shop-category-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .shop-category-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+    }
+}
+
 /* Category Banners */
 .shop-category-banners {
     display: grid;
