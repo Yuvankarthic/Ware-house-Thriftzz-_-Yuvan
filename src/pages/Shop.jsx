@@ -5,7 +5,7 @@ import { useWishlist } from '../context/WishlistContext';
 import '../styles/ProductGrid.css';
 
 const PLACEHOLDER_IMAGE = '/images/placeholder.jpg';
-const CATEGORY_OPTIONS = ['All', 'Jackets', 'Shirts', 'Pants'];
+const CATEGORY_OPTIONS = ['Jackets', 'Shirts', 'Pants'];
 const CATEGORY_BANNERS = {
   Jackets: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1200',
   Shirts: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=1200',
@@ -33,7 +33,6 @@ export default function Shop() {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('All');
   const [activeSize, setActiveSize] = useState('All');
   const [addedProductId, setAddedProductId] = useState(null);
   const gridRef = useRef(null);
@@ -66,16 +65,23 @@ export default function Shop() {
 
   const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
-  const filteredProducts = useMemo(() => {
-    return liveProducts.filter((p) => {
-      const categoryMatch = activeCategory === 'All' || p.category === activeCategory;
-      const sizeMatch = activeSize === 'All' || p.size === activeSize;
-      return categoryMatch && sizeMatch;
-    });
-  }, [activeCategory, activeSize, liveProducts]);
+  const filteredByCategory = useMemo(() => {
+    return CATEGORY_OPTIONS.reduce((acc, category) => {
+      acc[category] = liveProducts.filter((p) => {
+        const categoryMatch = p.category === category;
+        const sizeMatch = activeSize === 'All' || p.size === activeSize;
+        return categoryMatch && sizeMatch;
+      });
+      return acc;
+    }, {});
+  }, [activeSize, liveProducts]);
 
   const selectCategory = (category) => {
-    setActiveCategory(category);
+    const section = document.getElementById(`cat-${category.toLowerCase()}`);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -121,18 +127,6 @@ export default function Shop() {
         </button>
       </div>
 
-      <div className="category-filter-bar">
-        {CATEGORY_OPTIONS.map((category) => (
-          <button
-            key={category}
-            className={`category-pill ${activeCategory === category ? 'active' : ''}`}
-            onClick={() => setActiveCategory(category)}
-          >
-            {category.toUpperCase()}
-          </button>
-        ))}
-      </div>
-
       <div className="size-filter-bar">
         {allSizes.map((size) => (
           <button
@@ -150,56 +144,65 @@ export default function Shop() {
       <div className="product-grid-inner" ref={gridRef}>
         {loading ? (
           <p className="grid-empty">Loading products...</p>
-        ) : filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => {
-            const inWishlist = isInWishlist(product.id);
-            const isAdded = addedProductId === product.id;
-
-            return (
-              <article key={product.id} className="admin-product-card shop-admin-product-card">
-                <div className="admin-product-image-wrap">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="admin-product-image" />
-                  ) : (
-                    <div className="admin-product-no-image">No Image</div>
-                  )}
-
-                  <button
-                    type="button"
-                    className={`shop-card-wishlist ${inWishlist ? 'active' : ''}`}
-                    onClick={() => toggleWishlist(product)}
-                    aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-                  >
-                    <Heart size={18} className={inWishlist ? 'fill-current' : ''} />
-                  </button>
-                </div>
-
-                <div className="admin-product-content">
-                  <h3>{product.name}</h3>
-                  <p className="admin-product-price">₹{product.price}</p>
-                  <p className="admin-product-meta">Size: {product.size || '—'} | Fit: {product.fit || '—'}</p>
-                  <p className="admin-product-meta">Category: {product.category || 'Jackets'}</p>
-                  <p className="admin-product-meta">Condition: {product.condition || '—'}</p>
-                  {(product.chest_length || product.shoulder_length) && (
-                    <p className="admin-product-meta">
-                      Chest: {product.chest_length || '—'} | Shoulder: {product.shoulder_length || '—'}
-                    </p>
-                  )}
-
-                  <button
-                    type="button"
-                    className="shop-add-to-cart-btn"
-                    onClick={(event) => handleAddToCart(product, event)}
-                  >
-                    {isAdded ? <Check size={16} /> : <Plus size={16} />}
-                    {isAdded ? 'Added' : 'Add to Cart'}
-                  </button>
-                </div>
-              </article>
-            );
-          })
         ) : (
-          <p className="grid-empty">All old products are removed. Add new items from admin to start fresh.</p>
+          CATEGORY_OPTIONS.map((category) => (
+            <section key={category} id={`cat-${category.toLowerCase()}`} className="shop-category-group">
+              <h3 className="shop-category-heading">{category}</h3>
+              <div className="shop-category-grid">
+                {filteredByCategory[category]?.length > 0 ? (
+                  filteredByCategory[category].map((product) => {
+                    const inWishlist = isInWishlist(product.id);
+                    const isAdded = addedProductId === product.id;
+
+                    return (
+                      <article key={product.id} className="admin-product-card shop-admin-product-card">
+                        <div className="admin-product-image-wrap">
+                          {product.image_url ? (
+                            <img src={product.image_url} alt={product.name} className="admin-product-image" />
+                          ) : (
+                            <div className="admin-product-no-image">No Image</div>
+                          )}
+
+                          <button
+                            type="button"
+                            className={`shop-card-wishlist ${inWishlist ? 'active' : ''}`}
+                            onClick={() => toggleWishlist(product)}
+                            aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                          >
+                            <Heart size={18} className={inWishlist ? 'fill-current' : ''} />
+                          </button>
+                        </div>
+
+                        <div className="admin-product-content">
+                          <h3>{product.name}</h3>
+                          <p className="admin-product-price">₹{product.price}</p>
+                          <p className="admin-product-meta">Size: {product.size || '—'} | Fit: {product.fit || '—'}</p>
+                          <p className="admin-product-meta">Category: {product.category || 'Jackets'}</p>
+                          <p className="admin-product-meta">Condition: {product.condition || '—'}</p>
+                          {(product.chest_length || product.shoulder_length) && (
+                            <p className="admin-product-meta">
+                              Chest: {product.chest_length || '—'} | Shoulder: {product.shoulder_length || '—'}
+                            </p>
+                          )}
+
+                          <button
+                            type="button"
+                            className="shop-add-to-cart-btn"
+                            onClick={(event) => handleAddToCart(product, event)}
+                          >
+                            {isAdded ? <Check size={16} /> : <Plus size={16} />}
+                            {isAdded ? 'Added' : 'Add to Cart'}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })
+                ) : (
+                  <p className="grid-empty">No {category.toLowerCase()} products in this size.</p>
+                )}
+              </div>
+            </section>
+          ))
         )}
       </div>
     </section>
