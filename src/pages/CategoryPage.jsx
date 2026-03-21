@@ -3,9 +3,11 @@ import { Check, Heart, Plus } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import BASE_URL from '../config/api';
 import '../styles/ProductGrid.css';
 
 const PLACEHOLDER_IMAGE = '/images/placeholder.jpg';
+const API = `${BASE_URL}/api`;
 const CATEGORY_META = {
   jackets: { label: 'Jackets', icon: '🧥', aliases: ['jacket', 'jackets'] },
   shirts: { label: 'Shirts', icon: '👕', aliases: ['shirt', 'shirts'] },
@@ -58,7 +60,7 @@ export default function CategoryPage() {
     }
 
     setLoading(true);
-    fetch(`${import.meta.env.VITE_API_URL}/api/products`)
+    fetch(`${API}/products`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : data?.products || [];
