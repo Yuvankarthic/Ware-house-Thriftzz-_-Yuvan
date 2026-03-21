@@ -19,13 +19,13 @@
     background: #000;
 }
 
-.hero-canvas {
+.hero-video {
     width: 100%;
     height: 100%;
     display: block;
-    /* Post-processing to simulate 4K upscaling */
-    filter: contrast(115%) saturate(110%) brightness(0.95);
-    transform: scale(1.02); /* Slight scale to hide edge artifacts */
+    object-fit: cover;
+    filter: none;
+    transform: none;
 }
 
 /* ── Grain Overlay ── */
@@ -34,7 +34,7 @@
     inset: 0;
     z-index: 2;
     background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-    opacity: 0.15;
+    opacity: 0.06;
     pointer-events: none;
     mix-blend-mode: overlay;
 }
@@ -45,27 +45,25 @@
     inset: 0;
     z-index: 3;
     background: linear-gradient(to top right,
-            rgba(0, 0, 0, 0.95) 0%,
-            rgba(0, 0, 0, 0.4) 40%,
+            rgba(0, 0, 0, 0.65) 0%,
+            rgba(0, 0, 0, 0.28) 40%,
             transparent 80%);
     pointer-events: none;
 }
 
 /* ── Content ── */
 .hero-content {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 4;
-    height: 100%;
-    width: 100%;
     display: flex;
     align-items: flex-end;
+    justify-content: flex-start;
     padding: 60px var(--page-px);
-    max-width: 1320px;
-    margin: 0 auto;
 }
 
 .hero-text-container {
-    max-width: 600px;
+    max-width: min(600px, 72vw);
 }
 
 /* ── Typography ── */
@@ -111,7 +109,7 @@
 
 @media (max-width: 768px) {
     .hero-content {
-        padding-bottom: 80px;
+        padding: 36px 20px 72px;
     }
 
     .headline-line {
