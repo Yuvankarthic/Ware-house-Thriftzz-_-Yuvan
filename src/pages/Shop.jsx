@@ -126,18 +126,11 @@ export default function Shop() {
           <button
             key={category}
             className={`category-pill ${activeCategory === category ? 'active' : ''}`}
-            onClick={() => {
-              setActiveCategory(category);
-            }}
+            onClick={() => setActiveCategory(category)}
           >
             {category.toUpperCase()}
           </button>
         ))}
-      </div>
-
-      <div className="section-header-block">
-        <span className="section-eyebrow">Shop</span>
-        <h2 className="section-title">New Arrivals</h2>
       </div>
 
       <div className="size-filter-bar">

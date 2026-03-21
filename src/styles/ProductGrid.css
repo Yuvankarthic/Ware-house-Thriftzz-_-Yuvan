@@ -35,111 +35,6 @@
     display: block;
 }
 
-/* ─── Category Banners ─── */
-.shop-category-banners {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-    padding: 0 var(--page-px);
-    max-width: 1320px;
-    margin: 0 auto 24px;
-}
-
-.category-banner {
-    position: relative;
-    min-height: 250px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    cursor: pointer;
-    overflow: hidden;
-    isolation: isolate;
-    transition: transform 0.25s ease;
-}
-
-.category-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    transition: background 0.25s ease;
-    z-index: -1;
-}
-
-.category-banner-title {
-    color: #fff;
-    font-family: var(--font-heading);
-    font-size: 48px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-align: center;
-}
-
-.category-banner-button {
-    color: #fff;
-    border: 2px solid #fff;
-    background: transparent;
-    padding: 10px 20px;
-    font-family: var(--font-heading);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    transition: transform 0.25s ease, background-color 0.25s ease;
-}
-
-.category-banner:hover::before {
-    background: rgba(0, 0, 0, 0.25);
-}
-
-.category-banner:hover .category-banner-button {
-    transform: scale(1.05);
-}
-
-/* ─── Category Filter Bar ─── */
-.category-filter-bar {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding: 0 var(--page-px);
-    max-width: 1320px;
-    margin: 0 auto 16px;
-}
-
-.category-pill {
-    font-family: var(--font-heading);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 8px 18px;
-    border: 1px solid var(--border-color);
-    border-radius: 100px;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.category-pill:hover {
-    border-color: var(--text-main);
-    color: var(--text-main);
-    background-color: rgba(0, 0, 0, 0.04);
-}
-
-.category-pill.active {
-    background-color: #000;
-    border-color: #000;
-    color: #fff;
-    font-weight: 800;
-}
-
 /* ─── Grid ─── */
 .product-grid-inner {
     display: grid;
@@ -151,45 +46,9 @@
 }
 
 @media (min-width: 768px) {
-    .shop-category-banners {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-areas:
-            'jackets shirts'
-            'pants pants';
-    }
-
-    .category-banner-jackets {
-        grid-area: jackets;
-        min-height: 500px;
-    }
-
-    .category-banner-shirts {
-        grid-area: shirts;
-        min-height: 500px;
-    }
-
-    .category-banner-pants {
-        grid-area: pants;
-        min-height: 300px;
-    }
-
-    .category-banner-title {
-        font-size: 48px;
-    }
-
     .product-grid-inner {
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
-    }
-}
-
-@media (max-width: 767px) {
-    .category-banner {
-        min-height: 250px;
-    }
-
-    .category-banner-title {
-        font-size: 34px;
     }
 }
 
@@ -370,7 +229,6 @@
     grid-template-rows: 500px 300px;
     gap: 8px;
     margin-bottom: 40px;
-    width: 100%;
 }
 .category-banner {
     position: relative;
@@ -384,7 +242,6 @@
     justify-content: center;
     gap: 16px;
     overflow: hidden;
-    transition: all 0.3s ease;
 }
 .category-banner::before {
     content: '';
@@ -393,8 +250,12 @@
     background: rgba(0,0,0,0.45);
     transition: background 0.3s ease;
 }
-.category-banner:hover::before { background: rgba(0,0,0,0.25); }
-.category-banner-pants { grid-column: 1 / -1; }
+.category-banner:hover::before {
+    background: rgba(0,0,0,0.25);
+}
+.category-banner-pants {
+    grid-column: 1 / -1;
+}
 .category-banner-title {
     position: relative;
     z-index: 1;
@@ -402,6 +263,7 @@
     font-size: 48px;
     font-weight: 800;
     letter-spacing: 4px;
+    pointer-events: none;
 }
 .category-banner-button {
     position: relative;
@@ -412,9 +274,13 @@
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 2px;
+    background: transparent;
     transition: transform 0.3s ease;
+    pointer-events: none;
 }
-.category-banner:hover .category-banner-button { transform: scale(1.05); }
+.category-banner:hover .category-banner-button {
+    transform: scale(1.05);
+}
 .category-filter-bar {
     display: flex;
     gap: 12px;
@@ -433,13 +299,16 @@
     border-radius: 999px;
 }
 .category-pill.active,
-.category-pill:hover { background: #222; color: white; }
+.category-pill:hover {
+    background: #222;
+    color: white;
+}
 @media (max-width: 768px) {
     .shop-category-banners {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
     }
-    .category-banner { height: 250px !important; }
+    .category-banner { height: 250px; }
     .category-banner-pants { grid-column: 1; }
     .category-banner-title { font-size: 32px; }
 }
