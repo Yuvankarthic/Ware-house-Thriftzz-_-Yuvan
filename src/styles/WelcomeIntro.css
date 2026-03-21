@@ -29,15 +29,13 @@
 
 @media (max-width: 768px) {
     .welcome-intro {
-        height: 100vh;
-        height: 100svh;
-        min-height: 100svh;
+        height: 100dvh;
+        min-height: 100dvh;
     }
 
     .welcome-intro-video {
-        object-fit: contain;
-        object-position: center center;
-        background: #000;
+        object-fit: cover;
+        object-position: 52% 38%;
     }
 }
 
