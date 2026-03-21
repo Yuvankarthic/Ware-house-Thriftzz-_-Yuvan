@@ -261,14 +261,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 500px 300px;
-    gap: 8px;
+    gap: 12px;
     margin-bottom: 40px;
 }
 .category-banner {
     position: relative;
     background-size: cover;
     background-position: center;
-    border: none;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -276,6 +277,8 @@
     justify-content: center;
     gap: 16px;
     overflow: hidden;
+    box-shadow: 0 20px 38px rgba(15, 16, 20, 0.16);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 .category-banner::before {
     content: '';
@@ -286,6 +289,10 @@
 }
 .category-banner:hover::before {
     background: rgba(0,0,0,0.25);
+}
+.category-banner:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 48px rgba(15, 16, 20, 0.22);
 }
 .category-banner-pants {
     grid-column: 1 / -1;
@@ -303,17 +310,21 @@
     position: relative;
     z-index: 1;
     color: white;
-    border: 2px solid white;
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
     padding: 10px 28px;
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 2px;
-    background: transparent;
-    transition: transform 0.3s ease;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(4px);
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     pointer-events: none;
 }
 .category-banner:hover .category-banner-button {
     transform: scale(1.05);
+    background: #ffffff;
+    color: #101014;
 }
 .category-filter-bar {
     display: flex;
@@ -342,7 +353,10 @@
         grid-template-columns: 1fr;
         grid-template-rows: auto;
     }
-    .category-banner { height: 250px; }
+    .category-banner {
+        height: 250px;
+        border-radius: 20px;
+    }
     .category-banner-pants { grid-column: 1; }
     .category-banner-title { font-size: 32px; }
 }

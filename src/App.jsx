@@ -9,17 +9,17 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import WishlistDrawer from './components/WishlistDrawer';
 import ProductPage from './components/ProductPage';
-import WelcomeOverlay from './components/WelcomeOverlay';
 import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
 import Shop from './pages/Shop';
 
 import AdminRoot from './admin/AdminRoot';
 
-function HomePage() {
+function HomeAndShopPage() {
   return (
     <>
       <Hero />
+      <Shop />
       <main>
         <ProductGrid />
         <CtaSection />
@@ -42,14 +42,13 @@ function App() {
 
   return (
     <div className="app-container">
-      <WelcomeOverlay />
       <AnnouncementBar />
       <Navbar />
       <CartDrawer />
       <WishlistDrawer />
       <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route path="/shop" component={Shop} />
+        <Route exact path="/" component={HomeAndShopPage} />
+        <Route exact path="/shop" component={HomeAndShopPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
       </Switch>
