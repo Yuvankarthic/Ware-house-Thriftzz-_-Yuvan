@@ -11,8 +11,38 @@ const router = Router();
 
 // Valid status workflow
 const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
+const EMAIL_EVENT_ORDER = ['order_confirmation', 'packed', 'out_for_delivery', 'delivered'];
+const EMAIL_EVENT_LABELS = {
+    order_confirmation: 'Order Confirmation',
+    packed: 'Packed',
+    out_for_delivery: 'Out for Delivery',
+    delivered: 'Delivered',
+};
+const STATUS_TO_EMAIL_EVENT = {
+    Packed: 'packed',
+    'Out for Delivery': 'out_for_delivery',
+    Delivered: 'delivered',
+};
 
 const PICKER_NAMES = ['akash', 'vishwa', 'yuvan'];
+
+const ensureOrderIdSequence = async () => {
+    // Keep order IDs in the requested 181001+ range while preserving higher existing IDs.
+    await query(
+        `SELECT setval(
+            pg_get_serial_sequence('orders', 'id'),
+            GREATEST(COALESCE((SELECT MAX(id) FROM orders), 0), 180000),
+            true
+        )`
+    );
+};
+
+const mapTrackingStatus = (orderStatus = '') => {
+    const normalized = String(orderStatus).trim().toLowerCase();
+    if (normalized === 'delivered') return 'delivered';
+    if (['out for delivery', 'packed', 'packing', 'accepted'].includes(normalized)) return 'shipped';
+    return 'pending';
+};
 
 const resolveChangedById = async (userId) => {
     if (!userId) return null;
@@ -20,11 +50,88 @@ const resolveChangedById = async (userId) => {
     return result.rows.length > 0 ? result.rows[0].id : null;
 };
 
+const normalizeMailResult = (result, err) => {
+    if (err) {
+        return {
+            status: 'failed',
+            reason: err.message || 'send-failed',
+            raw: { sent: false, error: err.message || 'send-failed' },
+        };
+    }
+    if (result?.sent) {
+        return { status: 'sent', reason: null, raw: result };
+    }
+    if (result?.skipped) {
+        return { status: 'skipped', reason: result.reason || 'skipped', raw: result };
+    }
+    return {
+        status: 'failed',
+        reason: result?.reason || 'unknown-mail-result',
+        raw: result || { sent: false, reason: 'unknown-mail-result' },
+    };
+};
+
+const logOrderEmailEvent = async ({ orderId, eventType, recipient, result, error }) => {
+    const normalized = normalizeMailResult(result, error);
+    try {
+        await query(
+            `INSERT INTO order_email_events (order_id, event_type, delivery_status, reason, recipient)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [orderId, eventType, normalized.status, normalized.reason, recipient || null]
+        );
+    } catch (dbErr) {
+        // Never block checkout or status updates if migration is not yet applied.
+        if (dbErr?.code === '42P01') {
+            console.warn('order_email_events table missing. Run migration to enable email delivery dashboard.');
+        } else {
+            console.error('Failed to store order email event:', dbErr.message);
+        }
+    }
+    return normalized;
+};
+
+const getOrderEmailSummary = async (orderId) => {
+    let rows = { rows: [] };
+    try {
+        rows = await query(
+            `SELECT DISTINCT ON (event_type)
+                event_type, delivery_status, reason, recipient, created_at
+             FROM order_email_events
+             WHERE order_id = $1
+             ORDER BY event_type, created_at DESC`,
+            [orderId]
+        );
+    } catch (dbErr) {
+        if (dbErr?.code !== '42P01') {
+            throw dbErr;
+        }
+    }
+
+    const byEvent = rows.rows.reduce((acc, row) => {
+        acc[row.event_type] = row;
+        return acc;
+    }, {});
+
+    return EMAIL_EVENT_ORDER.map((eventType) => {
+        const row = byEvent[eventType];
+        return {
+            event_type: eventType,
+            label: EMAIL_EVENT_LABELS[eventType],
+            status: row?.delivery_status || 'pending',
+            reason: row?.reason || null,
+            recipient: row?.recipient || null,
+            last_attempt_at: row?.created_at || null,
+        };
+    });
+};
+
 // ────────────────────────────────────────────────────────────
 //  POST /api/orders  (public — called from storefront checkout)
 // ────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
     try {
+        await ensureOrderIdSequence();
+
         const {
             customer_name,
             email,
@@ -102,12 +209,23 @@ router.post('/', async (req, res) => {
             [order.id]
         );
 
+        let confirmationResult = null;
+        let confirmationError = null;
         try {
-            await sendOrderConfirmationEmail(order);
+            confirmationResult = await sendOrderConfirmationEmail(order);
+            console.log(`📧 Order confirmation email result for ${order.email || 'no-email'}:`, confirmationResult);
         } catch (mailError) {
             // Email failures should never block order placement.
+            confirmationError = mailError;
             console.error('Order confirmation email failed:', mailError.message);
         }
+        const confirmationMail = await logOrderEmailEvent({
+            orderId: order.id,
+            eventType: 'order_confirmation',
+            recipient: order.email,
+            result: confirmationResult,
+            error: confirmationError,
+        });
 
         console.log(`📦 New order #${order.id} — ${orderProductName} — ₹${orderValue}`);
 
@@ -115,9 +233,48 @@ router.post('/', async (req, res) => {
             success: true,
             message: 'Order placed successfully',
             order: { order_id: order.id, product: orderProductName, order_value: orderValue, status: 'New Order' },
+            email: confirmationMail,
         });
     } catch (err) {
         console.error('❌ POST /api/orders error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  GET /api/orders/track-order?order_id=181001&phone=9876543210
+//  Public, auth-less order lookup for customer tracking
+// ────────────────────────────────────────────────────────────
+router.get('/track-order', async (req, res) => {
+    try {
+        const { order_id, phone } = req.query;
+
+        if (!order_id || !phone) {
+            return res.status(400).json({ success: false, error: 'order_id and phone are required' });
+        }
+
+        const orderResult = await query(
+            `SELECT id, product_name, order_status
+             FROM orders
+             WHERE id = $1 AND phone = $2
+             LIMIT 1`,
+            [Number.parseInt(String(order_id), 10), String(phone).trim()]
+        );
+
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Invalid order details' });
+        }
+
+        const order = orderResult.rows[0];
+        return res.json({
+            success: true,
+            order_id: order.id,
+            product_name: order.product_name,
+            order_status: order.order_status,
+            status: mapTrackingStatus(order.order_status),
+        });
+    } catch (err) {
+        console.error('❌ GET /api/orders/track-order error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
@@ -219,7 +376,7 @@ router.get('/track/:id', async (req, res) => {
         );
 
         if (orderResult.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'Order not found' });
+            return res.status(404).json({ success: false, error: 'Invalid order details' });
         }
 
         const timelineResult = await query(
@@ -275,6 +432,24 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────
+//  GET /api/orders/:id/email-status  (admin — last mail status per event)
+// ────────────────────────────────────────────────────────────
+router.get('/:id/email-status', authMiddleware, async (req, res) => {
+    try {
+        const orderCheck = await query('SELECT id FROM orders WHERE id = $1 LIMIT 1', [req.params.id]);
+        if (orderCheck.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const summary = await getOrderEmailSummary(req.params.id);
+        return res.json({ success: true, order_id: Number(req.params.id), summary });
+    } catch (err) {
+        console.error('❌ GET /api/orders/:id/email-status error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
 //  PATCH /api/orders/:id/status  (admin — update status)
 // ────────────────────────────────────────────────────────────
 router.patch('/:id/status', authMiddleware, async (req, res) => {
@@ -313,20 +488,43 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
             [req.params.id, status, changedById, `Status changed to "${status}" by ${req.user.name}`]
         );
 
-        if (status === 'Packed' || status === 'Out for Delivery') {
+        let statusMail = null;
+        if (['Packed', 'Out for Delivery', 'Delivered'].includes(status)) {
+            const eventType = STATUS_TO_EMAIL_EVENT[status];
+            let statusMailResult = null;
+            let statusMailError = null;
             try {
                 const latestOrder = await query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
                 if (latestOrder.rows.length > 0) {
-                    await sendOrderStatusUpdateEmail(latestOrder.rows[0], status);
+                    statusMailResult = await sendOrderStatusUpdateEmail(latestOrder.rows[0], status);
+                    console.log(`📧 Status email result for order #${req.params.id} (${status}):`, statusMailResult);
+                    statusMail = await logOrderEmailEvent({
+                        orderId: req.params.id,
+                        eventType,
+                        recipient: latestOrder.rows[0].email,
+                        result: statusMailResult,
+                        error: null,
+                    });
                 }
             } catch (mailError) {
+                statusMailError = mailError;
                 console.error(`Status email failed for order #${req.params.id}:`, mailError.message);
+            }
+
+            if (!statusMail && eventType) {
+                statusMail = await logOrderEmailEvent({
+                    orderId: req.params.id,
+                    eventType,
+                    recipient: order.email,
+                    result: statusMailResult,
+                    error: statusMailError,
+                });
             }
         }
 
         console.log(`📋 Order #${req.params.id} → ${status} (by ${req.user.name})`);
 
-        return res.json({ success: true, message: `Order updated to "${status}"` });
+        return res.json({ success: true, message: `Order updated to "${status}"`, email: statusMail });
     } catch (err) {
         console.error('❌ PATCH /api/orders/:id/status error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });

@@ -338,6 +338,80 @@
     padding: 0;
 }
 
+.admin-subtle {
+    color: var(--admin-text-muted);
+    margin-top: 6px;
+    font-size: 0.85rem;
+}
+
+.activity-error {
+    margin-bottom: 14px;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.12);
+    color: #ffd6d6;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+}
+
+.activity-log-panel {
+    margin-top: 18px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    background: var(--admin-surface);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--admin-shadow-sm);
+    overflow: hidden;
+}
+
+.activity-log-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.activity-log-header h2 {
+    font-size: 1rem;
+    font-family: var(--admin-font);
+    color: var(--admin-text);
+}
+
+.activity-log-list {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.activity-log-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.activity-log-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    color: var(--admin-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.activity-message {
+    color: var(--admin-text);
+    font-size: 0.87rem;
+}
+
+.activity-empty {
+    padding: 18px 16px;
+    color: var(--admin-text-muted);
+    font-size: 0.85rem;
+}
+
 /* ═══════ SIDEBAR ═══════ */
 .admin-sidebar {
     width: var(--sidebar-width);
@@ -1272,6 +1346,78 @@
     font-size: 0.7rem;
     color: var(--admin-text-muted);
     margin-top: 2px;
+}
+
+.email-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.email-status-item {
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: rgba(20, 50, 85, 0.35);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.email-status-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.email-status-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--admin-text);
+}
+
+.email-status-meta {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.72rem;
+    color: var(--admin-text-muted);
+}
+
+.mail-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
+}
+
+.mail-badge.sent {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.35);
+}
+
+.mail-badge.skipped {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+.mail-badge.failed {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.15);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+.mail-badge.pending {
+    color: #a0c4d9;
+    background: rgba(160, 196, 217, 0.12);
+    border-color: rgba(160, 196, 217, 0.3);
 }
 
 /* ═══════ ANALYTICS ═══════ */

@@ -71,6 +71,13 @@ async function migrate() {
             updated_at          TIMESTAMPTZ DEFAULT NOW()
         );
     `);
+    await query(
+        `SELECT setval(
+            pg_get_serial_sequence('orders', 'id'),
+            GREATEST(COALESCE((SELECT MAX(id) FROM orders), 0), 180000),
+            true
+        );`
+    );
     console.log('  ✅ orders table ready');
 
     // ── Order timeline table (for status history) ──
@@ -85,6 +92,43 @@ async function migrate() {
         );
     `);
     console.log('  ✅ order_timeline table ready');
+
+    await query(`
+        CREATE TABLE IF NOT EXISTS order_email_events (
+            id              SERIAL PRIMARY KEY,
+            order_id        INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+            event_type      VARCHAR(50) NOT NULL,
+            delivery_status VARCHAR(20) NOT NULL,
+            reason          TEXT,
+            recipient       VARCHAR(255),
+            created_at      TIMESTAMPTZ DEFAULT NOW()
+        );
+    `);
+    await query(`
+        CREATE INDEX IF NOT EXISTS idx_order_email_events_order_id_created_at
+        ON order_email_events(order_id, created_at DESC);
+    `);
+    console.log('  ✅ order_email_events table ready');
+
+    // ── Activity tracking tables ──
+    await query(`
+        CREATE TABLE IF NOT EXISTS visit_logs (
+            id          BIGSERIAL PRIMARY KEY,
+            page        VARCHAR(120) NOT NULL DEFAULT 'homepage',
+            created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+    `);
+
+    await query(`
+        CREATE TABLE IF NOT EXISTS activity_events (
+            id          BIGSERIAL PRIMARY KEY,
+            event_type  VARCHAR(80) NOT NULL,
+            product_id  INTEGER REFERENCES products(id) ON DELETE SET NULL,
+            page        VARCHAR(120),
+            created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+    `);
+    console.log('  ✅ activity tracking tables ready');
 
     // ── Seed products (only if empty) ──
     const existingProducts = await query('SELECT COUNT(*)::int AS count FROM products');

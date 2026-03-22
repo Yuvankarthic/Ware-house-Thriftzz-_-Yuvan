@@ -119,9 +119,12 @@ const createTransporter = () => {
 };
 
 const buildOrderStatusEmailHtml = (order, status) => {
-    const statusMessage = status === 'Packed'
-        ? 'Good news. Your order has been packed and is ready for dispatch.'
-        : 'Your order is now out for delivery and will reach you soon.';
+    const statusMessages = {
+      Packed: 'Good news. Your order has been packed and is ready for dispatch.',
+      'Out for Delivery': 'Your order is now out for delivery and will reach you soon.',
+      Delivered: 'Your order has been delivered successfully. We hope you love it.',
+    };
+    const statusMessage = statusMessages[status] || `Your order status is now ${status}.`;
 
     return `
 <!doctype html>
@@ -200,7 +203,7 @@ export const sendOrderConfirmationEmail = async (order) => {
 
 export const sendOrderStatusUpdateEmail = async (order, status) => {
   if (!order?.email) return { skipped: true, reason: 'missing-recipient' };
-  if (!['Packed', 'Out for Delivery'].includes(status)) return { skipped: true, reason: 'status-not-supported' };
+  if (!['Packed', 'Out for Delivery', 'Delivered'].includes(status)) return { skipped: true, reason: 'status-not-supported' };
   if (!isMailerConfigured()) return { skipped: true, reason: 'missing-smtp-config' };
 
   const transporter = createTransporter();

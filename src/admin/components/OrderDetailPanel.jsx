@@ -4,6 +4,13 @@ import BASE_URL from '../../config/api';
 const API = `${BASE_URL}/api`;
 const STATUS_FLOW = ['Packed', 'Out for Delivery', 'Delivered'];
 const PICKERS = ['Akash', 'Vishwa', 'Yuvan'];
+const EMAIL_EVENT_LABELS = {
+    order_confirmation: 'Order Confirmation Email',
+    packed: 'Packed Email',
+    out_for_delivery: 'Out for Delivery Email',
+    delivered: 'Delivered Email',
+};
+const EMAIL_EVENT_ORDER = ['order_confirmation', 'packed', 'out_for_delivery', 'delivered'];
 
 export default function OrderDetailPanel({ orderId, token, user, onClose, onUpdate }) {
     const [order, setOrder] = useState(null);
@@ -14,6 +21,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
     const [deliveryNotes, setDeliveryNotes] = useState('');
     const [riderPhone, setRiderPhone] = useState('');
     const [trackingRef, setTrackingRef] = useState('');
+    const [emailSummary, setEmailSummary] = useState([]);
 
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
@@ -35,6 +43,32 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
         fetchDetail();
     }, [orderId]);
 
+    const fetchEmailStatus = async () => {
+        try {
+            const res = await fetch(`${API}/orders/${orderId}/email-status`, { headers: { Authorization: `Bearer ${token}` } });
+            const data = await res.json();
+            if (!data.success) return;
+
+            if (Array.isArray(data.summary) && data.summary.length > 0) {
+                setEmailSummary(data.summary);
+                return;
+            }
+
+            setEmailSummary(
+                EMAIL_EVENT_ORDER.map((eventType) => ({
+                    event_type: eventType,
+                    label: EMAIL_EVENT_LABELS[eventType],
+                    status: 'pending',
+                    reason: null,
+                    last_attempt_at: null,
+                    recipient: null,
+                }))
+            );
+        } catch (err) {
+            console.error('Email status fetch error:', err);
+        }
+    };
+
     const fetchDetail = async () => {
         try {
             const res = await fetch(`${API}/orders/${orderId}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -51,6 +85,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                     s => Number(s.id) === Number(data.order.assigned_to)
                 );
                 setSelectedPicker(picked?.name || '');
+                fetchEmailStatus();
             }
         } catch (err) { console.error('Detail fetch error:', err); }
     };
@@ -115,7 +150,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
     };
 
     const copyOrderDetails = () => {
-        const details = `ORDER #${order.id}
+        const details = `ORDER ${order.id}
 ═══════════════════════════════
 
 CUSTOMER DETAILS
@@ -157,6 +192,7 @@ Time: ${new Date().toLocaleString()}`;
     };
 
     const statusClass = (s) => s.toLowerCase().replace(/\s+/g, '-');
+    const emailStatusClass = (s) => String(s || 'pending').toLowerCase().replace(/\s+/g, '-');
 
     if (!order) return null;
 
@@ -172,7 +208,7 @@ Time: ${new Date().toLocaleString()}`;
             <div className="order-detail-overlay" onClick={onClose} />
             <div className="order-detail-panel">
                 <div className="detail-header">
-                    <h2>Order #{order.id}</h2>
+                    <h2>Order {order.id}</h2>
                     <button className="detail-close" onClick={onClose}>✕</button>
                 </div>
 
@@ -229,6 +265,28 @@ Time: ${new Date().toLocaleString()}`;
                     <div className="detail-row"><span className="label">Email</span><span className="value">{order.email || '—'}</span></div>
                     <div className="detail-row"><span className="label">City</span><span className="value">{order.city || '—'}</span></div>
                     <div className="detail-row"><span className="label">Pincode</span><span className="value">{order.pincode || '—'}</span></div>
+                </div>
+
+                {/* Email Delivery */}
+                <div className="detail-section">
+                    <h3>Email Delivery</h3>
+                    <div className="email-status-list">
+                        {emailSummary.map((item) => (
+                            <div key={item.event_type} className="email-status-item">
+                                <div className="email-status-head">
+                                    <span className="email-status-label">{item.label || EMAIL_EVENT_LABELS[item.event_type] || item.event_type}</span>
+                                    <span className={`mail-badge ${emailStatusClass(item.status)}`}>{item.status || 'pending'}</span>
+                                </div>
+                                {(item.reason || item.last_attempt_at || item.recipient) && (
+                                    <div className="email-status-meta">
+                                        {item.reason ? <span>Reason: {item.reason}</span> : null}
+                                        {item.last_attempt_at ? <span>Last Attempt: {new Date(item.last_attempt_at).toLocaleString()}</span> : null}
+                                        {item.recipient ? <span>Recipient: {item.recipient}</span> : null}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Address */}
