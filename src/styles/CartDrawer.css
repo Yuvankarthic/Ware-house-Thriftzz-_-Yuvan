@@ -410,6 +410,34 @@
     outline: none;
 }
 
+.form-group select,
+.form-group textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-main);
+    border-radius: 0;
+    width: 100%;
+    transition: border-color 0.2s;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.form-group textarea {
+    cursor: text;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--text-main);
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 .required-asterisk {
     color: #e63946;
     margin-left: 2px;
