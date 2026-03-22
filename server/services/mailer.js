@@ -109,6 +109,15 @@ const getTransportConfig = () => {
 
 const createTransporter = () => {
     const transportConfig = getTransportConfig();
+    
+    // Validate credentials before creating transporter
+    if (!process.env.SMTP_USER) {
+        console.error('❌ SMTP_USER is not set. Email sending will not work.');
+    }
+    if (!process.env.SMTP_PASS) {
+        console.error('❌ SMTP_PASS is not set. Email sending will not work.');
+    }
+    
     return nodemailer.createTransport({
         ...transportConfig,
         auth: {
@@ -185,48 +194,89 @@ const buildOrderStatusEmailHtml = (order, status) => {
 };
 
 export const sendOrderConfirmationEmail = async (order) => {
-    if (!order?.email) return { skipped: true, reason: 'missing-recipient' };
-    if (!isMailerConfigured()) return { skipped: true, reason: 'missing-smtp-config' };
+    if (!order?.email) {
+        console.warn('⚠️ Order email is missing. Email sending skipped.');
+        return { skipped: true, reason: 'missing-recipient' };
+    }
+    
+    if (!isMailerConfigured()) {
+        console.warn('⚠️ Email credentials not configured in environment. Email sending skipped.');
+        return { skipped: true, reason: 'missing-smtp-config' };
+    }
 
-    const transporter = createTransporter();
-  const fromAddress = getFromAddress();
-
-    await transporter.sendMail({
-        from: `WHT Payments <${fromAddress}>`,
-        to: order.email,
-        subject: `Order Received - #${order.id}`,
-        html: buildOrderEmailHtml(order),
-    });
-
-    return { sent: true };
+    try {
+        const transporter = createTransporter();
+        const fromAddress = getFromAddress();
+        
+        console.log(`📧 Sending order confirmation email to ${order.email}...`);
+        
+        const info = await transporter.sendMail({
+            from: `WHT Payments <${fromAddress}>`,
+            to: order.email,
+            subject: `Order Received - #${order.id}`,
+            html: buildOrderEmailHtml(order),
+        });
+        
+        console.log(`✅ Order confirmation email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
+        return { sent: true, messageId: info.messageId };
+    } catch (error) {
+        console.error(`❌ Failed to send order confirmation email to ${order.email}:`, error.code, error.message);
+        throw error; // Let the caller handle it
+    }
 };
 
 export const sendOrderStatusUpdateEmail = async (order, status) => {
-  if (!order?.email) return { skipped: true, reason: 'missing-recipient' };
-  if (!['Packed', 'Out for Delivery', 'Delivered'].includes(status)) return { skipped: true, reason: 'status-not-supported' };
-  if (!isMailerConfigured()) return { skipped: true, reason: 'missing-smtp-config' };
+  if (!order?.email) {
+    console.warn('⚠️ Order email is missing. Email sending skipped.');
+    return { skipped: true, reason: 'missing-recipient' };
+  }
+  
+  if (!['Packed', 'Out for Delivery', 'Delivered'].includes(status)) {
+    console.warn(`⚠️ Status "${status}" is not supported for email notifications.`);
+    return { skipped: true, reason: 'status-not-supported' };
+  }
+  
+  if (!isMailerConfigured()) {
+    console.warn('⚠️ Email credentials not configured in environment. Email sending skipped.');
+    return { skipped: true, reason: 'missing-smtp-config' };
+  }
 
-  const transporter = createTransporter();
-  const fromAddress = getFromAddress();
-
-  await transporter.sendMail({
-    from: `WHT Payments <${fromAddress}>`,
-    to: order.email,
-    subject: `Order #${order.id} Update - ${status}`,
-    html: buildOrderStatusEmailHtml(order, status),
-  });
-
-  return { sent: true };
+  try {
+    const transporter = createTransporter();
+    const fromAddress = getFromAddress();
+    
+    console.log(`📧 Sending status update email to ${order.email} (Order #${order.id}: ${status})...`);
+    
+    const info = await transporter.sendMail({
+      from: `WHT Payments <${fromAddress}>`,
+      to: order.email,
+      subject: `Order #${order.id} Update - ${status}`,
+      html: buildOrderStatusEmailHtml(order, status),
+    });
+    
+    console.log(`✅ Status update email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
+    return { sent: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Failed to send status update email to ${order.email}:`, error.code, error.message);
+    throw error; // Let the caller handle it
+  }
 };
 
 export const getMailerHealth = () => {
   const transportConfig = getTransportConfig();
+  const configured = isMailerConfigured();
+  
+  if (!configured) {
+    console.warn('⚠️ Mailer not configured: Missing SMTP_USER or SMTP_PASS environment variables');
+  }
+  
   return {
-    status: isMailerConfigured() ? 'online' : 'warning',
-    configured: isMailerConfigured(),
+    status: configured ? 'online' : 'warning',
+    configured,
     host: transportConfig.host,
     port: transportConfig.port,
     secure: transportConfig.secure,
     from: getFromAddress(),
+    credentialsSet: Boolean(process.env.SMTP_USER && process.env.SMTP_PASS),
   };
 };

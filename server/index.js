@@ -18,6 +18,7 @@ import activityRoutes from './routes/activity.js';
 import publicRoutes from './routes/public.js';
 import pool from './db.js';
 import { getMailerHealth } from './services/mailer.js';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,6 +95,103 @@ app.get('/health', async (_req, res) => {
             database: 'down',
             mailer: { ...mailer, status: 'down' },
             timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// ── Test Email Endpoint ──
+app.get('/test-email', async (_req, res) => {
+    try {
+        // Validate environment variables
+        const missingVars = [];
+        if (!process.env.SMTP_HOST) missingVars.push('SMTP_HOST');
+        if (!process.env.SMTP_PORT) missingVars.push('SMTP_PORT');
+        if (!process.env.SMTP_SECURE) missingVars.push('SMTP_SECURE');
+        if (!process.env.SMTP_USER) missingVars.push('SMTP_USER');
+        if (!process.env.SMTP_PASS) missingVars.push('SMTP_PASS');
+        if (!process.env.MAIL_FROM) missingVars.push('MAIL_FROM');
+
+        if (missingVars.length > 0) {
+            console.error('❌ Missing environment variables:', missingVars.join(', '));
+            return res.status(400).json({
+                status: 'error',
+                message: 'SMTP configuration incomplete',
+                missingVariables: missingVars,
+                received: {
+                    SMTP_HOST: process.env.SMTP_HOST ? '✓' : '✗',
+                    SMTP_PORT: process.env.SMTP_PORT ? '✓' : '✗',
+                    SMTP_SECURE: process.env.SMTP_SECURE ? '✓' : '✗',
+                    SMTP_USER: process.env.SMTP_USER ? '✓' : '✗',
+                    SMTP_PASS: process.env.SMTP_PASS ? '✓' : '✗',
+                    MAIL_FROM: process.env.MAIL_FROM ? '✓' : '✗',
+                }
+            });
+        }
+
+        // Create transporter
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
+
+        console.log(`🧪 Testing email connection to ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}...`);
+
+        // Test the connection
+        const info = await transporter.sendMail({
+            from: process.env.MAIL_FROM,
+            to: process.env.SMTP_USER,
+            subject: '🧪 Test Email from WHT Backend',
+            text: 'If you received this email, the email system is working correctly! 🚀',
+            html: `
+                <h2>Test Email Success 🚀</h2>
+                <p>If you are reading this, the WHT email system is working correctly!</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>SMTP Host: ${process.env.SMTP_HOST}</li>
+                    <li>SMTP Port: ${process.env.SMTP_PORT}</li>
+                    <li>From: ${process.env.MAIL_FROM}</li>
+                    <li>Timestamp: ${new Date().toISOString()}</li>
+                </ul>
+            `
+        });
+
+        console.log(`✅ Test email sent successfully! Message ID: ${info.messageId}`);
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Test email sent successfully',
+            messageId: info.messageId,
+            recipient: process.env.SMTP_USER,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('❌ Test email failed:', {
+            code: error.code,
+            message: error.message,
+            response: error.response
+        });
+        
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to send test email',
+            error: {
+                code: error.code || 'UNKNOWN',
+                message: error.message,
+                details: error.response || null
+            },
+            help: `
+                Common issues:
+                - Invalid app password (should not include spaces)
+                - Gmail 2FA not enabled
+                - App password not generated correctly
+                - SMTP credentials configured but network blocked
+            `
         });
     }
 });
