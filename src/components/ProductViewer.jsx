@@ -4,6 +4,7 @@ import { X, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { trackEvent } from '../utils/activityTracker';
+import { sanitizeImageList } from '../utils/imageUrl';
 import '../styles/ProductViewer.css';
 
 const ProductViewer = ({
@@ -40,7 +41,7 @@ const ProductViewer = ({
     if (!product) return null;
 
     const currentIndex = products.findIndex(p => p.id === product.id);
-    const images = product.images && product.images.length > 0 ? product.images : ['/placeholder-image.png'];
+    const images = sanitizeImageList(product.images || [product.image_url]);
     const currentImage = images[currentImageIndex] || images[0];
 
     const handleAddToCart = (e) => {

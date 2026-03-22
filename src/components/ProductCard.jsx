@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import { Plus, Check, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { sanitizeImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 import '../styles/ProductCard.css';
 
 const ProductCard = ({ product, onSelect }) => {
@@ -30,13 +31,11 @@ const ProductCard = ({ product, onSelect }) => {
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
 
     const [isHovered, setIsHovered] = useState(false);
-    const fallbackImage = '/images/placeholder.jpg';
-
-    const primaryImage = product.images && product.images.length > 0 ? product.images[0] : fallbackImage;
-    const hoverImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage;
+    const primaryImage = sanitizeImageUrl(product.images && product.images.length > 0 ? product.images[0] : null, PLACEHOLDER_IMAGE);
+    const hoverImage = sanitizeImageUrl(product.images && product.images.length > 1 ? product.images[1] : primaryImage, PLACEHOLDER_IMAGE);
 
     const handleImageError = (e) => {
-        if (e.currentTarget.src.includes('/images/placeholder.jpg')) {
+        if (e.currentTarget.src.includes(PLACEHOLDER_IMAGE)) {
             e.currentTarget.style.display = 'none';
             if (e.currentTarget.parentElement) {
                 e.currentTarget.parentElement.style.background = '#f0f0f0';
@@ -44,7 +43,7 @@ const ProductCard = ({ product, onSelect }) => {
             return;
         }
 
-        e.currentTarget.src = fallbackImage;
+        e.currentTarget.src = PLACEHOLDER_IMAGE;
     };
 
     const handleMouseMove = (e) => {

@@ -8,6 +8,7 @@ import '../styles/CartDrawer.css';
 import OrderSuccess from './OrderSuccess';
 import LocationPicker from './LocationPicker';
 import ProductViewer from './ProductViewer';
+import { sanitizeImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 
 // Steps: 'cart' → 'details' → 'review'
 const CartDrawer = () => {
@@ -85,8 +86,8 @@ const CartDrawer = () => {
                             price: Number(suggestion.price) || 0,
                             size: suggestion.size || 'N/A',
                             condition: suggestion.condition || 'Vintage',
-                            images: suggestion.image_url ? [suggestion.image_url] : [],
-                            image_url: suggestion.image_url || null,
+                            images: [sanitizeImageUrl(suggestion.image_url)],
+                            image_url: sanitizeImageUrl(suggestion.image_url),
                             soldOut: Number(suggestion.stock) <= 0,
                         });
                     } else {
@@ -275,7 +276,10 @@ const CartDrawer = () => {
     };
 
     const stepTitles = { cart: 'My Bag', details: 'Delivery Details', review: 'Review Order' };
-    const recommendationImageUrl = recommendedItem?.images?.[0] || recommendedItem?.image_url || '/images/placeholder.jpg';
+    const recommendationImageUrl = sanitizeImageUrl(
+        recommendedItem?.images?.[0] || recommendedItem?.image_url,
+        PLACEHOLDER_IMAGE
+    );
 
     const openRecommendedPreview = () => {
         if (recommendedItem) {
@@ -313,7 +317,7 @@ const CartDrawer = () => {
                                     alt={recommendedItem.name}
                                     className="recommendation-image"
                                     onError={(event) => {
-                                        event.currentTarget.src = '/images/placeholder.jpg';
+                                        event.currentTarget.src = PLACEHOLDER_IMAGE;
                                     }}
                                 />
                             </div>
@@ -424,7 +428,15 @@ const CartDrawer = () => {
                                             <div key={item.id} className="cart-item">
                                                 <div className="cart-item-image">
                                                     {item.image
-                                                        ? <img src={item.image} alt={item.name} />
+                                                        ? (
+                                                            <img
+                                                                src={sanitizeImageUrl(item.image, PLACEHOLDER_IMAGE)}
+                                                                alt={item.name}
+                                                                onError={(event) => {
+                                                                    event.currentTarget.src = PLACEHOLDER_IMAGE;
+                                                                }}
+                                                            />
+                                                        )
                                                         : <span className="cart-placeholder">{item.name[0]}</span>
                                                     }
                                                 </div>

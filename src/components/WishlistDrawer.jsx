@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2 } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { sanitizeImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 import '../styles/WishlistDrawer.css';
 
 const WishlistDrawer = ({ onNavigate }) => {
@@ -66,8 +67,11 @@ const WishlistDrawer = ({ onNavigate }) => {
                                             onClick={() => handleProductClick(item.id)}
                                         >
                                             <img
-                                                src={item.images?.[0] || '/placeholder-image.png'}
+                                                src={sanitizeImageUrl(item.images?.[0], PLACEHOLDER_IMAGE)}
                                                 alt={item.name}
+                                                onError={(event) => {
+                                                    event.currentTarget.src = PLACEHOLDER_IMAGE;
+                                                }}
                                             />
                                         </div>
                                         <div className="wishlist-item-details">

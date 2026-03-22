@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { trackEvent } from '../utils/activityTracker';
+import { sanitizeImageUrl } from '../utils/imageUrl';
 
 const CartContext = createContext();
 
@@ -34,7 +35,7 @@ export const CartProvider = ({ children }) => {
             }
             return [...prev, {
                 ...product,
-                image: product.images ? product.images[0] : (product.image_url || null),
+                image: sanitizeImageUrl(product.images ? product.images[0] : product.image_url, null),
                 quantity: 1 // Keeping quantity for legacy compatibility, but it will only ever be 1
             }];
         });
@@ -73,7 +74,7 @@ export const CartProvider = ({ children }) => {
         setCartItems([
             {
                 ...product,
-                image: product.images ? product.images[0] : (product.image_url || null),
+                image: sanitizeImageUrl(product.images ? product.images[0] : product.image_url, null),
                 quantity: 1,
             },
         ]);

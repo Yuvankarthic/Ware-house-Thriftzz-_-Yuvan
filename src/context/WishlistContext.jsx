@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { sanitizeImageList, sanitizeImageUrl } from '../utils/imageUrl';
 
 const WishlistContext = createContext();
 
@@ -9,7 +10,20 @@ export const useWishlist = () => {
 export const WishlistProvider = ({ children }) => {
     const [wishlistItems, setWishlistItems] = useState(() => {
         const savedWishlist = localStorage.getItem('wishlist');
-        return savedWishlist ? JSON.parse(savedWishlist) : [];
+        if (!savedWishlist) return [];
+
+        try {
+            const parsed = JSON.parse(savedWishlist);
+            if (!Array.isArray(parsed)) return [];
+
+            return parsed.map((item) => ({
+                ...item,
+                images: sanitizeImageList(item?.images || [item?.image_url]),
+                image_url: sanitizeImageUrl(item?.image_url, null),
+            }));
+        } catch {
+            return [];
+        }
     });
     const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 

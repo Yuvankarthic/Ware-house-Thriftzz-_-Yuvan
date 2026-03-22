@@ -5,6 +5,7 @@ import ProductCard from './ProductCard';
 import ProductViewer from './ProductViewer';
 import '../styles/ProductGrid.css';
 import BASE_URL from '../config/api';
+import { sanitizeImageUrl } from '../utils/imageUrl';
 
 const API = `${BASE_URL}/api`;
 
@@ -16,7 +17,7 @@ const mapApiProductToCard = (product) => ({
     fit: product.fit || 'Regular',
     condition: product.condition || 'Vintage',
     category: product.category || 'Jackets',
-    images: product.image_url ? [product.image_url] : [],
+    images: [sanitizeImageUrl(product.image_url)],
     soldOut: Number(product.stock) <= 0,
     stock: Number(product.stock) || 0,
     show_on_main: product.show_on_main !== false,
