@@ -120,6 +120,8 @@ const createTransporter = () => {
     
     return nodemailer.createTransport({
         ...transportConfig,
+        connectionTimeout: 5000,
+        socketTimeout: 5000,
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
@@ -210,12 +212,19 @@ export const sendOrderConfirmationEmail = async (order) => {
         
         console.log(`📧 Sending order confirmation email to ${order.email}...`);
         
-        const info = await transporter.sendMail({
+        // Create send promise with timeout
+        const sendPromise = transporter.sendMail({
             from: `WHT Payments <${fromAddress}>`,
             to: order.email,
             subject: `Order Received - #${order.id}`,
             html: buildOrderEmailHtml(order),
         });
+        
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Send email timeout (exceeded 10 seconds)')), 10000)
+        );
+        
+        const info = await Promise.race([sendPromise, timeoutPromise]);
         
         console.log(`✅ Order confirmation email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
         return { sent: true, messageId: info.messageId };
@@ -247,12 +256,19 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     
     console.log(`📧 Sending status update email to ${order.email} (Order #${order.id}: ${status})...`);
     
-    const info = await transporter.sendMail({
+    // Create send promise with timeout
+    const sendPromise = transporter.sendMail({
       from: `WHT Payments <${fromAddress}>`,
       to: order.email,
       subject: `Order #${order.id} Update - ${status}`,
       html: buildOrderStatusEmailHtml(order, status),
     });
+    
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Send email timeout (exceeded 10 seconds)')), 10000)
+    );
+    
+    const info = await Promise.race([sendPromise, timeoutPromise]);
     
     console.log(`✅ Status update email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
     return { sent: true, messageId: info.messageId };

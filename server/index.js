@@ -128,11 +128,13 @@ app.get('/test-email', async (_req, res) => {
             });
         }
 
-        // Create transporter
+        // Create transporter with connection timeout
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT),
             secure: process.env.SMTP_SECURE === 'true',
+            connectionTimeout: 5000,
+            socketTimeout: 5000,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
@@ -141,8 +143,8 @@ app.get('/test-email', async (_req, res) => {
 
         console.log(`🧪 Testing email connection to ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}...`);
 
-        // Test the connection
-        const info = await transporter.sendMail({
+        // Set a timeout for the entire operation (8 seconds)
+        const sendEmailPromise = transporter.sendMail({
             from: process.env.MAIL_FROM,
             to: process.env.SMTP_USER,
             subject: '🧪 Test Email from WHT Backend',
@@ -159,6 +161,12 @@ app.get('/test-email', async (_req, res) => {
                 </ul>
             `
         });
+
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Email send timeout (exceeded 8 seconds)')), 8000)
+        );
+
+        const info = await Promise.race([sendEmailPromise, timeoutPromise]);
 
         console.log(`✅ Test email sent successfully! Message ID: ${info.messageId}`);
         
@@ -191,6 +199,7 @@ app.get('/test-email', async (_req, res) => {
                 - Gmail 2FA not enabled
                 - App password not generated correctly
                 - SMTP credentials configured but network blocked
+                - Connection timeout (Render network issue)
             `
         });
     }
