@@ -104,6 +104,9 @@ const buildOrderEmailHtml = (order) => {
 };
 
 const isMailerConfigured = () => {
+    // SendGrid is configured if EMAIL_SERVICE=sendgrid and key is present
+    if (isSendGrid) return true;
+    // Otherwise require SMTP credentials for Nodemailer
     return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 };
 

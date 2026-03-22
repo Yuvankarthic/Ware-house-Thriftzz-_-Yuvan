@@ -116,7 +116,7 @@ app.get('/test-email', async (_req, res) => {
             });
         }
         
-        const recipient = isSendGrid ? process.env.MAIL_FROM : process.env.SMTP_USER;
+        const recipient = process.env.MAIL_FROM;
         const subject = '🧪 Test Email from WHT Backend';
         const text = 'If you received this email, the email system is working correctly! 🚀';
         const html = `
@@ -127,7 +127,7 @@ app.get('/test-email', async (_req, res) => {
         `;
         
         if (isSendGrid) {
-            // Test SendGrid
+            // Send via SendGrid
             sgMail.setApiKey(process.env.SENDGRID_API_KEY);
             const msg = {
                 to: recipient,
@@ -149,53 +149,16 @@ app.get('/test-email', async (_req, res) => {
             });
         }
         
-        // Fallback to Nodemailer
-        if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'SMTP configuration incomplete',
-                missingVars: {
-                    SMTP_HOST: !process.env.SMTP_HOST,
-                    SMTP_USER: !process.env.SMTP_USER,
-                    SMTP_PASS: !process.env.SMTP_PASS,
-                }
-            });
-        }
-        
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT || 587),
-            secure: process.env.SMTP_SECURE === 'true',
-            connectionTimeout: 5000,
-            socketTimeout: 5000,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
+        // SendGrid not configured - return error
+        return res.status(400).json({
+            status: 'error',
+            message: 'Email service not configured',
+            missingConfig: {
+                EMAIL_SERVICE: !process.env.EMAIL_SERVICE,
+                SENDGRID_API_KEY: !process.env.SENDGRID_API_KEY,
+                MAIL_FROM: !process.env.MAIL_FROM,
             },
-        });
-        
-        const sendEmailPromise = transporter.sendMail({
-            from: process.env.MAIL_FROM,
-            to: recipient,
-            subject,
-            text,
-            html,
-        });
-        
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Email send timeout (exceeded 8 seconds)')), 8000)
-        );
-        
-        const info = await Promise.race([sendEmailPromise, timeoutPromise]);
-        
-        console.log(`✅ Test email sent via Nodemailer! Message ID: ${info.messageId}`);
-        res.status(200).json({
-            status: 'success',
-            message: 'Test email sent successfully via Nodemailer',
-            service: 'Nodemailer',
-            messageId: info.messageId,
-            recipient,
-            timestamp: new Date().toISOString()
+            hint: 'Set EMAIL_SERVICE=sendgrid and SENDGRID_API_KEY in environment variables'
         });
         
     } catch (error) {
