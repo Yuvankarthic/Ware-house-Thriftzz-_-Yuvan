@@ -1,0 +1,1 @@
+{"status":"ok","database":"connected","mailer":{"status":"warning","configured":false,"host":"smtp.gmail.com","port":465,"secure":true,"from":"payments.wht@gmail.com"},"timestamp":"2026-03-22T15:56:37.628Z"}

@@ -1,0 +1,51 @@
+{
+    "health":  {
+                   "status":  "ok",
+                   "database":  "connected",
+                   "mailer":  {
+                                  "status":  "warning",
+                                  "configured":  false,
+                                  "host":  "smtp.gmail.com",
+                                  "port":  465,
+                                  "secure":  true,
+                                  "from":  "payments.wht@gmail.com"
+                              },
+                   "timestamp":  "2026-03-22T15:58:46.372Z"
+               },
+    "login_ok":  true,
+    "order_email":  "qa+1774195126@example.com",
+    "order_id":  180001,
+    "order_create":  {
+                         "success":  true,
+                         "message":  "Order placed successfully",
+                         "order":  {
+                                       "order_id":  180001,
+                                       "product":  "QA Product",
+                                       "order_value":  999,
+                                       "status":  "New Order"
+                                   }
+                     },
+    "status_updates":  [
+                           {
+                               "status":  "Packed",
+                               "response":  {
+                                                "success":  true,
+                                                "message":  "Order updated to \"Packed\""
+                                            }
+                           },
+                           {
+                               "status":  "Out for Delivery",
+                               "response":  {
+                                                "success":  true,
+                                                "message":  "Order updated to \"Out for Delivery\""
+                                            }
+                           },
+                           {
+                               "status":  "Delivered",
+                               "response":  {
+                                                "success":  true,
+                                                "message":  "Order updated to \"Delivered\""
+                                            }
+                           }
+                       ]
+}

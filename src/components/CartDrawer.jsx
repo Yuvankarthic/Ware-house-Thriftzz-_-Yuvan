@@ -62,6 +62,11 @@ const CartDrawer = () => {
 
     useEffect(() => {
         if (!isCartOpen) return;
+        fetch(`${import.meta.env.VITE_API_URL || BASE_URL}/health`).catch(() => {});
+    }, [isCartOpen]);
+
+    useEffect(() => {
+        if (!isCartOpen) return;
 
         let isMounted = true;
 
@@ -228,7 +233,6 @@ const CartDrawer = () => {
                 items: JSON.stringify(cartItems.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, size: item.size })))
             },
             handler: async function (response) {
-                console.log('🎉 Payment successful! Payment ID:', response.razorpay_payment_id);
                 setIsProcessing(true);
                 
                 try {
@@ -343,6 +347,32 @@ const CartDrawer = () => {
 
     return (
         <AnimatePresence>
+            {isProcessing && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        display: 'grid',
+                        placeItems: 'center',
+                        background: 'rgba(0, 0, 0, 0.35)',
+                        zIndex: 12000,
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <div
+                        style={{
+                            background: '#fff',
+                            padding: '14px 18px',
+                            borderRadius: 10,
+                            fontWeight: 600,
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                        }}
+                    >
+                        Processing your order...
+                    </div>
+                </div>
+            )}
+
             {showLocationPicker && (
                 <LocationPicker
                     onConfirm={(locationData) => {

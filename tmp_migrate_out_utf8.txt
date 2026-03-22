@@ -1,0 +1,16 @@
+﻿≡ƒöä Running database migrationsΓÇª
+
+Γ£à Database connected successfully
+  Γ£à products table ready
+  Γ£à staff table ready
+  Γ£à orders table ready
+  Γ£à order_timeline table ready
+  Γ£à order_email_events table ready
+  Γ£à activity tracking tables ready
+
+  Γä╣∩╕Å  Products already exist ΓÇö skipping seed
+
+  Γä╣∩╕Å  Staff already exist ΓÇö skipping seed
+  Γ£à product columns updated
+
+≡ƒÄë Migration complete!
