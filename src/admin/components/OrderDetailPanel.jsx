@@ -323,17 +323,17 @@ Time: ${new Date().toLocaleString()}`;
                 {/* Delivery Management */}
                 <div className="detail-section">
                     <h3>Delivery Management</h3>
-                    <div className="delivery-form">
-                        <select value={deliveryPartner} onChange={e => setDeliveryPartner(e.target.value)}>
+                    <div className="delivery-form" onMouseDown={(e) => e.stopPropagation()}>
+                        <select value={deliveryPartner} onChange={e => setDeliveryPartner(e.target.value)} onMouseDown={(e) => e.stopPropagation()}>
                             <option value="">Select delivery partner</option>
                             <option value="Porter">Porter</option>
                             <option value="Rapido Parcel">Rapido Parcel</option>
                             <option value="Self Delivery">Self Delivery</option>
                         </select>
-                        <input placeholder="Rider phone number" value={riderPhone} onChange={e => setRiderPhone(e.target.value)} />
-                        <input placeholder="Tracking reference (optional)" value={trackingRef} onChange={e => setTrackingRef(e.target.value)} />
-                        <textarea placeholder="Delivery notes…" value={deliveryNotes} onChange={e => setDeliveryNotes(e.target.value)} />
-                        <button className="btn-admin primary" onClick={saveDelivery}>Save Delivery Info</button>
+                        <input placeholder="Rider phone number" value={riderPhone} onChange={e => setRiderPhone(e.target.value)} onMouseDown={(e) => e.stopPropagation()} />
+                        <input placeholder="Tracking reference (optional)" value={trackingRef} onChange={e => setTrackingRef(e.target.value)} onMouseDown={(e) => e.stopPropagation()} />
+                        <textarea placeholder="Delivery notes…" value={deliveryNotes} onChange={e => setDeliveryNotes(e.target.value)} onMouseDown={(e) => e.stopPropagation()} />
+                        <button className="btn-admin primary" onClick={saveDelivery} onMouseDown={(e) => e.stopPropagation()}>Save Delivery Info</button>
                     </div>
                 </div>
 
