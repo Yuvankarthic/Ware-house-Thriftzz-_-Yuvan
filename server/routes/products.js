@@ -8,6 +8,51 @@ const router = Router();
 const query = (text, params) => pool.query(text, params);
 let productColumnsReady = false;
 
+const isPrivateOrLocalHost = (hostname = '') => {
+  const host = hostname.toLowerCase();
+  if (host === 'localhost' || host.endsWith('.local')) return true;
+  if (host === '127.0.0.1' || host === '::1') return true;
+
+  if (/^10\./.test(host)) return true;
+  if (/^192\.168\./.test(host)) return true;
+  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(host)) return true;
+
+  return false;
+};
+
+const normalizePublicAssetUrl = (value) => {
+  if (!value) return null;
+  const raw = String(value).trim();
+  if (!raw) return null;
+
+  if (raw.startsWith('//')) {
+    return `https:${raw}`;
+  }
+
+  if (raw.startsWith('https://')) {
+    return raw;
+  }
+
+  if (raw.startsWith('http://')) {
+    try {
+      const parsed = new URL(raw);
+      if (isPrivateOrLocalHost(parsed.hostname)) {
+        return null;
+      }
+      return `https://${raw.slice('http://'.length)}`;
+    } catch {
+      return null;
+    }
+  }
+
+  return raw;
+};
+
+const sanitizeProduct = (row = {}) => ({
+  ...row,
+  image_url: normalizePublicAssetUrl(row.image_url),
+});
+
 const ensureProductColumns = async () => {
   if (productColumnsReady) return;
 
@@ -65,7 +110,7 @@ router.get('/', async (req, res) => {
       `${baseQuery}${whereClause} ORDER BY created_at DESC`,
       params
     );
-    return res.json({ success: true, products: result.rows });
+    return res.json({ success: true, products: result.rows.map(sanitizeProduct) });
   } catch (err) {
     console.error('❌ GET /api/products error:', err.message);
     return res.status(500).json({ success: false, error: 'Internal server error' });
@@ -96,7 +141,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       [name, price, size || null, fit || null, condition || null, image_url, productCategory, chest_length || null, shoulder_length || null, showOnMain]
     );
 
-    return res.status(201).json({ success: true, product: result.rows[0] });
+    return res.status(201).json({ success: true, product: sanitizeProduct(result.rows[0]) });
   } catch (err) {
     console.error('❌ POST /api/products error:', err.message);
     return res.status(500).json({ success: false, error: 'Internal server error' });
@@ -132,7 +177,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    return res.json({ success: true, product: result.rows[0] });
+    return res.json({ success: true, product: sanitizeProduct(result.rows[0]) });
   } catch (err) {
     console.error('❌ PUT /api/products/:id error:', err.message);
     return res.status(500).json({ success: false, error: 'Internal server error' });
@@ -156,7 +201,7 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    return res.json({ success: true, product: result.rows[0] });
+    return res.json({ success: true, product: sanitizeProduct(result.rows[0]) });
   } catch (err) {
     console.error('❌ PATCH /api/products/:id/sold error:', err.message);
     return res.status(500).json({ success: false, error: 'Internal server error' });
@@ -180,7 +225,7 @@ router.patch('/:id/visibility', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    return res.json({ success: true, product: result.rows[0] });
+    return res.json({ success: true, product: sanitizeProduct(result.rows[0]) });
   } catch (err) {
     console.error('❌ PATCH /api/products/:id/visibility error:', err.message);
     return res.status(500).json({ success: false, error: 'Internal server error' });
