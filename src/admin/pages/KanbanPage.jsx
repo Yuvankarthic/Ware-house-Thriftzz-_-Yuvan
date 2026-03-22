@@ -96,7 +96,7 @@ export default function KanbanPage({ token }) {
                                          className={`kanban-card ${isUrgent(o) ? 'urgent' : ''} ${dragItem?.id === o.id ? 'dragging' : ''}`}
                                          draggable
                                          onDragStart={(e) => handleDragStart(e, o)}>
-                                        <div className="card-order-id">#{o.id}</div>
+                                        <div className="card-order-id">{o.id}</div>
                                         <div className="card-customer">{o.customer_name}</div>
                                         <div className="card-product">{o.product_name}</div>
                                         <div className="card-value">₹{o.order_value}</div>

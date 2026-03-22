@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
+import { trackEvent } from '../utils/activityTracker';
 import ProductImageSlider from './ProductImageSlider'; // NEW: Import the slider component
 import '../styles/ProductPage.css';
 
 const ProductPage = () => {
     const { id } = useParams();
     const history = useHistory();
-    const { addToCart, setIsCartOpen } = useCart();
+    const { addToCart, buyNow } = useCart();
     const [product, setProduct] = useState(null);
 
     useEffect(() => {
@@ -16,6 +17,7 @@ const ProductPage = () => {
         if (found) {
             setProduct(found);
             window.scrollTo(0, 0);
+            trackEvent('product_view', found.id, 'product_page');
         } else {
             // If product not found, redirect to home or a 404 page
             history.push('/');
@@ -29,6 +31,10 @@ const ProductPage = () => {
 
     const handleAddToCart = (e) => {
         addToCart(product, e);
+    };
+
+    const handleBuyNow = () => {
+        buyNow(product);
     };
 
     return (
@@ -71,13 +77,23 @@ const ProductPage = () => {
                         </div>
                     </dl>
 
-                    <button
-                        className="btn-primary add-to-cart-btn"
-                        onClick={(e) => handleAddToCart(e)}
-                        disabled={product.soldOut}
-                    >
-                        {product.soldOut ? 'Sold Out' : 'Add to Cart'}
-                    </button>
+                    <div className="product-page-actions">
+                        <button
+                            className="btn-secondary buy-now-btn"
+                            onClick={handleBuyNow}
+                            disabled={product.soldOut}
+                        >
+                            {product.soldOut ? 'Sold Out' : 'Buy Now'}
+                        </button>
+
+                        <button
+                            className="btn-primary add-to-cart-btn"
+                            onClick={(e) => handleAddToCart(e)}
+                            disabled={product.soldOut}
+                        >
+                            {product.soldOut ? 'Sold Out' : 'Add to Cart'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

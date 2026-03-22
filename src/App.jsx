@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -17,6 +18,7 @@ import TrackOrderPage from './pages/TrackOrderPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
+import { trackVisit, trackEvent } from './utils/activityTracker';
 
 function HomeAndShopPage() {
   return (
@@ -34,6 +36,12 @@ function HomeAndShopPage() {
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    const page = location.pathname === '/' ? 'welcome' : location.pathname.replace(/^\//, '') || 'homepage';
+    trackVisit(page);
+    trackEvent('page_visit', null, page);
+  }, [location.pathname]);
 
   if (isAdmin) {
     return (

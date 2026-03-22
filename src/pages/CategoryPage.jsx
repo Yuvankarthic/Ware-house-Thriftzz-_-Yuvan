@@ -51,6 +51,7 @@ export default function CategoryPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedProductId, setAddedProductId] = useState(null);
+  const [heartPopProductId, setHeartPopProductId] = useState(null);
 
   useEffect(() => {
     if (!selectedCategoryKey) {
@@ -134,10 +135,16 @@ export default function CategoryPage() {
                     <button
                       type="button"
                       className={`shop-card-wishlist ${inWishlist ? 'active' : ''}`}
-                      onClick={() => toggleWishlist(product)}
+                      onClick={() => {
+                        toggleWishlist(product);
+                        setHeartPopProductId(product.id);
+                        setTimeout(() => {
+                          setHeartPopProductId((prev) => (prev === product.id ? null : prev));
+                        }, 280);
+                      }}
                       aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
-                      <Heart size={18} className={inWishlist ? 'fill-current' : ''} />
+                      <Heart size={18} className={`${inWishlist ? 'fill-current' : ''} ${heartPopProductId === product.id ? 'heart-pop' : ''}`} />
                     </button>
                   </div>
 
@@ -154,7 +161,7 @@ export default function CategoryPage() {
 
                     <button
                       type="button"
-                      className="shop-add-to-cart-btn"
+                      className={`shop-add-to-cart-btn ${isAdded ? 'cart-pop' : ''}`}
                       onClick={(event) => handleAddToCart(product, event)}
                     >
                       {isAdded ? <Check size={16} /> : <Plus size={16} />}

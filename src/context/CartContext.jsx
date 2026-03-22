@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
+import { trackEvent } from '../utils/activityTracker';
 
 const CartContext = createContext();
 
@@ -10,8 +11,19 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [flyingItems, setFlyingItems] = useState([]);
+    const [checkoutEntryStep, setCheckoutEntryStep] = useState('cart');
+
+    const getNumericProductId = (product) => {
+        const idValue = String(product?.id || '');
+        const matchedApiId = idValue.match(/^api-(\d+)$/);
+        if (matchedApiId) return Number.parseInt(matchedApiId[1], 10);
+        const parsed = Number.parseInt(idValue, 10);
+        return Number.isInteger(parsed) ? parsed : null;
+    };
 
     const addToCart = (product, event = null) => {
+        trackEvent('add_to_cart', getNumericProductId(product));
+
         // 1. Add item to cart state implicitly (don't open drawer yet)
         setCartItems(prev => {
             const existing = prev.find(item => item.id === product.id);
@@ -22,7 +34,7 @@ export const CartProvider = ({ children }) => {
             }
             return [...prev, {
                 ...product,
-                image: product.images ? product.images[0] : null,
+                image: product.images ? product.images[0] : (product.image_url || null),
                 quantity: 1 // Keeping quantity for legacy compatibility, but it will only ever be 1
             }];
         });
@@ -51,6 +63,28 @@ export const CartProvider = ({ children }) => {
             // No event provided (fallback), open drawer immediately
             setIsCartOpen(true);
         }
+    };
+
+    const buyNow = (product) => {
+        if (!product || product.soldOut) return;
+
+        trackEvent('buy_now', getNumericProductId(product));
+
+        setCartItems([
+            {
+                ...product,
+                image: product.images ? product.images[0] : (product.image_url || null),
+                quantity: 1,
+            },
+        ]);
+        setCheckoutEntryStep('details');
+        setIsCartOpen(true);
+    };
+
+    const consumeCheckoutEntryStep = () => {
+        const currentStep = checkoutEntryStep;
+        setCheckoutEntryStep('cart');
+        return currentStep;
     };
 
     const removeFromCart = (id) => {
@@ -98,13 +132,15 @@ export const CartProvider = ({ children }) => {
         <CartContext.Provider value={{
             cartItems,
             addToCart,
+            buyNow,
             removeFromCart,
             updateQuantity,
             clearCart,
             isCartOpen,
             setIsCartOpen,
             cartTotal,
-            cartCount
+            cartCount,
+            consumeCheckoutEntryStep,
         }}>
             {children}
 

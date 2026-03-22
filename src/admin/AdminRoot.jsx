@@ -6,6 +6,7 @@ import OrdersPage from './pages/OrdersPage';
 import KanbanPage from './pages/KanbanPage';
 import TeamPage from './pages/TeamPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import ActivityPage from './pages/ActivityPage';
 import LoginPage from './pages/LoginPage';
 import ProductsPage from '../pages/admin/Products';
 import HealthPage from './pages/HealthPage';
@@ -61,6 +62,7 @@ export default function AdminRoot() {
                     <Route path="/admin/kanban" render={() => <KanbanPage token={token} />} />
                     <Route path="/admin/team" render={() => <TeamPage token={token} />} />
                     <Route path="/admin/analytics" render={() => <AnalyticsPage token={token} />} />
+                    <Route path="/admin/activity" render={() => <ActivityPage token={token} />} />
                     <Route path="/admin/products" render={() => <ProductsPage token={token} user={user} />} />
                     <Route path="/admin/health" render={() => <HealthPage token={token} />} />
                     <Redirect to="/admin" />

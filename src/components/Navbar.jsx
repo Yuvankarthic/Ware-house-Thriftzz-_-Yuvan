@@ -37,7 +37,7 @@ const Navbar = () => {
 
                 {/* Logo */}
                 <div className="navbar-logo">
-                    <Link to="/shop" className="brand-font">WHT</Link>
+                    <Link to="/shop" className="navbar-wordmark">WHT</Link>
                 </div>
 
                 {/* Desktop + Mobile nav links */}

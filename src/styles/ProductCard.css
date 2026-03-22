@@ -104,6 +104,10 @@
     color: #cc0000;
 }
 
+.heart-pop {
+    animation: whtHeartPop 0.28s ease;
+}
+
 /* ── Price Row (Flexbox for Plus Button) ── */
 .card-price-row {
     display: flex;
@@ -227,4 +231,32 @@
     font-weight: 800;
     padding: 8px 20px;
     background-color: rgba(0, 0, 0, 0.75);
+}
+
+.cart-pop {
+    animation: whtCartPop 0.26s ease;
+}
+
+@keyframes whtHeartPop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.26);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes whtCartPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.08);
+    }
+    100% {
+        transform: scale(1);
+    }
 }

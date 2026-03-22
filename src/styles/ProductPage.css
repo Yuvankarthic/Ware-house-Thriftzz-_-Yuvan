@@ -144,6 +144,20 @@
 }
 
 /* ── Add to Cart ── */
+.product-page-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.buy-now-btn {
+    width: 100%;
+    height: 54px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
 .add-to-cart-btn {
     width: 100%;
     height: 60px;
@@ -171,14 +185,21 @@
 }
 
 @media (max-width: 767px) {
-    .add-to-cart-btn {
+    .product-page-actions {
         position: fixed;
         bottom: 0;
         left: 0;
+        right: 0;
         z-index: 1001;
-        height: 70px;
-        /* Larger tap area on mobile */
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+        background: #fff;
         border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .buy-now-btn,
+    .add-to-cart-btn {
+        height: 54px;
+        border-radius: 0;
     }
 }
 

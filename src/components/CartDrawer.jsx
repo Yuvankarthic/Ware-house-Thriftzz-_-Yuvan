@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2, ArrowLeft, MapPin, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BASE_URL from '../config/api';
+import { trackEvent } from '../utils/activityTracker';
 import '../styles/CartDrawer.css';
 import OrderSuccess from './OrderSuccess';
 import LocationPicker from './LocationPicker';
+import ProductViewer from './ProductViewer';
 
 // Steps: 'cart' → 'details' → 'review'
 const CartDrawer = () => {
-    const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
+    const {
+        cartItems,
+        isCartOpen,
+        setIsCartOpen,
+        removeFromCart,
+        updateQuantity,
+        cartTotal,
+        clearCart,
+        addToCart,
+        consumeCheckoutEntryStep,
+    } = useCart();
 
     const [step, setStep] = useState('cart'); // 'cart' | 'details' | 'review'
     const [showLocationPicker, setShowLocationPicker] = useState(false);
@@ -19,8 +31,11 @@ const CartDrawer = () => {
     const [errors, setErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+    const [recommendedItem, setRecommendedItem] = useState(null);
+    const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+    const [isRecommendedPreviewOpen, setIsRecommendedPreviewOpen] = useState(false);
 
-    const isFormValid = React.useMemo(() => {
+    const isFormValid = useMemo(() => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return (
             formData.name.trim() !== '' &&
@@ -38,6 +53,58 @@ const CartDrawer = () => {
         setIsCartOpen(false);
         setTimeout(() => { setStep('cart'); setErrors({}); setIsProcessing(false); }, 300);
     };
+
+    useEffect(() => {
+        if (!isCartOpen) return;
+        setStep(consumeCheckoutEntryStep());
+    }, [isCartOpen, consumeCheckoutEntryStep]);
+
+    useEffect(() => {
+        if (!isCartOpen) return;
+
+        let isMounted = true;
+
+        const fetchRecommendation = async () => {
+            setIsLoadingRecommended(true);
+            try {
+                const res = await fetch(`${BASE_URL}/api/products`);
+                const data = await res.json();
+                const products = Array.isArray(data) ? data : data?.products || [];
+                const cartIds = new Set(cartItems.map((item) => String(item.id)));
+
+                const suggestion = products.find((item) => {
+                    const cardId = `api-${item.id}`;
+                    return Number(item.stock) > 0 && !cartIds.has(cardId) && !cartIds.has(String(item.id));
+                });
+
+                if (isMounted) {
+                    if (suggestion) {
+                        setRecommendedItem({
+                            id: `api-${suggestion.id}`,
+                            name: suggestion.name,
+                            price: Number(suggestion.price) || 0,
+                            size: suggestion.size || 'N/A',
+                            condition: suggestion.condition || 'Vintage',
+                            images: suggestion.image_url ? [suggestion.image_url] : [],
+                            image_url: suggestion.image_url || null,
+                            soldOut: Number(suggestion.stock) <= 0,
+                        });
+                    } else {
+                        setRecommendedItem(null);
+                    }
+                }
+            } catch (_err) {
+                if (isMounted) setRecommendedItem(null);
+            } finally {
+                if (isMounted) setIsLoadingRecommended(false);
+            }
+        };
+
+        fetchRecommendation();
+        return () => {
+            isMounted = false;
+        };
+    }, [isCartOpen, cartItems]);
 
     const handleSuccessClose = () => {
         setIsCartOpen(false);
@@ -98,6 +165,7 @@ const CartDrawer = () => {
     const createBackendOrder = async (paymentId) => {
         try {
             console.log(`📤 Sending ${cartItems.length} order(s) to backend: ${BASE_URL}/api/orders`);
+            const createdOrderIds = [];
             
             for (const item of cartItems) {
                 const matchedApiId = String(item.id).match(/^api-(\d+)$/);
@@ -131,14 +199,19 @@ const CartDrawer = () => {
                     console.warn(`⚠️ Backend response status: ${response.status}`, result);
                 } else {
                     console.log(`✅ Order created successfully:`, result);
+                    if (result?.order?.order_id) {
+                        createdOrderIds.push(result.order.order_id);
+                    }
                 }
             }
             console.log('✅ All backend orders synced');
+            return createdOrderIds;
         } catch (error) {
             // Never break checkout — backend errors are non-blocking
             console.error('❌ Backend order creation failed (non-blocking):', error);
             console.error('💡 Your order was processed by Razorpay but may not be in dashboard yet.');
             console.error('🔄 Dashboard will auto-sync in 2-3 seconds. If not, refresh the page.');
+            return [];
         }
     };
 
@@ -163,10 +236,15 @@ const CartDrawer = () => {
                 
                 try {
                     // Google Sheets (existing) + Backend (new) — both fire in parallel
-                    await Promise.all([
+                    const [, createdOrderIds] = await Promise.all([
                         saveOrderToGoogleSheet(response.razorpay_payment_id),
                         createBackendOrder(response.razorpay_payment_id),
                     ]);
+
+                    trackEvent('order_placed', null, 'checkout');
+                    if (createdOrderIds.length > 0) {
+                        trackEvent('order_synced', null, `orders:${createdOrderIds.join(',')}`);
+                    }
                     
                     // Wait a moment for backend to fully process
                     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -197,6 +275,72 @@ const CartDrawer = () => {
     };
 
     const stepTitles = { cart: 'My Bag', details: 'Delivery Details', review: 'Review Order' };
+    const recommendationImageUrl = recommendedItem?.images?.[0] || recommendedItem?.image_url || '/images/placeholder.jpg';
+
+    const openRecommendedPreview = () => {
+        if (recommendedItem) {
+            setIsRecommendedPreviewOpen(true);
+        }
+    };
+
+    const renderRecommendationBlock = () => (
+        <div className="review-section recommendation-card">
+            <p className="review-label">Recommended For You</p>
+            {isLoadingRecommended && (
+                <div className="recommendation-body">
+                    <p className="review-addr">Finding one dope add-on...</p>
+                </div>
+            )}
+
+            {!isLoadingRecommended && recommendedItem && (
+                <div className="recommendation-body">
+                    <div className="recommendation-product-card">
+                        <div
+                            className="recommendation-card-preview"
+                            role="button"
+                            tabIndex={0}
+                            onClick={openRecommendedPreview}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    openRecommendedPreview();
+                                }
+                            }}
+                        >
+                            <div className="recommendation-image-wrap">
+                                <img
+                                    src={recommendationImageUrl}
+                                    alt={recommendedItem.name}
+                                    className="recommendation-image"
+                                    onError={(event) => {
+                                        event.currentTarget.src = '/images/placeholder.jpg';
+                                    }}
+                                />
+                            </div>
+                            <div className="recommendation-copy">
+                                <p className="recommendation-name">{recommendedItem.name}</p>
+                                <p className="recommendation-meta">{recommendedItem.size} · {recommendedItem.condition}</p>
+                                <p className="recommendation-price">₹{recommendedItem.price}</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn-secondary recommendation-btn"
+                            onClick={(event) => addToCart(recommendedItem, event)}
+                        >
+                            Add This Too
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {!isLoadingRecommended && !recommendedItem && (
+                <div className="recommendation-body">
+                    <p className="review-addr">No add-on suggestions right now.</p>
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <AnimatePresence>
@@ -212,6 +356,15 @@ const CartDrawer = () => {
                         setShowLocationPicker(false);
                     }}
                     onCancel={() => setShowLocationPicker(false)}
+                />
+            )}
+
+            {isRecommendedPreviewOpen && recommendedItem && (
+                <ProductViewer
+                    product={recommendedItem}
+                    products={[recommendedItem]}
+                    onClose={() => setIsRecommendedPreviewOpen(false)}
+                    onNavigate={() => {}}
                 />
             )}
 
@@ -289,6 +442,8 @@ const CartDrawer = () => {
                                             </div>
                                         ))
                                     )}
+
+                                    {cartItems.length > 0 && renderRecommendationBlock()}
                                 </div>
                                 {cartItems.length > 0 && (
                                     <div className="cart-footer">
@@ -405,6 +560,8 @@ const CartDrawer = () => {
                                         <CheckCircle2 size={14} strokeWidth={1.5} />
                                         <span>By proceeding, you confirm all details above are correct.</span>
                                     </div>
+
+                                    {renderRecommendationBlock()}
                                 </div>
                                 <div className="cart-footer">
                                     <div className="cart-total">

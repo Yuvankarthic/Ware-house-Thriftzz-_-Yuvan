@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Instagram, Phone, Mail } from 'lucide-react';
 import '../styles/Footer.css';
 
 const Footer = () => {
@@ -30,15 +31,21 @@ const Footer = () => {
                     <div className="footer-contact-list">
                         <div className="footer-contact-item">
                             <span className="footer-contact-label">Instagram</span>
-                            <a href="https://instagram.com/wht" target="_blank" rel="noopener noreferrer">@wht</a>
+                            <a href="https://www.instagram.com/wearhouse_thriftxzz" target="_blank" rel="noopener noreferrer">
+                                <Instagram size={14} /> @wearhouse_thriftxzz
+                            </a>
                         </div>
                         <div className="footer-contact-item">
                             <span className="footer-contact-label">Phone</span>
-                            <a href="tel:+917530039915">+91 75300 39915</a>
+                            <a href="tel:+917530039915">
+                                <Phone size={14} /> +91 75300 39915
+                            </a>
                         </div>
                         <div className="footer-contact-item">
-                            <span className="footer-contact-label">Payments</span>
-                            <span className="footer-contact-value">payments.wht@gmail.com</span>
+                            <span className="footer-contact-label">Email</span>
+                            <a href="mailto:payments.wht@gmail.com">
+                                <Mail size={14} /> payments.wht@gmail.com
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -386,6 +386,10 @@
     background: #fff;
 }
 
+.shop-card-wishlist .heart-pop {
+    animation: whtHeartPop 0.28s ease;
+}
+
 .shop-add-to-cart-btn {
     margin-top: 12px;
     width: 100%;
@@ -421,6 +425,10 @@
 .shop-add-to-cart-btn:hover {
     background: #fff;
     color: #2a1f1a;
+}
+
+.shop-add-to-cart-btn.cart-pop {
+    animation: whtCartPop 0.26s ease;
 }
 
 .shop-category-group {
@@ -564,4 +572,16 @@
     }
     .category-banner-pants { grid-column: 1; }
     .category-banner-title { font-size: 32px; }
+}
+
+@keyframes whtHeartPop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.26); }
+    100% { transform: scale(1); }
+}
+
+@keyframes whtCartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
 }

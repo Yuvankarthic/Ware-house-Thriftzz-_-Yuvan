@@ -12,6 +12,7 @@ const ProductCard = ({ product, onSelect }) => {
     const { toggleWishlist, isInWishlist } = useWishlist();
     const cardRef = useRef(null);
     const [added, setAdded] = useState(false);
+    const [isHeartPopping, setIsHeartPopping] = useState(false);
     const inWishlist = isInWishlist(product.id);
 
     // Snappy spring config for "cartoon-cool" motion
@@ -141,11 +142,14 @@ const ProductCard = ({ product, onSelect }) => {
                         e.stopPropagation();
                         e.preventDefault();
                         toggleWishlist(product);
+                        setIsHeartPopping(true);
+                        setTimeout(() => setIsHeartPopping(false), 280);
                     }}
+                    onAnimationEnd={() => setIsHeartPopping(false)}
                     style={{ transform: "translateZ(70px)" }}
                     title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
                 >
-                    <Heart size={20} className={inWishlist ? "fill-current" : ""} />
+                    <Heart size={20} className={`${inWishlist ? 'fill-current' : ''} ${isHeartPopping ? 'heart-pop' : ''}`} />
                 </button>
 
                 {product.soldOut && (
@@ -169,7 +173,7 @@ const ProductCard = ({ product, onSelect }) => {
                     {/* Mobile-only plus button next to price */}
                     {!product.soldOut && (
                         <motion.button
-                            className="mobile-plus-btn"
+                            className={`mobile-plus-btn ${added ? 'cart-pop' : ''}`}
                             onClick={handleAddToCart}
                             whileTap={{ scale: 0.9 }}
                         >
@@ -200,7 +204,7 @@ const ProductCard = ({ product, onSelect }) => {
 
                 {/* Desktop-only button */}
                 <button
-                    className="btn-add-to-cart"
+                    className={`btn-add-to-cart ${added ? 'cart-pop' : ''}`}
                     onClick={handleAddToCart}
                     disabled={product.soldOut}
                     style={{ transform: "translateZ(40px)" }}

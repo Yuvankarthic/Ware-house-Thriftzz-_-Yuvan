@@ -25,16 +25,20 @@
 .welcome-intro-content h1 {
     margin: 0;
     font-size: clamp(3rem, 12vw, 7rem);
-    letter-spacing: 0.14em;
-    font-weight: 800;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+    font-family: var(--font-brand);
+    line-height: 0.95;
 }
 
 .welcome-intro-content p {
     margin: 10px 0 0;
     font-size: clamp(0.95rem, 3.5vw, 1.25rem);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #d4d4d4;
+    font-family: var(--font-heading);
+    font-weight: 700;
 }
 
 @media (max-width: 768px) {

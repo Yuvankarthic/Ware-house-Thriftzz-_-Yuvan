@@ -140,7 +140,7 @@ export default function DashboardPage({ token }) {
                     <tbody>
                         {recentOrders.map(o => (
                             <tr key={o.id} className={o.order_status === 'New Order' && isUrgent(o.created_at) ? 'urgent' : ''}>
-                                <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>#{o.id}</td>
+                                <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
                                 <td>{o.customer_name}</td>
                                 <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{o.product_name}</td>
                                 <td style={{ fontWeight: 700 }}>₹{o.order_value}</td>

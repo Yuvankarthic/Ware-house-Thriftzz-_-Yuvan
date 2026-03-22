@@ -14,12 +14,14 @@ import analyticsRoutes from './routes/analytics.js';
 import staffRoutes from './routes/staff.js';
 import productRoutes from './routes/products.js';
 import operationsRoutes from './routes/operations.js';
+import activityRoutes from './routes/activity.js';
+import publicRoutes from './routes/public.js';
 import pool from './db.js';
 import { getMailerHealth } from './services/mailer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '.env'), override: true });
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -55,6 +57,12 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/operations', operationsRoutes);
+app.use('/api', activityRoutes);
+app.use('/api', publicRoutes);
+
+// Root aliases for direct calls without /api prefix.
+app.use('/', activityRoutes);
+app.use('/', publicRoutes);
 
 app.get('/debug/routes', (_req, res) => {
     res.status(200).json({

@@ -178,7 +178,7 @@ export default function OrdersPage({ token, user }) {
                             return (
                                 <tr key={o.id} className={isUrgent(o) ? 'urgent' : ''}
                                     onClick={() => setSelectedOrder(o)}>
-                                    <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>#{o.id}</td>
+                                    <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
                                     <td style={{ whiteSpace: 'normal', minWidth: 260 }}>
                                         <div style={{ fontWeight: 700 }}>{o.customer_name}</div>
                                         <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>{o.phone}</div>

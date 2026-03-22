@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { trackEvent } from '../utils/activityTracker';
 import '../styles/ProductViewer.css';
 
 const ProductViewer = ({
@@ -11,7 +12,7 @@ const ProductViewer = ({
     onClose,
     onNavigate
 }) => {
-    const { addToCart, setIsCartOpen } = useCart();
+    const { addToCart, buyNow } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -30,6 +31,12 @@ const ProductViewer = ({
         setCurrentImageIndex(0);
     }, [product?.id]);
 
+    useEffect(() => {
+        if (!product?.id) return;
+        const numericId = Number.parseInt(String(product.id).replace('api-', ''), 10);
+        trackEvent('product_view', Number.isInteger(numericId) ? numericId : null, 'product_viewer');
+    }, [product?.id]);
+
     if (!product) return null;
 
     const currentIndex = products.findIndex(p => p.id === product.id);
@@ -39,6 +46,12 @@ const ProductViewer = ({
     const handleAddToCart = (e) => {
         if (!product.soldOut) {
             addToCart(product, e);
+        }
+    };
+
+    const handleBuyNow = () => {
+        if (!product.soldOut) {
+            buyNow(product);
         }
     };
 
@@ -164,6 +177,14 @@ const ProductViewer = ({
                     </div>
 
                     <div className="viewer-actions">
+                        <button
+                            className="viewer-buy-btn"
+                            onClick={handleBuyNow}
+                            disabled={product.soldOut}
+                        >
+                            {product.soldOut ? 'Sold Out' : 'Buy Now'}
+                        </button>
+
                         <button
                             className="viewer-add-btn"
                             onClick={(e) => handleAddToCart(e)}

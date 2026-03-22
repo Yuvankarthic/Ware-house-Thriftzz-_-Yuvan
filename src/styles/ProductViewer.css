@@ -165,10 +165,33 @@
     gap: 1rem;
     margin-top: 1rem;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.viewer-buy-btn {
+    padding: 1.2rem;
+    border: 1px solid #000;
+    color: #000;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.viewer-buy-btn:hover {
+    background: #f4f4f4;
+}
+
+.viewer-buy-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .viewer-add-btn {
     flex-grow: 1;
+    min-width: 220px;
     padding: 1.2rem;
     background: var(--primary-color, #000);
     color: #fff;

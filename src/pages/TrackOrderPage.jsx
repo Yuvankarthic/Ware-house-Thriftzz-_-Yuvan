@@ -22,11 +22,11 @@ export default function TrackOrderPage() {
         setResult(null);
 
         try {
-            const res = await fetch(`${API}/orders/track/${orderId.trim()}?phone=${encodeURIComponent(phone.trim())}`);
+            const res = await fetch(`${API}/track-order?order_id=${encodeURIComponent(orderId.trim())}&phone=${encodeURIComponent(phone.trim())}`);
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                setError(data.error || 'Unable to find this order.');
+                setError(data.error || 'Invalid order details');
                 return;
             }
 
@@ -47,7 +47,7 @@ export default function TrackOrderPage() {
                 <div className="track-form">
                     <input
                         type="text"
-                        placeholder="Order ID (example: 101)"
+                        placeholder="Order ID (example: 181001)"
                         value={orderId}
                         onChange={(e) => setOrderId(e.target.value)}
                     />
@@ -64,29 +64,13 @@ export default function TrackOrderPage() {
 
                 {error && <p className="track-error">{error}</p>}
 
-                {result?.order && (
+                {result?.order_id && (
                     <div className="track-result">
                         <div className="track-summary">
-                            <h2>Order #{result.order.id}</h2>
-                            <p>{result.order.product_name}</p>
-                            <p>Qty: {result.order.quantity}</p>
-                            <p>Amount: INR {Number(result.order.order_value || 0).toFixed(2)}</p>
-                            <p>Status: <strong>{result.order.order_status}</strong></p>
-                        </div>
-
-                        <div className="track-timeline">
-                            <h3>Order Timeline</h3>
-                            {result.timeline?.length ? (
-                                result.timeline.map((item, idx) => (
-                                    <div key={`${item.status}-${idx}`} className="track-timeline-item">
-                                        <strong>{item.status}</strong>
-                                        <p>{item.note || 'Update logged'}</p>
-                                        <span>{new Date(item.created_at).toLocaleString()}</span>
-                                    </div>
-                                ))
-                            ) : (
-                                <p>No timeline updates yet.</p>
-                            )}
+                            <h2>Order {result.order_id}</h2>
+                            <p>{result.product_name}</p>
+                            <p>Status: <strong>{result.status}</strong></p>
+                            <p>Order Status: <strong>{result.order_status}</strong></p>
                         </div>
                     </div>
                 )}
