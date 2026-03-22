@@ -5,18 +5,39 @@ import { Router } from 'express';
 import pool from '../db.js';
 const query = (text, params) => pool.query(text, params);
 import { authMiddleware } from '../auth.js';
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from '../services/mailer.js';
 
 const router = Router();
 
 // Valid status workflow
 const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
 
+const PICKER_NAMES = ['akash', 'vishwa', 'yuvan'];
+
+const resolveChangedById = async (userId) => {
+    if (!userId) return null;
+    const result = await query('SELECT id FROM staff WHERE id = $1 LIMIT 1', [userId]);
+    return result.rows.length > 0 ? result.rows[0].id : null;
+};
+
 // ────────────────────────────────────────────────────────────
 //  POST /api/orders  (public — called from storefront checkout)
 // ────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
     try {
-        const { customer_name, email, phone, address, city, pincode, product_id, quantity, payment_id } = req.body;
+        const {
+            customer_name,
+            email,
+            phone,
+            address,
+            city,
+            pincode,
+            product_id,
+            product_name,
+            order_value,
+            quantity,
+            payment_id
+        } = req.body;
 
         const missing = [];
         if (!customer_name?.trim()) missing.push('customer_name');
@@ -24,27 +45,41 @@ router.post('/', async (req, res) => {
         if (!address?.trim())        missing.push('address');
         if (!city?.trim())           missing.push('city');
         if (!pincode?.trim())        missing.push('pincode');
-        if (!product_id)             missing.push('product_id');
+        if (!product_id && !product_name) missing.push('product_id or product_name');
 
         if (missing.length > 0) {
             return res.status(400).json({ success: false, error: `Missing: ${missing.join(', ')}` });
         }
 
-        // Check product
-        const prodResult = await query('SELECT * FROM products WHERE id = $1', [product_id]);
-        if (prodResult.rows.length === 0) {
+        const parsedProductId = Number.parseInt(String(product_id ?? ''), 10);
+        let product = null;
+
+        if (Number.isInteger(parsedProductId)) {
+            const prodResult = await query('SELECT * FROM products WHERE id = $1', [parsedProductId]);
+            if (prodResult.rows.length > 0) {
+                product = prodResult.rows[0];
+                if (product.stock <= 0) {
+                    return res.status(400).json({ success: false, error: 'This item is sold out — one-of-one piece.' });
+                }
+                // Mark sold only when a real DB product is matched.
+                await query('UPDATE products SET stock = 0 WHERE id = $1', [parsedProductId]);
+            }
+        }
+
+        if (!product && !product_name) {
             return res.status(404).json({ success: false, error: 'Product not found' });
         }
-        const product = prodResult.rows[0];
 
-        if (product.stock <= 0) {
-            return res.status(400).json({ success: false, error: 'This item is sold out — one-of-one piece.' });
+        const safeQuantity = Number.parseInt(String(quantity || 1), 10) || 1;
+        const orderValue = product
+            ? Number(product.price) * safeQuantity
+            : Number(order_value || 0);
+
+        if (!orderValue || Number.isNaN(orderValue) || orderValue <= 0) {
+            return res.status(400).json({ success: false, error: 'Invalid order value' });
         }
 
-        // Mark sold
-        await query('UPDATE products SET stock = 0 WHERE id = $1', [product_id]);
-
-        const orderValue = product.price * (quantity || 1);
+        const orderProductName = product?.name || String(product_name).trim();
         const fullAddress = `${address}, ${city} - ${pincode}`;
 
         const orderResult = await query(
@@ -55,7 +90,7 @@ router.post('/', async (req, res) => {
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'New Order')
              RETURNING *`,
             [customer_name, email || null, phone, fullAddress, city, pincode,
-             product.name, product_id, quantity || 1, orderValue,
+             orderProductName, product?.id || null, safeQuantity, orderValue,
              'Prepaid', 'paid', payment_id || null]
         );
 
@@ -67,12 +102,19 @@ router.post('/', async (req, res) => {
             [order.id]
         );
 
-        console.log(`📦 New order #${order.id} — ${product.name} — ₹${orderValue}`);
+        try {
+            await sendOrderConfirmationEmail(order);
+        } catch (mailError) {
+            // Email failures should never block order placement.
+            console.error('Order confirmation email failed:', mailError.message);
+        }
+
+        console.log(`📦 New order #${order.id} — ${orderProductName} — ₹${orderValue}`);
 
         return res.status(201).json({
             success: true,
             message: 'Order placed successfully',
-            order: { order_id: order.id, product: product.name, order_value: orderValue, status: 'New Order' },
+            order: { order_id: order.id, product: orderProductName, order_value: orderValue, status: 'New Order' },
         });
     } catch (err) {
         console.error('❌ POST /api/orders error:', err);
@@ -160,6 +202,42 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────
+//  GET /api/orders/track/:id  (public — customer tracking)
+// ────────────────────────────────────────────────────────────
+router.get('/track/:id', async (req, res) => {
+    try {
+        const { phone } = req.query;
+        if (!phone) {
+            return res.status(400).json({ success: false, error: 'phone is required' });
+        }
+
+        const orderResult = await query(
+            `SELECT id, customer_name, phone, product_name, quantity, order_value, order_status, created_at, updated_at
+             FROM orders
+             WHERE id = $1 AND phone = $2`,
+            [req.params.id, String(phone)]
+        );
+
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const timelineResult = await query(
+            `SELECT status, note, created_at
+             FROM order_timeline
+             WHERE order_id = $1
+             ORDER BY created_at ASC`,
+            [req.params.id]
+        );
+
+        return res.json({ success: true, order: orderResult.rows[0], timeline: timelineResult.rows });
+    } catch (err) {
+        console.error('❌ GET /api/orders/track/:id error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
 //  GET /api/orders/:id  (admin — order detail)
 // ────────────────────────────────────────────────────────────
 router.get('/:id', authMiddleware, async (req, res) => {
@@ -226,18 +304,81 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
             params
         );
 
+        const changedById = await resolveChangedById(req.user.id);
+
         // Timeline entry
         await query(
             `INSERT INTO order_timeline (order_id, status, changed_by, note)
              VALUES ($1, $2, $3, $4)`,
-            [req.params.id, status, req.user.id, `Status changed to "${status}" by ${req.user.name}`]
+            [req.params.id, status, changedById, `Status changed to "${status}" by ${req.user.name}`]
         );
+
+        if (status === 'Packed' || status === 'Out for Delivery') {
+            try {
+                const latestOrder = await query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
+                if (latestOrder.rows.length > 0) {
+                    await sendOrderStatusUpdateEmail(latestOrder.rows[0], status);
+                }
+            } catch (mailError) {
+                console.error(`Status email failed for order #${req.params.id}:`, mailError.message);
+            }
+        }
 
         console.log(`📋 Order #${req.params.id} → ${status} (by ${req.user.name})`);
 
         return res.json({ success: true, message: `Order updated to "${status}"` });
     } catch (err) {
         console.error('❌ PATCH /api/orders/:id/status error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  PATCH /api/orders/:id/assign-picker (admin — assign picker)
+// ────────────────────────────────────────────────────────────
+router.patch('/:id/assign-picker', authMiddleware, async (req, res) => {
+    try {
+        const { picker_name } = req.body;
+        const normalized = String(picker_name || '').trim().toLowerCase();
+
+        if (!PICKER_NAMES.includes(normalized)) {
+            return res.status(400).json({ success: false, error: 'picker_name must be Akash, Vishwa, or Yuvan' });
+        }
+
+        const staffResult = await query(
+            `SELECT id, name FROM staff WHERE LOWER(name) = $1 LIMIT 1`,
+            [normalized]
+        );
+
+        if (staffResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: `Staff ${picker_name} not found in staff table` });
+        }
+
+        const staff = staffResult.rows[0];
+
+        const updateResult = await query(
+            `UPDATE orders
+             SET assigned_to = $1, updated_at = NOW()
+             WHERE id = $2
+             RETURNING *`,
+            [staff.id, req.params.id]
+        );
+
+        if (updateResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const changedById = await resolveChangedById(req.user.id);
+
+        await query(
+            `INSERT INTO order_timeline (order_id, status, changed_by, note)
+             VALUES ($1, (SELECT order_status FROM orders WHERE id = $1), $2, $3)`,
+            [req.params.id, changedById, `Order picked by ${staff.name}`]
+        );
+
+        return res.json({ success: true, message: `Assigned to ${staff.name}`, order: updateResult.rows[0] });
+    } catch (err) {
+        console.error('❌ PATCH /api/orders/:id/assign-picker error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
@@ -267,10 +408,12 @@ router.patch('/:id/assign', authMiddleware, async (req, res) => {
             [req.user.id, req.params.id]
         );
 
+        const changedById = await resolveChangedById(req.user.id);
+
         await query(
             `INSERT INTO order_timeline (order_id, status, changed_by, note)
              VALUES ($1, $2, $3, $4)`,
-            [req.params.id, order.order_status, req.user.id, `Claimed by ${req.user.name}`]
+            [req.params.id, order.order_status, changedById, `Claimed by ${req.user.name}`]
         );
 
         return res.json({ success: true, message: 'Order claimed successfully' });
@@ -296,10 +439,12 @@ router.patch('/:id/delivery', authMiddleware, async (req, res) => {
              rider_phone || null, tracking_ref || null, req.params.id]
         );
 
+        const changedById = await resolveChangedById(req.user.id);
+
         await query(
             `INSERT INTO order_timeline (order_id, status, changed_by, note)
              VALUES ($1, (SELECT order_status FROM orders WHERE id = $1), $2, $3)`,
-            [req.params.id, req.user.id, `Delivery partner set: ${delivery_partner || 'none'}`]
+            [req.params.id, changedById, `Delivery partner set: ${delivery_partner || 'none'}`]
         );
 
         return res.json({ success: true, message: 'Delivery info updated' });

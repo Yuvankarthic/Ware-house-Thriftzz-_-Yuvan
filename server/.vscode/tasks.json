@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "run-local-backend",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"index.js"
+			],
+			"isBackground": true
+		}
+	]
+}

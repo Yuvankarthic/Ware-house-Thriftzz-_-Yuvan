@@ -14,9 +14,10 @@ export default function Sidebar({ user, isOpen, onClose }) {
     const isAdmin = user?.role === 'admin';
 
     const links = [
-        { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
+        { to: '/admin', label: 'Dashboard', icon: '📊', exact: true },
         { to: '/admin/orders', label: 'Orders', icon: '📦' },
         { to: '/admin/products', label: 'Products', icon: '🛍️' },
+        { to: '/admin/health', label: 'System Health', icon: '🩺' },
         { to: '/admin/kanban', label: 'Board', icon: '📋' },
     ];
 
@@ -37,12 +38,19 @@ export default function Sidebar({ user, isOpen, onClose }) {
 
             <nav className="sidebar-nav">
                 {links.map(link => (
-                    <NavLink key={link.to} to={link.to} end={link.end}
-                             className={({ isActive }) => isActive ? 'active' : ''}
-                             onClick={onClose}>
-                        <span>{link.icon}</span>
-                        {link.label}
-                    </NavLink>
+                    link.exact ? (
+                        <NavLink key={link.to} to={link.to} exact activeClassName="active"
+                                 onClick={onClose}>
+                            <span>{link.icon}</span>
+                            {link.label}
+                        </NavLink>
+                    ) : (
+                        <NavLink key={link.to} to={link.to} activeClassName="active"
+                                 onClick={onClose}>
+                            <span>{link.icon}</span>
+                            {link.label}
+                        </NavLink>
+                    )
                 ))}
 
                 <div style={{ flex: 1 }} />

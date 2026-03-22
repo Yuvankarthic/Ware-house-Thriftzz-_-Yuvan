@@ -1,0 +1,101 @@
+.track-page {
+    min-height: calc(100vh - var(--header-height));
+    padding-top: calc(var(--header-height) + 2rem);
+    padding-bottom: 3rem;
+}
+
+.track-card {
+    max-width: 760px;
+    background: #fff;
+    border: 1px solid #e9e9e9;
+    border-radius: 10px;
+    padding: 1.25rem;
+}
+
+.track-card h1 {
+    margin: 0;
+    font-size: clamp(1.35rem, 4vw, 1.9rem);
+}
+
+.track-card > p {
+    margin: 0.6rem 0 1rem;
+    color: #666;
+}
+
+.track-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.65rem;
+}
+
+.track-form input {
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 0.72rem 0.8rem;
+    font-size: 0.95rem;
+}
+
+.track-form button {
+    border: none;
+    border-radius: 8px;
+    background: #111;
+    color: #fff;
+    padding: 0.72rem 1rem;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.track-error {
+    color: #b42318;
+    margin-top: 0.7rem;
+}
+
+.track-result {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.track-summary,
+.track-timeline {
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    padding: 0.9rem;
+}
+
+.track-summary h2,
+.track-timeline h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1rem;
+}
+
+.track-summary p {
+    margin: 0.35rem 0;
+}
+
+.track-timeline-item {
+    border-top: 1px solid #f0f0f0;
+    padding: 0.6rem 0;
+}
+
+.track-timeline-item:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.track-timeline-item p {
+    margin: 0.2rem 0;
+    color: #555;
+}
+
+.track-timeline-item span {
+    color: #888;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 768px) {
+    .track-form {
+        grid-template-columns: 1fr;
+    }
+}

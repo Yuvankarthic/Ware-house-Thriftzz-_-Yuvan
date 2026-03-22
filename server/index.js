@@ -13,6 +13,9 @@ import authRoutes from './routes/auth.js';
 import analyticsRoutes from './routes/analytics.js';
 import staffRoutes from './routes/staff.js';
 import productRoutes from './routes/products.js';
+import operationsRoutes from './routes/operations.js';
+import pool from './db.js';
+import { getMailerHealth } from './services/mailer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,7 +53,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/products', productRoutes);
-// app.use('/api/staff', staffRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/operations', operationsRoutes);
 
 app.get('/debug/routes', (_req, res) => {
     res.status(200).json({
@@ -65,11 +69,25 @@ app.get('/debug/routes', (_req, res) => {
 });
 
 // ── Health check ──
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        timestamp: new Date()
-    });
+app.get('/health', async (_req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        const mailer = getMailerHealth();
+        res.status(200).json({
+            status: 'ok',
+            database: 'connected',
+            mailer,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        const mailer = getMailerHealth();
+        res.status(503).json({
+            status: 'degraded',
+            database: 'down',
+            mailer: { ...mailer, status: 'down' },
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // ── 404 handler ──

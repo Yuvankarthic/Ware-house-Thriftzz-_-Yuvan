@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import '../styles/WelcomeIntro.css';
 
 const WelcomeOverlay = () => {
     const history = useHistory();
     const enterStore = () => history.push('/shop');
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            enterStore();
+        }, 2000);
+
+        return () => clearTimeout(timeoutId);
+    }, []);
 
     return (
         <div
@@ -20,15 +28,10 @@ const WelcomeOverlay = () => {
                 }
             }}
         >
-            <video
-                className="welcome-intro-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-            >
-                <source src="/videos/HTML_Shutter_Animation_Prompt.mp4" type="video/mp4" />
-            </video>
+            <div className="welcome-intro-content">
+                <h1>WHT</h1>
+                <p>Welcome to WHT</p>
+            </div>
         </div>
     );
 };

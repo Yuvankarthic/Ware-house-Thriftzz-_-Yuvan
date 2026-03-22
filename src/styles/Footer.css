@@ -73,6 +73,39 @@
     color: var(--text-main);
 }
 
+/* ─── Contact block ─── */
+.footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-contact-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.footer-contact-label {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted-light);
+}
+
+.footer-contact-item a,
+.footer-contact-value {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.footer-contact-item a:hover {
+    color: var(--text-main);
+}
+
 /* ─── Bottom bar ─── */
 .footer-bottom {
     display: flex;

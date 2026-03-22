@@ -100,6 +100,9 @@ const CartDrawer = () => {
             console.log(`📤 Sending ${cartItems.length} order(s) to backend: ${BASE_URL}/api/orders`);
             
             for (const item of cartItems) {
+                const matchedApiId = String(item.id).match(/^api-(\d+)$/);
+                const numericProductId = matchedApiId ? Number.parseInt(matchedApiId[1], 10) : Number.parseInt(String(item.id), 10);
+
                 const orderPayload = {
                     customer_name: formData.name,
                     email: formData.email,
@@ -107,7 +110,9 @@ const CartDrawer = () => {
                     address: formData.address,
                     city: formData.city,
                     pincode: formData.pincode,
-                    product_id: item.id,
+                    product_id: Number.isInteger(numericProductId) ? numericProductId : null,
+                    product_name: item.name,
+                    order_value: Number(item.price) || 0,
                     quantity: item.quantity || 1,
                     payment_id: paymentId,
                 };

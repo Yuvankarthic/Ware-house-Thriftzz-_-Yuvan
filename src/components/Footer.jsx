@@ -19,17 +19,28 @@ const Footer = () => {
                     <h4 className="footer-col-heading">Explore</h4>
                     <nav className="footer-nav">
                         <a href="/#latest-drop">Latest Drop</a>
+                        <Link to="/track-order">Track Order</Link>
                         <Link to="/about">About WHT</Link>
                     </nav>
                 </div>
 
                 {/* Contact Column */}
                 <div className="footer-col">
-                    <h4 className="footer-col-heading">Connect</h4>
-                    <nav className="footer-nav">
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-                        <a href="tel:+917530039915">+91 75300 39915</a>
-                    </nav>
+                    <h4 className="footer-col-heading">Contact</h4>
+                    <div className="footer-contact-list">
+                        <div className="footer-contact-item">
+                            <span className="footer-contact-label">Instagram</span>
+                            <a href="https://instagram.com/wht" target="_blank" rel="noopener noreferrer">@wht</a>
+                        </div>
+                        <div className="footer-contact-item">
+                            <span className="footer-contact-label">Phone</span>
+                            <a href="tel:+917530039915">+91 75300 39915</a>
+                        </div>
+                        <div className="footer-contact-item">
+                            <span className="footer-contact-label">Payments</span>
+                            <span className="footer-contact-value">payments.wht@gmail.com</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

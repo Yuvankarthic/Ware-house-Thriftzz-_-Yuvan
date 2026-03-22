@@ -13,6 +13,7 @@ import ProductGrid from './components/ProductGrid';
 import Chatbot from './components/Chatbot';
 import Shop from './pages/Shop';
 import CategoryPage from './pages/CategoryPage';
+import TrackOrderPage from './pages/TrackOrderPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
@@ -56,6 +57,7 @@ function App() {
         <Route exact path="/" component={HomeAndShopPage} />
         <Route exact path="/shop" component={HomeAndShopPage} />
         <Route path="/shop/:category" component={CategoryPage} />
+        <Route path="/track-order" component={TrackOrderPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
       </Switch>

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../config/api';
 
 const API = `${BASE_URL}/api`;
-const STATUS_FLOW = ['New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered'];
+const STATUS_FLOW = ['Packed', 'Out for Delivery', 'Delivered'];
+const PICKERS = ['Akash', 'Vishwa', 'Yuvan'];
 
 export default function OrderDetailPanel({ orderId, token, user, onClose, onUpdate }) {
     const [order, setOrder] = useState(null);
     const [timeline, setTimeline] = useState([]);
     const [staffList, setStaffList] = useState([]);
-    const [selectedStaff, setSelectedStaff] = useState('');
+    const [selectedPicker, setSelectedPicker] = useState('');
     const [deliveryPartner, setDeliveryPartner] = useState('');
     const [deliveryNotes, setDeliveryNotes] = useState('');
     const [riderPhone, setRiderPhone] = useState('');
@@ -24,9 +25,6 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                 const data = await res.json();
                 if (data.success) {
                     setStaffList(data.staff || []);
-                    if (data.staff?.length > 0 && !selectedStaff) {
-                        setSelectedStaff(data.staff[0].name);
-                    }
                 }
             } catch (err) { console.error('Staff fetch error:', err); }
         };
@@ -48,8 +46,33 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                 setDeliveryNotes(data.order.delivery_notes || '');
                 setRiderPhone(data.order.rider_phone || '');
                 setTrackingRef(data.order.tracking_ref || '');
+
+                const picked = (data.staff || staffList).find(
+                    s => Number(s.id) === Number(data.order.assigned_to)
+                );
+                setSelectedPicker(picked?.name || '');
             }
         } catch (err) { console.error('Detail fetch error:', err); }
+    };
+
+    const assignPicker = async () => {
+        if (!selectedPicker) return;
+        try {
+            const res = await fetch(`${API}/orders/${orderId}/assign-picker`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ picker_name: selectedPicker }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert(data.error || 'Failed to assign picker');
+                return;
+            }
+            fetchDetail();
+            onUpdate?.();
+        } catch (err) {
+            console.error('Assign picker error:', err);
+        }
     };
 
     const updateStatus = async (status) => {
@@ -140,6 +163,7 @@ Time: ${new Date().toLocaleString()}`;
     const getNextStatus = () => {
         const idx = STATUS_FLOW.indexOf(order.order_status);
         if (idx >= 0 && idx < STATUS_FLOW.length - 1) return STATUS_FLOW[idx + 1];
+        if (idx === -1) return 'Packed';
         return null;
     };
 
@@ -158,14 +182,19 @@ Time: ${new Date().toLocaleString()}`;
                     <span className={`status-badge ${statusClass(order.order_status)}`} style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
                         {order.order_status}
                     </span>
+                    <div className="order-workflow-inline" style={{ marginTop: 12 }}>
+                        <span className={['Packed', 'Out for Delivery', 'Delivered'].includes(order.order_status) ? 'done' : ''}>Packed</span>
+                        <span className={['Out for Delivery', 'Delivered'].includes(order.order_status) ? 'done' : ''}>Out for Delivery</span>
+                        <span className={order.order_status === 'Delivered' ? 'done' : ''}>Delivered</span>
+                    </div>
                 </div>
 
                 {/* Staff Selector */}
                 <div className="detail-section">
-                    <h3>👤 Staff Handling Order</h3>
-                    <select 
-                        value={selectedStaff} 
-                        onChange={(e) => setSelectedStaff(e.target.value)}
+                    <h3>Picker</h3>
+                    <select
+                        value={selectedPicker}
+                        onChange={(e) => setSelectedPicker(e.target.value)}
                         style={{
                             width: '100%',
                             padding: '10px',
@@ -177,14 +206,19 @@ Time: ${new Date().toLocaleString()}`;
                             cursor: 'pointer'
                         }}
                     >
-                        <option value="">Select staff member...</option>
-                        {staffList.map(staff => (
-                            <option key={staff.id} value={staff.name}>{staff.name}</option>
-                        ))}
+                        <option value="">Select picker...</option>
+                        {PICKERS.map((name) => {
+                            const available = staffList.some((staff) => staff.name?.toLowerCase() === name.toLowerCase());
+                            return (
+                                <option key={name} value={name} disabled={!available}>
+                                    {available ? name : `${name} (not in staff)`}
+                                </option>
+                            );
+                        })}
                     </select>
-                    <small style={{ display: 'block', marginTop: '8px', color: '#aaa' }}>
-                        Pick who's handling this order
-                    </small>
+                    <button className="btn-admin primary" style={{ marginTop: 10 }} onClick={assignPicker}>
+                        Assign Picker
+                    </button>
                 </div>
 
                 {/* Customer */}
@@ -193,6 +227,8 @@ Time: ${new Date().toLocaleString()}`;
                     <div className="detail-row"><span className="label">Name</span><span className="value">{order.customer_name}</span></div>
                     <div className="detail-row"><span className="label">Phone</span><span className="value">{order.phone}</span></div>
                     <div className="detail-row"><span className="label">Email</span><span className="value">{order.email || '—'}</span></div>
+                    <div className="detail-row"><span className="label">City</span><span className="value">{order.city || '—'}</span></div>
+                    <div className="detail-row"><span className="label">Pincode</span><span className="value">{order.pincode || '—'}</span></div>
                 </div>
 
                 {/* Address */}

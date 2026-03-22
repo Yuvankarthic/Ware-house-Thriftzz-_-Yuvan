@@ -4,7 +4,7 @@ import OrderDetailPanel from '../components/OrderDetailPanel';
 import { Wifi, WifiOff } from 'lucide-react';
 
 const API = `${BASE_URL}/api`;
-const STATUSES = ['all', 'New Order', 'Accepted', 'Packing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
+const STATUSES = ['all', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'];
 const PARTNERS = ['Porter', 'Rapido Parcel', 'Self Delivery'];
 
 export default function OrdersPage({ token, user }) {
@@ -81,14 +81,10 @@ export default function OrdersPage({ token, user }) {
     const isUrgent = (o) => o.order_status === 'New Order' && (Date.now() - new Date(o.created_at)) > 10 * 60 * 1000;
 
     const getNextAction = (status) => {
-        const map = {
-            'New Order': { label: 'Accept', next: 'Accepted', cls: 'primary' },
-            'Accepted': { label: 'Start Packing', next: 'Packing', cls: 'warning' },
-            'Packing': { label: 'Mark Packed', next: 'Packed', cls: 'primary' },
-            'Packed': { label: 'Out for Delivery', next: 'Out for Delivery', cls: 'warning' },
-            'Out for Delivery': { label: 'Delivered', next: 'Delivered', cls: 'success' },
-        };
-        return map[status];
+        if (status === 'Packed') return { label: 'Mark Out for Delivery', next: 'Out for Delivery', cls: 'warning' };
+        if (status === 'Out for Delivery') return { label: 'Mark Delivered', next: 'Delivered', cls: 'success' };
+        if (status === 'Delivered' || status === 'Cancelled') return null;
+        return { label: 'Mark Packed', next: 'Packed', cls: 'primary' };
     };
 
     return (
@@ -165,20 +161,14 @@ export default function OrdersPage({ token, user }) {
 
             {/* Table */}
             <div className="orders-table-wrapper" style={{ overflowX: 'auto' }}>
-                <table className="orders-table" style={{ minWidth: '1200px' }}>
+                <table className="orders-table" style={{ minWidth: '980px' }}>
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Customer Name</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th>Products</th>
-                            <th>Value</th>
-                            <th>Payment</th>
+                            <th>Customer Details</th>
+                            <th>Product Details</th>
                             <th>Status</th>
-                            <th>Assigned To</th>
-                            <th>Delivery Partner</th>
-                            <th>Created Time</th>
+                            <th>Workflow</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -189,20 +179,36 @@ export default function OrdersPage({ token, user }) {
                                 <tr key={o.id} className={isUrgent(o) ? 'urgent' : ''}
                                     onClick={() => setSelectedOrder(o)}>
                                     <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>#{o.id}</td>
-                                    <td>{o.customer_name}</td>
-                                    <td>{o.phone}</td>
-                                    <td style={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={o.full_address}>
-                                        {o.full_address}
+                                    <td style={{ whiteSpace: 'normal', minWidth: 260 }}>
+                                        <div style={{ fontWeight: 700 }}>{o.customer_name}</div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>{o.phone}</div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>{o.email || 'No email'}</div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>
+                                            Picker: {o.assigned_name || 'Unassigned'}
+                                        </div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 5, lineHeight: 1.4 }}>
+                                            {o.full_address}
+                                        </div>
                                     </td>
-                                    <td style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={o.product_name}>
-                                        {o.product_name}
+                                    <td style={{ whiteSpace: 'normal', minWidth: 220 }}>
+                                        <div style={{ fontWeight: 700 }}>{o.product_name}</div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>Qty: {o.quantity}</div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, marginTop: 4 }}>₹{o.order_value}</div>
+                                        <div style={{ marginTop: 4 }}>
+                                            <span className="status-badge delivered">{o.payment_status}</span>
+                                        </div>
                                     </td>
-                                    <td style={{ fontWeight: 700 }}>₹{o.order_value}</td>
-                                    <td><span className="status-badge delivered">{o.payment_status}</span></td>
                                     <td><span className={`status-badge ${statusClass(o.order_status)}`}>{o.order_status}</span></td>
-                                    <td style={{ color: 'var(--admin-text-muted)' }}>{o.assigned_name || '—'}</td>
-                                    <td style={{ color: 'var(--admin-text-muted)' }}>{o.delivery_partner || '—'}</td>
-                                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem' }}>{new Date(o.created_at).toLocaleString()}</td>
+                                    <td style={{ whiteSpace: 'normal', minWidth: 210 }}>
+                                        <div className="order-workflow-inline">
+                                            <span className={['Packed', 'Out for Delivery', 'Delivered'].includes(o.order_status) ? 'done' : ''}>Packed</span>
+                                            <span className={['Out for Delivery', 'Delivered'].includes(o.order_status) ? 'done' : ''}>Out</span>
+                                            <span className={o.order_status === 'Delivered' ? 'done' : ''}>Delivered</span>
+                                        </div>
+                                        <div style={{ fontSize: '0.74rem', color: 'var(--admin-text-muted)', marginTop: 6 }}>
+                                            {new Date(o.created_at).toLocaleString()}
+                                        </div>
+                                    </td>
                                     <td>
                                         <div className="action-btns" onClick={e => e.stopPropagation()}>
                                             {action && (
@@ -221,7 +227,7 @@ export default function OrdersPage({ token, user }) {
                             );
                         })}
                         {orders.length === 0 && (
-                            <tr><td colSpan={12} style={{ textAlign: 'center', padding: 40, color: 'var(--admin-text-muted)' }}>No orders found</td></tr>
+                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'var(--admin-text-muted)' }}>No orders found</td></tr>
                         )}
                     </tbody>
                 </table>
