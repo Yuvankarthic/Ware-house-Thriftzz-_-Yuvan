@@ -100,10 +100,19 @@ const getFromAddress = () => {
 };
 
 const getTransportConfig = () => {
+  // For Render, use Gmail service instead of manual config for better compatibility
+  const isRender = process.env.RENDER === 'true';
+  
+  if (isRender) {
+    // Nodemailer's Gmail service automatically handles host/port/secure
+    return { service: 'gmail' };
+  }
+  
+  // Manual configuration (for local dev)
   return {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: Number(process.env.SMTP_PORT || 465),
-    secure: String(process.env.SMTP_SECURE || 'true') !== 'false',
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: process.env.SMTP_SECURE === 'true',
   };
 };
 
