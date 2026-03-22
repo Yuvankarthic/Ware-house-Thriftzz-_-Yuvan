@@ -165,7 +165,6 @@ const CartDrawer = () => {
     // Send order to backend → PostgreSQL
     const createBackendOrder = async (paymentId) => {
         try {
-            console.log(`📤 Sending ${cartItems.length} order(s) to backend: ${BASE_URL}/api/orders`);
             const createdOrderIds = [];
             
             for (const item of cartItems) {
@@ -186,8 +185,6 @@ const CartDrawer = () => {
                     payment_id: paymentId,
                 };
                 
-                console.log('📦 Order payload:', orderPayload);
-                
                 const response = await fetch(`${BASE_URL}/api/orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -205,7 +202,6 @@ const CartDrawer = () => {
                     }
                 }
             }
-            console.log('✅ All backend orders synced');
             return createdOrderIds;
         } catch (error) {
             // Never break checkout — backend errors are non-blocking
@@ -249,8 +245,7 @@ const CartDrawer = () => {
                     
                     // Wait a moment for backend to fully process
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    console.log('✨ Order sync complete! Clearing cart...');
+
                     clearCart();
                     setIsPaymentSuccess(true);
                 } catch (error) {

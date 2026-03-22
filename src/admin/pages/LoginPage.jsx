@@ -19,9 +19,7 @@ export default function LoginPage({ onLogin }) {
             try {
                 const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan.onrender.com';
                 const healthUrl = `${baseUrl}/health`;
-                
-                console.log('🔍 [Health Check] Calling:', healthUrl);
-                
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
                     controller.abort();
@@ -40,11 +38,9 @@ export default function LoginPage({ onLogin }) {
                     });
                     
                     clearTimeout(timeoutId);
-                    console.log(`✅ [Health Check] GET Response Status: ${res.status}`);
-                    
+
                     if (res.ok) {
                         setIsOnline(true);
-                        console.log(`✅ [Health Check] ONLINE ✓ (Status: ${res.status})`);
                     } else {
                         setIsOnline(res.status < 500); // Server error means offline
                         console.warn(`⚠️ [Health Check] Server returned status: ${res.status}`);
@@ -80,9 +76,7 @@ export default function LoginPage({ onLogin }) {
         try {
             const baseUrl = BASE_URL || 'https://ware-house-thriftzz-yuvan.onrender.com';
             const loginUrl = `${baseUrl}/api/auth/quick-login`;
-            
-            console.log('🔐 Attempting login to:', loginUrl);
-            
+
             const res = await fetch(loginUrl, {
                 method: 'POST',
                 headers: { 
@@ -91,8 +85,7 @@ export default function LoginPage({ onLogin }) {
                 },
                 body: JSON.stringify({ password }),
             });
-            
-            console.log('📡 Login response status:', res.status);
+
             const contentType = res.headers.get('content-type') || '';
             if (!contentType.includes('application/json')) {
                 if (res.status === 404) {

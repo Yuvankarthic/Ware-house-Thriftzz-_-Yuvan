@@ -15,7 +15,18 @@ const BASE_URL = import.meta.env.VITE_API_URL ||
                                      ? 'http://localhost:4000'
                                      : 'https://ware-house-thriftzz-yuvan.onrender.com');
 
-console.log('🔗 API Base URL:', BASE_URL);
+let keepAliveTimer = null;
+
+export const startKeepAlivePing = () => {
+    if (keepAliveTimer || typeof window === 'undefined') return;
+
+    const pingHealth = () => {
+        fetch(`${BASE_URL}/health`).catch(() => {});
+    };
+
+    pingHealth();
+    keepAliveTimer = window.setInterval(pingHealth, 14 * 60 * 1000);
+};
 
 export { BASE_URL };
 export default BASE_URL;
