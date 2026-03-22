@@ -1,4 +1,16 @@
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
+
+// Determine which email service to use
+const useService = process.env.EMAIL_SERVICE || 'nodemailer';
+const isSendGrid = useService === 'sendgrid' && process.env.SENDGRID_API_KEY;
+
+if (isSendGrid) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log('✅ SendGrid email service initialized');
+} else {
+    console.log('ℹ️ Using Nodemailer for email service');
+}
 
 const formatCurrency = (value) => {
     const amount = Number(value || 0);
@@ -210,23 +222,38 @@ export const sendOrderConfirmationEmail = async (order) => {
         return { skipped: true, reason: 'missing-recipient' };
     }
     
-    if (!isMailerConfigured()) {
+    if (!isMailerConfigured() && !isSendGrid) {
         console.warn('⚠️ Email credentials not configured in environment. Email sending skipped.');
         return { skipped: true, reason: 'missing-smtp-config' };
     }
 
     try {
-        const transporter = createTransporter();
-        const fromAddress = getFromAddress();
-        
         console.log(`📧 Sending order confirmation email to ${order.email}...`);
+        const fromAddress = getFromAddress();
+        const subject = `Order Received - #${order.id}`;
+        const html = buildOrderEmailHtml(order);
         
-        // Create send promise with timeout
+        // Use SendGrid if configured
+        if (isSendGrid) {
+            const msg = {
+                to: order.email,
+                from: fromAddress,
+                subject,
+                html,
+            };
+            const response = await sgMail.send(msg);
+            const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
+            console.log(`✅ Order confirmation email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
+            return { sent: true, messageId };
+        }
+        
+        // Fallback to Nodemailer
+        const transporter = createTransporter();
         const sendPromise = transporter.sendMail({
             from: `WHT Payments <${fromAddress}>`,
             to: order.email,
-            subject: `Order Received - #${order.id}`,
-            html: buildOrderEmailHtml(order),
+            subject,
+            html,
         });
         
         const timeoutPromise = new Promise((_, reject) =>
@@ -234,12 +261,11 @@ export const sendOrderConfirmationEmail = async (order) => {
         );
         
         const info = await Promise.race([sendPromise, timeoutPromise]);
-        
-        console.log(`✅ Order confirmation email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
+        console.log(`✅ Order confirmation email sent via Nodemailer to ${order.email}. Message ID: ${info.messageId}`);
         return { sent: true, messageId: info.messageId };
     } catch (error) {
-        console.error(`❌ Failed to send order confirmation email to ${order.email}:`, error.code, error.message);
-        throw error; // Let the caller handle it
+        console.error(`❌ Failed to send order confirmation email to ${order.email}:`, error.code || error.message);
+        throw error;
     }
 };
 
@@ -254,23 +280,39 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     return { skipped: true, reason: 'status-not-supported' };
   }
   
-  if (!isMailerConfigured()) {
+  if (!isMailerConfigured() && !isSendGrid) {
     console.warn('⚠️ Email credentials not configured in environment. Email sending skipped.');
     return { skipped: true, reason: 'missing-smtp-config' };
   }
 
   try {
-    const transporter = createTransporter();
     const fromAddress = getFromAddress();
+    const subject = `Order #${order.id} Update - ${status}`;
+    const html = buildOrderStatusEmailHtml(order, status);
     
     console.log(`📧 Sending status update email to ${order.email} (Order #${order.id}: ${status})...`);
     
-    // Create send promise with timeout
+    // Use SendGrid if configured
+    if (isSendGrid) {
+      const msg = {
+        to: order.email,
+        from: fromAddress,
+        subject,
+        html,
+      };
+      const response = await sgMail.send(msg);
+      const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
+      console.log(`✅ Status update email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
+      return { sent: true, messageId };
+    }
+    
+    // Fallback to Nodemailer
+    const transporter = createTransporter();
     const sendPromise = transporter.sendMail({
       from: `WHT Payments <${fromAddress}>`,
       to: order.email,
-      subject: `Order #${order.id} Update - ${status}`,
-      html: buildOrderStatusEmailHtml(order, status),
+      subject,
+      html,
     });
     
     const timeoutPromise = new Promise((_, reject) =>
@@ -278,12 +320,11 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     );
     
     const info = await Promise.race([sendPromise, timeoutPromise]);
-    
-    console.log(`✅ Status update email sent successfully to ${order.email}. Message ID: ${info.messageId}`);
+    console.log(`✅ Status update email sent via Nodemailer to ${order.email}. Message ID: ${info.messageId}`);
     return { sent: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`❌ Failed to send status update email to ${order.email}:`, error.code, error.message);
-    throw error; // Let the caller handle it
+    console.error(`❌ Failed to send status update email to ${order.email}:`, error.code || error.message);
+    throw error;
   }
 };
 
