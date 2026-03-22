@@ -27,7 +27,7 @@ export default function AnalyticsPage({ token }) {
                 if (hData.success) setHourly(hData.hourly);
                 if (pData.success) setTopProducts(pData.products);
                 if (lData.success) setLocations(lData.locations);
-            } catch (err) { console.error('Analytics fetch error:', err); }
+            } catch (err) {}
         };
         fetchAll();
     }, [token]);

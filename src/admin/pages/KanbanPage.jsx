@@ -16,7 +16,7 @@ export default function KanbanPage({ token }) {
             const res = await fetch(`${API}/orders?limit=200`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await res.json();
             if (data.success) setOrders(data.orders.filter(o => o.order_status !== 'Cancelled'));
-        } catch (err) { console.error('Kanban fetch error:', err); }
+        } catch (err) {}
     }, [token]);
 
     useEffect(() => {
@@ -53,7 +53,6 @@ export default function KanbanPage({ token }) {
                 body: JSON.stringify({ status: targetStatus }),
             });
         } catch (err) {
-            console.error('Drop status update error:', err);
             fetchOrders(); // Revert on error
         }
         setDragItem(null);

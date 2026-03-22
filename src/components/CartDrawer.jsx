@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2, ArrowLeft, MapPin, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BASE_URL from '../config/api';
 import { trackEvent } from '../utils/activityTracker';
 import '../styles/CartDrawer.css';
-import OrderSuccess from './OrderSuccess';
 import LocationPicker from './LocationPicker';
 import ProductViewer from './ProductViewer';
 import { sanitizeImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 
 // Steps: 'cart' → 'details' → 'review'
 const CartDrawer = () => {
+    const history = useHistory();
     const {
         cartItems,
         isCartOpen,
@@ -31,7 +32,6 @@ const CartDrawer = () => {
     });
     const [errors, setErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
     const [recommendedItem, setRecommendedItem] = useState(null);
     const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
     const [isRecommendedPreviewOpen, setIsRecommendedPreviewOpen] = useState(false);
@@ -112,12 +112,6 @@ const CartDrawer = () => {
         };
     }, [isCartOpen, cartItems]);
 
-    const handleSuccessClose = () => {
-        setIsCartOpen(false);
-        setIsPaymentSuccess(false);
-        window.location.href = '/';
-    };
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -146,13 +140,21 @@ const CartDrawer = () => {
         if (validateForm()) setStep('review');
     };
 
-    const saveOrderToGoogleSheet = async (paymentId) => {
+    const saveOrderToGoogleSheet = async (paymentId, itemsSnapshot, customerSnapshot) => {
         const orderId = `WHT-${Date.now()}`;
-        const productsSummary = cartItems.map(item => `${item.name} (${item.size}) x${item.quantity}`).join(', ');
+        const productsSummary = itemsSnapshot.map(item => `${item.name} (${item.size}) x${item.quantity}`).join(', ');
         const payload = {
-            orderId, name: formData.name, email: formData.email, phone: formData.phone,
-            address: formData.address, city: formData.city, pincode: formData.pincode,
-            products: productsSummary, amount: cartTotal, paymentId, status: 'PAID'
+            orderId,
+            name: customerSnapshot.name,
+            email: customerSnapshot.email,
+            phone: customerSnapshot.phone,
+            address: customerSnapshot.address,
+            city: customerSnapshot.city,
+            pincode: customerSnapshot.pincode,
+            products: productsSummary,
+            amount: itemsSnapshot.reduce((total, item) => total + (Number(item.price) || 0), 0),
+            paymentId,
+            status: 'PAID'
         };
         try {
             await fetch('https://script.google.com/macros/s/AKfycbzc0i5Nu2vpb2FdC6AIGWuFvb42rAc2RiGXBLPWYEl8YXJ4D8GAWMvQd8Hoz0LVbncv/exec', {
@@ -161,28 +163,27 @@ const CartDrawer = () => {
                 body: JSON.stringify(payload)
             });
             return true;
-        } catch (error) {
-            console.error('Error saving order:', error);
+        } catch {
             return false;
         }
     };
 
     // Send order to backend → PostgreSQL
-    const createBackendOrder = async (paymentId) => {
+    const createBackendOrder = async (paymentId, itemsSnapshot, customerSnapshot) => {
         try {
             const createdOrderIds = [];
             
-            for (const item of cartItems) {
+            for (const item of itemsSnapshot) {
                 const matchedApiId = String(item.id).match(/^api-(\d+)$/);
                 const numericProductId = matchedApiId ? Number.parseInt(matchedApiId[1], 10) : Number.parseInt(String(item.id), 10);
 
                 const orderPayload = {
-                    customer_name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    address: formData.address,
-                    city: formData.city,
-                    pincode: formData.pincode,
+                    customer_name: customerSnapshot.name,
+                    email: customerSnapshot.email,
+                    phone: customerSnapshot.phone,
+                    address: customerSnapshot.address,
+                    city: customerSnapshot.city,
+                    pincode: customerSnapshot.pincode,
                     product_id: Number.isInteger(numericProductId) ? numericProductId : null,
                     product_name: item.name,
                     order_value: Number(item.price) || 0,
@@ -198,21 +199,14 @@ const CartDrawer = () => {
                 
                 const result = await response.json();
                 
-                if (!response.ok) {
-                    console.warn(`⚠️ Backend response status: ${response.status}`, result);
-                } else {
-                    console.log(`✅ Order created successfully:`, result);
+                if (response.ok) {
                     if (result?.order?.order_id) {
                         createdOrderIds.push(result.order.order_id);
                     }
                 }
             }
             return createdOrderIds;
-        } catch (error) {
-            // Never break checkout — backend errors are non-blocking
-            console.error('❌ Backend order creation failed (non-blocking):', error);
-            console.error('💡 Your order was processed by Razorpay but may not be in dashboard yet.');
-            console.error('🔄 Dashboard will auto-sync in 2-3 seconds. If not, refresh the page.');
+        } catch {
             return [];
         }
     };
@@ -233,31 +227,29 @@ const CartDrawer = () => {
                 items: JSON.stringify(cartItems.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, size: item.size })))
             },
             handler: async function (response) {
-                setIsProcessing(true);
-                
-                try {
-                    // Google Sheets (existing) + Backend (new) — both fire in parallel
-                    const [, createdOrderIds] = await Promise.all([
-                        saveOrderToGoogleSheet(response.razorpay_payment_id),
-                        createBackendOrder(response.razorpay_payment_id),
-                    ]);
+                const paymentId = response.razorpay_payment_id;
+                const customerSnapshot = { ...formData };
+                const itemsSnapshot = cartItems.map((item) => ({ ...item }));
 
-                    trackEvent('order_placed', null, 'checkout');
+                clearCart();
+                setIsCartOpen(false);
+                setIsProcessing(false);
+                history.push('/thank-you');
+                trackEvent('order_placed', null, 'checkout');
+
+                void Promise.allSettled([
+                    saveOrderToGoogleSheet(paymentId, itemsSnapshot, customerSnapshot),
+                    createBackendOrder(paymentId, itemsSnapshot, customerSnapshot),
+                ]).then((results) => {
+                    const createdOrderIds =
+                        results[1]?.status === 'fulfilled' && Array.isArray(results[1].value)
+                            ? results[1].value
+                            : [];
+
                     if (createdOrderIds.length > 0) {
                         trackEvent('order_synced', null, `orders:${createdOrderIds.join(',')}`);
                     }
-                    
-                    // Wait a moment for backend to fully process
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    clearCart();
-                    setIsPaymentSuccess(true);
-                } catch (error) {
-                    console.error('Error during order sync:', error);
-                    setIsPaymentSuccess(true); // Still show success - order is paid
-                } finally {
-                    setIsProcessing(false);
-                }
+                });
             },
             modal: { ondismiss: () => setIsProcessing(false) },
             prefill: { name: formData.name, email: formData.email, contact: formData.phone },
@@ -267,8 +259,7 @@ const CartDrawer = () => {
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', () => { setIsProcessing(false); alert('Payment failed. Please try again.'); });
             rzp.open();
-        } catch (err) {
-            console.error('Razorpay error', err);
+        } catch {
             setIsProcessing(false);
             alert('Could not load payment gateway. Check your internet.');
         }
@@ -347,32 +338,6 @@ const CartDrawer = () => {
 
     return (
         <AnimatePresence>
-            {isProcessing && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        display: 'grid',
-                        placeItems: 'center',
-                        background: 'rgba(0, 0, 0, 0.35)',
-                        zIndex: 12000,
-                        pointerEvents: 'none',
-                    }}
-                >
-                    <div
-                        style={{
-                            background: '#fff',
-                            padding: '14px 18px',
-                            borderRadius: 10,
-                            fontWeight: 600,
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                        }}
-                    >
-                        Processing your order...
-                    </div>
-                </div>
-            )}
-
             {showLocationPicker && (
                 <LocationPicker
                     onConfirm={(locationData) => {
@@ -397,9 +362,7 @@ const CartDrawer = () => {
                 />
             )}
 
-            {isPaymentSuccess && <OrderSuccess onClose={handleSuccessClose} />}
-
-            {isCartOpen && !isPaymentSuccess && (
+            {isCartOpen && (
                 <>
                     <motion.div
                         className="cart-overlay"

@@ -101,7 +101,7 @@ const LocationPicker = ({ onConfirm, onCancel, initialPosition }) => {
                     setCenter({ lat: latitude, lng: longitude });
                     setHasInitialLocated(true);
                 },
-                (err) => console.error(err)
+                () => {}
             );
         }
     }, [initialPosition, hasInitialLocated]);

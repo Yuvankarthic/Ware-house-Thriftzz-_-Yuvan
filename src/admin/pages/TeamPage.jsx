@@ -18,7 +18,7 @@ export default function TeamPage({ token, user }) {
             const res = await fetch(`${API}/staff`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await res.json();
             if (data.success) setStaff(data.staff);
-        } catch (err) { console.error('Staff fetch error:', err); }
+        } catch (err) {}
     };
 
     useEffect(() => { fetchStaff(); }, [token]);
@@ -43,7 +43,7 @@ export default function TeamPage({ token, user }) {
         try {
             await fetch(`${API}/staff/${id}`, { method: 'DELETE', headers });
             fetchStaff();
-        } catch (err) { console.error('Remove error:', err); }
+        } catch (err) {}
     };
 
     const isAdmin = user?.role === 'admin';

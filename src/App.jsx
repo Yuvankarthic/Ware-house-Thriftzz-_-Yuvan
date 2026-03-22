@@ -15,6 +15,7 @@ import Chatbot from './components/Chatbot';
 import Shop from './pages/Shop';
 import CategoryPage from './pages/CategoryPage';
 import TrackOrderPage from './pages/TrackOrderPage';
+import ThankYouPage from './pages/ThankYouPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
@@ -66,6 +67,7 @@ function App() {
         <Route exact path="/shop" component={HomeAndShopPage} />
         <Route path="/shop/:category" component={CategoryPage} />
         <Route path="/track-order" component={TrackOrderPage} />
+        <Route path="/thank-you" component={ThankYouPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
       </Switch>

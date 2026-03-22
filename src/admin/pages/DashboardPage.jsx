@@ -38,7 +38,7 @@ export default function DashboardPage({ token }) {
                             audioRef.current.currentTime = 0;
                             audioRef.current.play(); 
                         }
-                    } catch (e) { console.warn('Audio play failed', e); }
+                    } catch (e) {}
                     setTimeout(() => setToast(null), 5000);
                 }
                 prevCountRef.current = newCount;
@@ -49,7 +49,6 @@ export default function DashboardPage({ token }) {
             setSystemOnline(true);
             setLastUpdate(new Date());
         } catch (err) {
-            console.error('Dashboard fetch error:', err);
             setSystemOnline(false);
         }
     };

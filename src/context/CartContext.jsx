@@ -94,7 +94,6 @@ export const CartProvider = ({ children }) => {
 
     const updateQuantity = (id, delta) => {
         // Disabled updating quantity since items are 1-of-1
-        console.warn("Items are 1-of-1. Quantity cannot be updated.");
     };
 
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price, 0); // Removed quantity multiplier

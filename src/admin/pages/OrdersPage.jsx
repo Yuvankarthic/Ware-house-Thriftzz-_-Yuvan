@@ -30,7 +30,7 @@ export default function OrdersPage({ token, user }) {
         fetch(`${API}/staff`, { headers })
             .then(res => res.json())
             .then(data => { if (data.success) setStaffList(data.staff); })
-            .catch(console.error);
+            .catch(() => {});
     }, [token]);
 
     const fetchOrders = useCallback(async () => {
@@ -51,8 +51,7 @@ export default function OrdersPage({ token, user }) {
             
             setSystemOnline(true);
             setLastUpdate(new Date());
-        } catch (err) { 
-            console.error('Fetch orders error:', err);
+        } catch (err) {
             setSystemOnline(false);
         }
     }, [search, statusFilter, dateFilter, deliveryFilter, assignedFilter, locationFilter, token]);
@@ -74,7 +73,7 @@ export default function OrdersPage({ token, user }) {
             if (selectedOrder?.id === orderId) {
                 setSelectedOrder(prev => ({ ...prev, order_status: status }));
             }
-        } catch (err) { console.error('Status update error:', err); }
+        } catch (err) {}
     };
 
     const statusClass = (s) => s.toLowerCase().replace(/\s+/g, '-');

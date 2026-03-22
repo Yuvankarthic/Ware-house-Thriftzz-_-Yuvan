@@ -34,7 +34,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                 if (data.success) {
                     setStaffList(data.staff || []);
                 }
-            } catch (err) { console.error('Staff fetch error:', err); }
+            } catch (err) {}
         };
         fetchStaff();
     }, []);
@@ -64,9 +64,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                     recipient: null,
                 }))
             );
-        } catch (err) {
-            console.error('Email status fetch error:', err);
-        }
+        } catch (err) {}
     };
 
     const fetchDetail = async () => {
@@ -87,7 +85,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
                 setSelectedPicker(picked?.name || '');
                 fetchEmailStatus();
             }
-        } catch (err) { console.error('Detail fetch error:', err); }
+        } catch (err) {}
     };
 
     const assignPicker = async () => {
@@ -105,9 +103,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
             }
             fetchDetail();
             onUpdate?.();
-        } catch (err) {
-            console.error('Assign picker error:', err);
-        }
+        } catch (err) {}
     };
 
     const updateStatus = async (status) => {
@@ -118,7 +114,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
             });
             fetchDetail();
             onUpdate?.();
-        } catch (err) { console.error('Status update error:', err); }
+        } catch (err) {}
     };
 
     const claimOrder = async () => {
@@ -130,7 +126,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
             if (!data.success) alert(data.error);
             fetchDetail();
             onUpdate?.();
-        } catch (err) { console.error('Claim error:', err); }
+        } catch (err) {}
     };
 
     const saveDelivery = async () => {
@@ -146,7 +142,7 @@ export default function OrderDetailPanel({ orderId, token, user, onClose, onUpda
             });
             fetchDetail();
             onUpdate?.();
-        } catch (err) { console.error('Delivery save error:', err); }
+        } catch (err) {}
     };
 
     const copyOrderDetails = () => {
@@ -186,7 +182,6 @@ Time: ${new Date().toLocaleString()}`;
         navigator.clipboard.writeText(details).then(() => {
             alert('✅ Order details copied to clipboard!');
         }).catch(err => {
-            console.error('Copy error:', err);
             alert('❌ Failed to copy details');
         });
     };

@@ -23,7 +23,6 @@ export default function LoginPage({ onLogin }) {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
                     controller.abort();
-                    console.warn('⚠️ [Health Check] Timeout after 10 seconds');
                 }, 10000);
                 
                 try {
@@ -43,20 +42,13 @@ export default function LoginPage({ onLogin }) {
                         setIsOnline(true);
                     } else {
                         setIsOnline(res.status < 500); // Server error means offline
-                        console.warn(`⚠️ [Health Check] Server returned status: ${res.status}`);
                     }
                 } catch (fetchErr) {
                     clearTimeout(timeoutId);
-                    
-                    if (fetchErr.name === 'AbortError') {
-                        console.error('❌ [Health Check] Request timeout');
-                    } else {
-                        console.error('⚠️ [Health Check] Fetch error:', fetchErr.name);
-                    }
+
                     setIsOnline(false);
                 }
             } catch (err) {
-                console.error('❌ [Health Check] Error:', err.name);
                 setIsOnline(false);
             }
         };
@@ -107,7 +99,6 @@ export default function LoginPage({ onLogin }) {
             onLogin(data.user, data.token);
             history.push('/admin');
         } catch (err) {
-            console.error('❌ Login error:', err);
             setError(err.message || 'Cannot connect to backend. Please try again.');
             setLoading(false);
         }
