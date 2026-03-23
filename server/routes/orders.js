@@ -23,6 +23,7 @@ const STATUS_TO_EMAIL_EVENT = {
     'Out for Delivery': 'out_for_delivery',
     Delivered: 'delivered',
 };
+const STATUS_EMAIL_EVENTS = ['packed', 'out_for_delivery', 'delivered'];
 
 const PICKER_NAMES = ['akash', 'vishwa', 'yuvan'];
 
@@ -390,6 +391,149 @@ router.get('/track/:id', async (req, res) => {
         return res.json({ success: true, order: orderResult.rows[0], timeline: timelineResult.rows });
     } catch (err) {
         console.error('❌ GET /api/orders/track/:id error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  GET /api/orders/email-dashboard  (admin — all order email statuses)
+// ────────────────────────────────────────────────────────────
+router.get('/email-dashboard', authMiddleware, async (req, res) => {
+    try {
+        const parsedLimit = Number.parseInt(String(req.query.limit || '100'), 10);
+        const limit = Number.isInteger(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 300) : 100;
+        const search = String(req.query.search || '').trim();
+
+        const where = [];
+        const params = [];
+        let idx = 1;
+
+        if (search) {
+            where.push(`(
+                CAST(o.id AS TEXT) ILIKE $${idx}
+                OR o.customer_name ILIKE $${idx}
+                OR o.email ILIKE $${idx}
+                OR o.phone ILIKE $${idx}
+            )`);
+            params.push(`%${search}%`);
+            idx++;
+        }
+
+        const whereSql = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
+
+        params.push(limit);
+
+        const result = await query(
+            `SELECT
+                o.id,
+                o.customer_name,
+                o.email,
+                o.phone,
+                o.order_status,
+                o.created_at,
+                conf.delivery_status AS confirmation_status,
+                conf.reason AS confirmation_reason,
+                conf.created_at AS confirmation_last_attempt,
+                status_evt.event_type AS status_event_type,
+                status_evt.delivery_status AS status_email_status,
+                status_evt.reason AS status_email_reason,
+                status_evt.created_at AS status_email_last_attempt
+             FROM orders o
+             LEFT JOIN LATERAL (
+                SELECT delivery_status, reason, created_at
+                FROM order_email_events
+                WHERE order_id = o.id AND event_type = 'order_confirmation'
+                ORDER BY created_at DESC
+                LIMIT 1
+             ) conf ON true
+             LEFT JOIN LATERAL (
+                SELECT event_type, delivery_status, reason, created_at
+                FROM order_email_events
+                WHERE order_id = o.id AND event_type = ANY($${idx}::text[])
+                ORDER BY created_at DESC
+                LIMIT 1
+             ) status_evt ON true
+             ${whereSql}
+             ORDER BY o.created_at DESC
+             LIMIT $${idx + 1}`,
+            [...params.slice(0, params.length - 1), STATUS_EMAIL_EVENTS, params[params.length - 1]]
+        );
+
+        return res.json({ success: true, rows: result.rows });
+    } catch (err) {
+        console.error('❌ GET /api/orders/email-dashboard error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────
+//  POST /api/orders/:id/email/resend  (admin — manual mail trigger)
+// ────────────────────────────────────────────────────────────
+router.post('/:id/email/resend', authMiddleware, async (req, res) => {
+    try {
+        const orderId = Number.parseInt(String(req.params.id), 10);
+        if (!Number.isInteger(orderId)) {
+            return res.status(400).json({ success: false, error: 'Invalid order id' });
+        }
+
+        const type = String(req.body?.type || 'order_confirmation').trim();
+        if (!['order_confirmation', 'status_update'].includes(type)) {
+            return res.status(400).json({ success: false, error: 'type must be order_confirmation or status_update' });
+        }
+
+        const orderResult = await query('SELECT * FROM orders WHERE id = $1 LIMIT 1', [orderId]);
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        const order = orderResult.rows[0];
+        let mailResult = null;
+        let mailError = null;
+        let eventType = 'order_confirmation';
+
+        try {
+            if (type === 'order_confirmation') {
+                eventType = 'order_confirmation';
+                mailResult = await sendOrderConfirmationEmail(order);
+            } else {
+                const status = String(req.body?.status || order.order_status || '').trim();
+                if (!['Packed', 'Out for Delivery', 'Delivered'].includes(status)) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Status update email can only be sent for Packed, Out for Delivery, or Delivered orders',
+                    });
+                }
+
+                eventType = STATUS_TO_EMAIL_EVENT[status];
+                mailResult = await sendOrderStatusUpdateEmail(order, status);
+            }
+        } catch (err) {
+            mailError = err;
+        }
+
+        const normalized = await logOrderEmailEvent({
+            orderId,
+            eventType,
+            recipient: order.email,
+            result: mailResult,
+            error: mailError,
+        });
+
+        if (normalized.status === 'failed') {
+            return res.status(500).json({
+                success: false,
+                error: normalized.reason || 'Failed to send email',
+                email: normalized,
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Email trigger completed',
+            email: normalized,
+        });
+    } catch (err) {
+        console.error('❌ POST /api/orders/:id/email/resend error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });

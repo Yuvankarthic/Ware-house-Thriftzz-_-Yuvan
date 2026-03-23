@@ -1097,6 +1097,71 @@
     color: #f87171;
 }
 
+/* ═══════ EMAIL CENTER ═══════ */
+.email-center-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.email-center-error {
+    margin: 0 0 10px;
+    color: #f87171;
+    font-size: 0.82rem;
+}
+
+.email-center-table-wrap {
+    margin-bottom: 8px;
+}
+
+.email-center-table {
+    min-width: 1180px;
+}
+
+.mail-status-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.mail-status-badge.ok {
+    background: rgba(52, 211, 153, 0.18);
+    color: #34d399;
+}
+
+.mail-status-badge.warning {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.mail-status-badge.down {
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+}
+
+.mail-status-reason {
+    margin: 6px 0 0;
+    font-size: 0.74rem;
+    color: var(--admin-text-muted);
+    line-height: 1.35;
+}
+
+.email-actions {
+    display: grid;
+    gap: 6px;
+}
+
+@media (max-width: 720px) {
+    .email-center-toolbar {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ═══════ KANBAN BOARD ═══════ */
 .kanban-board {
     display: grid;

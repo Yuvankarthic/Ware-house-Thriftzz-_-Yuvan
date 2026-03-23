@@ -10,6 +10,7 @@ import ActivityPage from './pages/ActivityPage';
 import LoginPage from './pages/LoginPage';
 import ProductsPage from '../pages/admin/Products';
 import HealthPage from './pages/HealthPage';
+import EmailPage from './pages/EmailPage';
 import './styles/admin.css';
 
 export default function AdminRoot() {
@@ -64,6 +65,7 @@ export default function AdminRoot() {
                     <Route path="/admin/analytics" render={() => <AnalyticsPage token={token} />} />
                     <Route path="/admin/activity" render={() => <ActivityPage token={token} />} />
                     <Route path="/admin/products" render={() => <ProductsPage token={token} user={user} />} />
+                    <Route path="/admin/email" render={() => <EmailPage token={token} />} />
                     <Route path="/admin/health" render={() => <HealthPage token={token} />} />
                     <Redirect to="/admin" />
                 </Switch>
