@@ -465,7 +465,7 @@ const CartDrawer = () => {
                         ════════════════════ */}
                         {step === 'details' && (
                             <>
-                                <div className="checkout-form" onClick={(e) => e.stopPropagation()}>
+                                <div className="checkout-form" onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
                                     <div className="form-section-label">Contact</div>
                                     <div className="form-row">
                                         <div className="form-group">
