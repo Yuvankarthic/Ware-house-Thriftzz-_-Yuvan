@@ -18,6 +18,8 @@ if (isSendGrid) {
 }
 
 const sendViaBrevo = async ({ to, from, subject, html, text }) => {
+  const senderName = process.env.MAIL_FROM_NAME || 'Wearhouse Thrift';
+  const replyToEmail = (process.env.MAIL_REPLY_TO || '').trim();
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -25,11 +27,12 @@ const sendViaBrevo = async ({ to, from, subject, html, text }) => {
       'api-key': process.env.BREVO_API_KEY,
     },
     body: JSON.stringify({
-      sender: { email: from, name: 'WHT Payments' },
+      sender: { email: from, name: senderName },
       to: [{ email: to }],
       subject,
       htmlContent: html,
       textContent: text,
+      replyTo: replyToEmail ? { email: replyToEmail, name: senderName } : undefined,
     }),
   });
 
@@ -184,6 +187,27 @@ const getFromAddress = () => {
   return process.env.MAIL_FROM || process.env.SMTP_USER || 'payments.wht@gmail.com';
 };
 
+const getSenderIdentity = () => {
+  return {
+    email: getFromAddress(),
+    name: process.env.MAIL_FROM_NAME || 'Wearhouse Thrift',
+  };
+};
+
+const getReplyToIdentity = () => {
+  const replyTo = (process.env.MAIL_REPLY_TO || '').trim();
+  if (!replyTo) return undefined;
+  return {
+    email: replyTo,
+    name: process.env.MAIL_FROM_NAME || 'Wearhouse Thrift',
+  };
+};
+
+const getSendGridTrackingSettings = () => ({
+  clickTracking: { enable: false, enableText: false },
+  openTracking: { enable: false },
+});
+
 const getTransportConfig = () => {
   // For Render, use Gmail service instead of manual config for better compatibility
   const isRender = process.env.RENDER === 'true';
@@ -313,6 +337,8 @@ export const sendOrderConfirmationEmail = async (order) => {
     try {
         console.log(`📧 Sending order confirmation email to ${order.email}...`);
         const fromAddress = getFromAddress();
+        const senderIdentity = getSenderIdentity();
+        const replyToIdentity = getReplyToIdentity();
         const subject = `Order Received - #${order.id}`;
         const html = buildOrderEmailHtml(order);
       const text = `Order Received - #${order.id}\n\nHi ${order.customer_name || 'Customer'}, your order has been received successfully.`;
@@ -320,7 +346,15 @@ export const sendOrderConfirmationEmail = async (order) => {
       // Preferred provider: SendGrid
       if (isSendGrid) {
         try {
-          const msg = { to: order.email, from: fromAddress, subject, html, text };
+          const msg = {
+            to: order.email,
+            from: senderIdentity,
+            replyTo: replyToIdentity,
+            subject,
+            html,
+            text,
+            trackingSettings: getSendGridTrackingSettings(),
+          };
           const response = await sgMail.send(msg);
           const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
           console.log(`✅ Order confirmation email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
@@ -384,6 +418,8 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
 
   try {
     const fromAddress = getFromAddress();
+    const senderIdentity = getSenderIdentity();
+    const replyToIdentity = getReplyToIdentity();
     const subject = `Order #${order.id} Update - ${status}`;
     const html = buildOrderStatusEmailHtml(order, status);
     const text = `Order #${order.id} Update - ${status}\n\nHi ${order.customer_name || 'Customer'}, your order status is now ${status}.`;
@@ -393,7 +429,15 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     // Preferred provider: SendGrid
     if (isSendGrid) {
       try {
-        const msg = { to: order.email, from: fromAddress, subject, html, text };
+        const msg = {
+          to: order.email,
+          from: senderIdentity,
+          replyTo: replyToIdentity,
+          subject,
+          html,
+          text,
+          trackingSettings: getSendGridTrackingSettings(),
+        };
         const response = await sgMail.send(msg);
         const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
         console.log(`✅ Status update email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
