@@ -112,10 +112,10 @@ const markOrdersPaidByRazorpayIdentifiers = async ({ paymentId, razorpayOrderId 
     const result = await pool.query(
         `UPDATE orders
          SET payment_status = 'paid',
-             payment_id = COALESCE(payment_id, $1),
+             payment_id = COALESCE(payment_id, $1::text),
              updated_at = NOW()
-         WHERE ($1 IS NOT NULL AND payment_id = $1)
-            OR ($2 IS NOT NULL AND payment_id = $2)
+         WHERE ($1::text IS NOT NULL AND payment_id = $1::text)
+            OR ($2::text IS NOT NULL AND payment_id = $2::text)
          RETURNING id`,
         [normalizedPaymentId, normalizedRazorpayOrderId]
     );
