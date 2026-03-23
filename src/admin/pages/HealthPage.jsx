@@ -3,6 +3,26 @@ import BASE_URL from '../../config/api';
 
 const API = `${BASE_URL}/api`;
 
+const API_ENDPOINT_CHECKS = [
+    { key: 'health', label: 'Health Check', method: 'GET', path: '/health', auth: false, expectedStatus: [200] },
+    { key: 'products', label: 'Products (Public)', method: 'GET', path: '/api/products', auth: false, expectedStatus: [200] },
+    {
+        key: 'trackOrder',
+        label: 'Track Order (Public)',
+        method: 'GET',
+        path: '/api/orders/track-order?order_id=0&phone=0',
+        auth: false,
+        expectedStatus: [400, 404]
+    },
+    { key: 'orders', label: 'Orders (Admin)', method: 'GET', path: '/api/orders', auth: true, expectedStatus: [200] },
+    { key: 'analytics', label: 'Analytics Overview', method: 'GET', path: '/api/analytics/overview', auth: true, expectedStatus: [200] },
+    { key: 'staff', label: 'Staff List', method: 'GET', path: '/api/staff', auth: true, expectedStatus: [200] },
+    { key: 'opsLogs', label: 'Operations Logs', method: 'GET', path: '/api/operations/logs', auth: true, expectedStatus: [200] },
+    { key: 'activitySummary', label: 'Activity Summary', method: 'GET', path: '/api/activity-summary', auth: true, expectedStatus: [200] },
+    { key: 'activityLogs', label: 'Activity Logs', method: 'GET', path: '/api/activity-logs', auth: true, expectedStatus: [200] },
+    { key: 'authMe', label: 'Auth Me', method: 'GET', path: '/api/auth/me', auth: true, expectedStatus: [200] },
+];
+
 const statusMeta = {
     ok: { icon: '✅', className: 'ok', label: 'OK' },
     warning: { icon: '⚠️', className: 'warning', label: 'Warning' },
@@ -39,6 +59,7 @@ export default function HealthPage({ token }) {
         mailerHost: 'unknown',
         mailerPort: 'unknown',
     });
+    const [apiEndpointStatuses, setApiEndpointStatuses] = useState([]);
 
     const [logs, setLogs] = useState([]);
     const [savingLog, setSavingLog] = useState(false);
@@ -65,6 +86,54 @@ export default function HealthPage({ token }) {
         }
     }, [headers]);
 
+    const checkAllApis = useCallback(async () => {
+        const checks = await Promise.all(
+            API_ENDPOINT_CHECKS.map(async (item) => {
+                if (item.auth && !token) {
+                    return {
+                        ...item,
+                        state: 'warning',
+                        statusCode: null,
+                        responseTimeMs: null,
+                        message: 'Missing admin token',
+                        checkedAt: new Date().toISOString(),
+                    };
+                }
+
+                const start = performance.now();
+                try {
+                    const res = await fetch(`${BASE_URL}${item.path}`, {
+                        method: item.method,
+                        headers: item.auth ? { Authorization: `Bearer ${token}` } : undefined,
+                    });
+                    const responseTimeMs = Math.round(performance.now() - start);
+                    const isExpected = item.expectedStatus.includes(res.status);
+
+                    return {
+                        ...item,
+                        state: isExpected ? 'ok' : (res.status >= 500 ? 'down' : 'warning'),
+                        statusCode: res.status,
+                        responseTimeMs,
+                        message: isExpected ? 'Reachable' : `Unexpected status ${res.status}`,
+                        checkedAt: new Date().toISOString(),
+                    };
+                } catch (_err) {
+                    return {
+                        ...item,
+                        state: 'down',
+                        statusCode: null,
+                        responseTimeMs: null,
+                        message: 'Network error',
+                        checkedAt: new Date().toISOString(),
+                    };
+                }
+            })
+        );
+
+        setApiEndpointStatuses(checks);
+        return checks;
+    }, [token]);
+
     const runHealthCheck = useCallback(async () => {
         setChecking(true);
         try {
@@ -72,6 +141,11 @@ export default function HealthPage({ token }) {
             const res = await fetch(`${BASE_URL}/health`);
             const data = await res.json();
             const apiMs = Math.round(performance.now() - start);
+            const endpointChecks = await checkAllApis();
+
+            const apiDown = endpointChecks.some((check) => check.state === 'down');
+            const apiWarning = endpointChecks.some((check) => check.state === 'warning');
+            const apiOverall = apiDown ? 'down' : (apiWarning ? 'warning' : 'ok');
 
             const backendOk = res.ok && data?.status === 'ok';
             const databaseOk = String(data?.database || '').toLowerCase() === 'connected';
@@ -82,7 +156,7 @@ export default function HealthPage({ token }) {
                 frontend: 'ok',
                 backend: backendOk ? 'ok' : 'down',
                 database: databaseOk ? 'ok' : (backendOk ? 'warning' : 'down'),
-                api: res.ok ? 'ok' : 'down',
+                api: apiOverall,
                 mailer: mailerOk ? 'ok' : (backendOk ? 'warning' : 'down'),
             });
 
@@ -108,6 +182,16 @@ export default function HealthPage({ token }) {
         } catch (_error) {
             setStatuses({ frontend: 'ok', backend: 'down', database: 'down', api: 'down', mailer: 'down' });
             setHealthMessage('Unable to reach backend API.');
+            setApiEndpointStatuses(
+                API_ENDPOINT_CHECKS.map((item) => ({
+                    ...item,
+                    state: 'down',
+                    statusCode: null,
+                    responseTimeMs: null,
+                    message: 'Health check failed',
+                    checkedAt: new Date().toISOString(),
+                }))
+            );
             setHealthDetails((prev) => ({
                 ...prev,
                 apiMs: null,
@@ -119,7 +203,7 @@ export default function HealthPage({ token }) {
         } finally {
             setChecking(false);
         }
-    }, []);
+    }, [checkAllApis]);
 
     useEffect(() => {
         runHealthCheck();
@@ -177,6 +261,14 @@ export default function HealthPage({ token }) {
             state: statuses.mailer
         },
     ];
+
+    const apiSummary = useMemo(() => {
+        const total = apiEndpointStatuses.length;
+        const ok = apiEndpointStatuses.filter((item) => item.state === 'ok').length;
+        const warning = apiEndpointStatuses.filter((item) => item.state === 'warning').length;
+        const down = apiEndpointStatuses.filter((item) => item.state === 'down').length;
+        return { total, ok, warning, down };
+    }, [apiEndpointStatuses]);
 
     return (
         <div>
@@ -253,6 +345,51 @@ export default function HealthPage({ token }) {
                         <span>SMTP Port</span>
                         <strong>{String(healthDetails.mailerPort || 'unknown')}</strong>
                     </div>
+                </div>
+            </section>
+
+            <section className="health-log-card">
+                <h2>API Live Status</h2>
+
+                <div className="api-live-summary">
+                    <span>Total: {apiSummary.total}</span>
+                    <span className="ok">OK: {apiSummary.ok}</span>
+                    <span className="warning">Warning: {apiSummary.warning}</span>
+                    <span className="down">Down: {apiSummary.down}</span>
+                </div>
+
+                <div className="api-live-table-wrap">
+                    <table className="api-live-table">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Path</th>
+                                <th>Auth</th>
+                                <th>HTTP</th>
+                                <th>Latency</th>
+                                <th>Status</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {apiEndpointStatuses.map((item) => {
+                                const meta = statusMeta[item.state] || statusMeta.warning;
+                                return (
+                                    <tr key={item.key}>
+                                        <td>{item.label}</td>
+                                        <td>{item.path}</td>
+                                        <td>{item.auth ? 'Yes' : 'No'}</td>
+                                        <td>{item.statusCode || 'N/A'}</td>
+                                        <td>{typeof item.responseTimeMs === 'number' ? `${item.responseTimeMs} ms` : 'N/A'}</td>
+                                        <td>
+                                            <span className={`api-live-badge ${meta.className}`}>{meta.icon} {meta.label}</span>
+                                        </td>
+                                        <td>{item.message || 'N/A'}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             </section>
 

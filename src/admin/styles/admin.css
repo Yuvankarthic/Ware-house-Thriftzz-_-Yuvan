@@ -1016,6 +1016,87 @@
     font-size: 0.84rem;
 }
 
+.api-live-summary {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+}
+
+.api-live-summary .ok {
+    color: #34d399;
+}
+
+.api-live-summary .warning {
+    color: #fbbf24;
+}
+
+.api-live-summary .down {
+    color: #f87171;
+}
+
+.api-live-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: var(--admin-radius-sm);
+}
+
+.api-live-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+.api-live-table th,
+.api-live-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.14);
+    font-size: 0.78rem;
+    color: var(--admin-text-muted);
+    vertical-align: middle;
+}
+
+.api-live-table th {
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b7c6d8;
+    background: rgba(10, 25, 45, 0.45);
+}
+
+.api-live-table td:first-child {
+    color: #e5edf7;
+    font-weight: 700;
+}
+
+.api-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.api-live-badge.ok {
+    background: rgba(52, 211, 153, 0.18);
+    color: #34d399;
+}
+
+.api-live-badge.warning {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.api-live-badge.down {
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+}
+
 /* ═══════ KANBAN BOARD ═══════ */
 .kanban-board {
     display: grid;
