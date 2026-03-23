@@ -245,6 +245,11 @@ const CartDrawer = () => {
                 setIsCartOpen(false);
                 setIsProcessing(false);
                 history.push('/thank-you');
+                setTimeout(() => {
+                    if (window.location.pathname !== '/thank-you') {
+                        window.location.assign('/thank-you');
+                    }
+                }, 600);
                 trackEvent('order_placed', null, 'checkout');
 
                 void Promise.allSettled([

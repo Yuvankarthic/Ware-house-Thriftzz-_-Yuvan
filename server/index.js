@@ -18,7 +18,7 @@ import operationsRoutes from './routes/operations.js';
 import activityRoutes from './routes/activity.js';
 import publicRoutes from './routes/public.js';
 import pool from './db.js';
-import { getMailerHealth } from './services/mailer.js';
+import { getMailerHealth, sendOrderConfirmationEmail } from './services/mailer.js';
 import sgMail from '@sendgrid/mail';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +28,78 @@ dotenv.config({ path: path.join(__dirname, '.env'), override: true });
 const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const ensureOrderConfirmationEmailForOrder = async (orderId, source = 'webhook') => {
+    try {
+        const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1 LIMIT 1', [orderId]);
+        if (orderResult.rows.length === 0) return;
+
+        const order = orderResult.rows[0];
+        if (!order?.email) return;
+
+        let alreadySent = false;
+        try {
+            const emailCheck = await pool.query(
+                `SELECT 1
+                 FROM order_email_events
+                 WHERE order_id = $1
+                   AND event_type = 'order_confirmation'
+                   AND delivery_status = 'sent'
+                 LIMIT 1`,
+                [orderId]
+            );
+            alreadySent = emailCheck.rows.length > 0;
+        } catch (checkErr) {
+            if (checkErr?.code !== '42P01') {
+                console.error('Order confirmation sent-check failed:', checkErr.message);
+            }
+        }
+
+        if (alreadySent) {
+            console.log(`ℹ️ Order #${orderId} confirmation already sent. Skipping webhook fallback send.`);
+            return;
+        }
+
+        let result = null;
+        let reason = null;
+        let status = 'failed';
+
+        try {
+            result = await sendOrderConfirmationEmail(order);
+            if (result?.sent) status = 'sent';
+            else if (result?.skipped) {
+                status = 'skipped';
+                reason = result.reason || 'skipped';
+            } else {
+                reason = result?.reason || 'unknown-mail-result';
+            }
+        } catch (mailErr) {
+            reason = mailErr?.message || 'send-failed';
+        }
+
+        try {
+            await pool.query(
+                `INSERT INTO order_email_events (order_id, event_type, delivery_status, reason, recipient)
+                 VALUES ($1, 'order_confirmation', $2, $3, $4)`,
+                [orderId, status, reason, order.email]
+            );
+        } catch (logErr) {
+            if (logErr?.code !== '42P01') {
+                console.error('Failed to log webhook fallback order confirmation event:', logErr.message);
+            }
+        }
+
+        console.log('📧 Webhook fallback confirmation result:', {
+            source,
+            order_id: orderId,
+            recipient: order.email,
+            status,
+            reason,
+        });
+    } catch (err) {
+        console.error('❌ Webhook fallback order confirmation failed:', err.message);
+    }
+};
 
 const markOrdersPaidByRazorpayIdentifiers = async ({ paymentId, razorpayOrderId }) => {
     const normalizedPaymentId = paymentId || null;
@@ -67,6 +139,12 @@ const scheduleWebhookReconciliation = ({ paymentId, razorpayOrderId, event, maxA
                 matched_orders: retry.matchedOrders,
                 order_ids: retry.orderIds,
             });
+
+            if (retry.matchedOrders > 0) {
+                for (const orderId of retry.orderIds) {
+                    await ensureOrderConfirmationEmailForOrder(orderId, 'webhook-retry');
+                }
+            }
 
             if (retry.matchedOrders === 0) {
                 scheduleWebhookReconciliation({
@@ -186,6 +264,12 @@ app.post('/razorpay-webhook', express.raw({ type: 'application/json' }), async (
             matched_orders: updateResult.matchedOrders,
             order_ids: updateResult.orderIds,
         });
+
+        if (updateResult.matchedOrders > 0) {
+            for (const orderId of updateResult.orderIds) {
+                await ensureOrderConfirmationEmailForOrder(orderId, 'webhook-initial');
+            }
+        }
 
         if (updateResult.matchedOrders === 0) {
             console.warn('⚠️ No order matched yet. Scheduling reconciliation retries...');
