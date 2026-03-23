@@ -53,7 +53,17 @@ const formatCurrency = (value) => {
     return `INR ${amount.toFixed(2)}`;
 };
 
+const getTrackOrderUrl = (order) => {
+  const base = 'https://wearhousethrift.netlify.app/track-order';
+  const params = new URLSearchParams();
+  if (order?.id) params.set('order_id', String(order.id));
+  if (order?.phone) params.set('phone', String(order.phone));
+  const query = params.toString();
+  return query ? `${base}?${query}` : base;
+};
+
 const buildOrderEmailHtml = (order) => {
+    const trackUrl = getTrackOrderUrl(order);
     return `
 <!doctype html>
 <html>
@@ -62,72 +72,96 @@ const buildOrderEmailHtml = (order) => {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Order Confirmation</title>
 </head>
-<body style="margin:0;padding:0;background:#f6f6f6;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:20px 0;">
+<body style="margin:0;padding:0;background:#f2f4f8;font-family:Arial,Helvetica,sans-serif;color:#10131a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:24px 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e5e5e5;">
+        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dfe3ea;border-radius:12px;overflow:hidden;">
           <tr>
-            <td style="padding:22px 24px;border-bottom:1px solid #eaeaea;">
-              <h1 style="margin:0;font-size:20px;letter-spacing:0.08em;">WHT</h1>
-              <p style="margin:8px 0 0;font-size:14px;color:#555;">Thank you for buying from WHT.</p>
+            <td style="padding:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="padding:24px 24px 20px;">
+                    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.18em;color:#cbd5e1;text-transform:uppercase;">Wearhouse Thrift</p>
+                    <h1 style="margin:0;font-size:24px;line-height:1.2;color:#ffffff;">Order Confirmed</h1>
+                    <p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:#dbe3f0;">Thanks for your order. We have received your payment and your order is now in process.</p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
           <tr>
-            <td style="padding:20px 24px;">
-              <p style="margin:0 0 14px;font-size:14px;">Hi ${order.customer_name || 'Customer'},</p>
-              <p style="margin:0 0 14px;font-size:14px;line-height:1.6;">
-                Your order has been received successfully. We will start processing it shortly.
-              </p>
+            <td style="padding:20px 24px 8px;">
+              <p style="margin:0 0 8px;font-size:15px;color:#0f172a;">Hi ${order.customer_name || 'Customer'},</p>
+              <p style="margin:0;font-size:14px;line-height:1.65;color:#475569;">Your order has been placed successfully. You can track your order from here using the button below.</p>
+            </td>
+          </tr>
 
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #ececec;border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 24px 8px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Order ID</td>
-                  <td style="padding:10px 12px;font-size:13px;font-weight:600;">#${order.id}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Order ID</td>
+                  <td style="padding:12px 14px;font-size:13px;font-weight:700;color:#111827;">#${order.id}</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Order Date</td>
-                  <td style="padding:10px 12px;font-size:13px;">${new Date(order.created_at || Date.now()).toLocaleString()}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Order Date</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${new Date(order.created_at || Date.now()).toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Status</td>
-                  <td style="padding:10px 12px;font-size:13px;">${order.order_status || 'New Order'}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Status</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${order.order_status || 'New Order'}</td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <h2 style="margin:20px 0 10px;font-size:15px;">Product Details</h2>
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #ececec;border-collapse:collapse;">
+          <tr>
+            <td align="center" style="padding:16px 24px 18px;">
+              <a href="${trackUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:700;letter-spacing:0.03em;">Track Your Order</a>
+              <p style="margin:10px 0 0;font-size:12px;color:#64748b;">You can track your order from here: <a href="${trackUrl}" style="color:#1d4ed8;text-decoration:underline;">${trackUrl}</a></p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 24px 8px;">
+              <h2 style="margin:0 0 10px;font-size:15px;color:#0f172a;">Product Details</h2>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Product</td>
-                  <td style="padding:10px 12px;font-size:13px;">${order.product_name || 'Product'}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Product</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${order.product_name || 'Product'}</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Quantity</td>
-                  <td style="padding:10px 12px;font-size:13px;">${order.quantity || 1}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Quantity</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${order.quantity || 1}</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Amount Paid</td>
-                  <td style="padding:10px 12px;font-size:13px;font-weight:600;">${formatCurrency(order.order_value)}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Amount Paid</td>
+                  <td style="padding:12px 14px;font-size:13px;font-weight:700;color:#111827;">${formatCurrency(order.order_value)}</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Payment ID</td>
-                  <td style="padding:10px 12px;font-size:13px;">${order.payment_id || 'N/A'}</td>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Payment ID</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${order.payment_id || 'N/A'}</td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <h2 style="margin:20px 0 10px;font-size:15px;">Delivery Details</h2>
-              <p style="margin:0;font-size:13px;line-height:1.6;">${order.full_address || '-'}</p>
+          <tr>
+            <td style="padding:10px 24px 24px;">
+              <h2 style="margin:0 0 10px;font-size:15px;color:#0f172a;">Delivery Details</h2>
+              <p style="margin:0;font-size:13px;line-height:1.7;color:#334155;">${order.full_address || '-'}</p>
 
-              <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#444;">
+              <p style="margin:16px 0 0;font-size:13px;line-height:1.7;color:#475569;">
                 Need help? Reply to this email and our team will assist you.
               </p>
             </td>
           </tr>
 
           <tr>
-            <td style="padding:14px 24px;background:#fafafa;border-top:1px solid #ececec;font-size:12px;color:#666;">
-              WHT Operations • This is an automated order confirmation email.
+            <td style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">
+              WHT Operations | This is an automated order confirmation email.
             </td>
           </tr>
         </table>
@@ -196,6 +230,7 @@ const buildOrderStatusEmailHtml = (order, status) => {
       Delivered: 'Your order has been delivered successfully. We hope you love it.',
     };
     const statusMessage = statusMessages[status] || `Your order status is now ${status}.`;
+    const trackUrl = getTrackOrderUrl(order);
 
     return `
 <!doctype html>
@@ -205,43 +240,52 @@ const buildOrderStatusEmailHtml = (order, status) => {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Order Update</title>
 </head>
-<body style="margin:0;padding:0;background:#f6f6f6;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:20px 0;">
+<body style="margin:0;padding:0;background:#f2f4f8;font-family:Arial,Helvetica,sans-serif;color:#10131a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:24px 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e5e5e5;">
+        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dfe3ea;border-radius:12px;overflow:hidden;">
           <tr>
-            <td style="padding:22px 24px;border-bottom:1px solid #eaeaea;">
-              <h1 style="margin:0;font-size:20px;letter-spacing:0.08em;">WHT</h1>
-              <p style="margin:8px 0 0;font-size:14px;color:#555;">Order Status Update</p>
+            <td style="padding:22px 24px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);">
+              <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.18em;color:#cbd5e1;text-transform:uppercase;">Wearhouse Thrift</p>
+              <h1 style="margin:0;font-size:22px;color:#ffffff;">Order Status Update</h1>
+              <p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:#dbe3f0;">${statusMessage}</p>
             </td>
           </tr>
 
           <tr>
             <td style="padding:20px 24px;">
-              <p style="margin:0 0 14px;font-size:14px;">Hi ${order.customer_name || 'Customer'},</p>
-              <p style="margin:0 0 14px;font-size:14px;line-height:1.6;">${statusMessage}</p>
+              <p style="margin:0 0 14px;font-size:14px;color:#111827;">Hi ${order.customer_name || 'Customer'},</p>
+              <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#475569;">You can track your order from here: <a href="${trackUrl}" style="color:#1d4ed8;text-decoration:underline;">Track Order</a></p>
 
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #ececec;border-collapse:collapse;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:14px;">
                 <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Order ID</td>
-                  <td style="padding:10px 12px;font-size:13px;font-weight:600;">#${order.id}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Current Status</td>
-                  <td style="padding:10px 12px;font-size:13px;">${status}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Product</td>
-                  <td style="padding:10px 12px;font-size:13px;">${order.product_name || 'Product'}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 12px;background:#fafafa;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.04em;">Amount Paid</td>
-                  <td style="padding:10px 12px;font-size:13px;font-weight:600;">${formatCurrency(order.order_value)}</td>
+                  <td>
+                    <a href="${trackUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:700;">Track Your Order</a>
+                  </td>
                 </tr>
               </table>
 
-              <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#444;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                <tr>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Order ID</td>
+                  <td style="padding:12px 14px;font-size:13px;font-weight:700;color:#111827;">#${order.id}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Current Status</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${status}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Product</td>
+                  <td style="padding:12px 14px;font-size:13px;color:#111827;">${order.product_name || 'Product'}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">Amount Paid</td>
+                  <td style="padding:12px 14px;font-size:13px;font-weight:700;color:#111827;">${formatCurrency(order.order_value)}</td>
+                </tr>
+              </table>
+
+              <p style="margin:18px 0 0;font-size:13px;line-height:1.7;color:#475569;">
                 Thank you for shopping with WHT.
               </p>
             </td>
