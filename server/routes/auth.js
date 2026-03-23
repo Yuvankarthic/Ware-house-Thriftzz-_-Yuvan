@@ -90,6 +90,20 @@ router.get('/me', authMiddleware, async (req, res) => {
     try {
         const result = await query('SELECT id, name, email, role FROM staff WHERE id = $1', [req.user.id]);
         if (result.rows.length === 0) {
+            // Quick-login uses a temporary guest identity not persisted in staff table.
+            if (Number(req.user.id) === 0) {
+                return res.json({
+                    success: true,
+                    user: {
+                        id: 0,
+                        name: req.user.name || 'GuestStaff',
+                        email: req.user.email || 'staff@warehouse.local',
+                        role: req.user.role || 'staff',
+                        is_guest: true,
+                    },
+                });
+            }
+
             return res.status(404).json({ success: false, error: 'User not found' });
         }
         return res.json({ success: true, user: result.rows[0] });

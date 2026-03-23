@@ -35,6 +35,9 @@ export default function EmailPage({ token }) {
     const [search, setSearch] = useState('');
     const [recipientOverride, setRecipientOverride] = useState('');
     const [sending, setSending] = useState({});
+    const [selectedOrderId, setSelectedOrderId] = useState('');
+    const [selectedTemplate, setSelectedTemplate] = useState('order_confirmation');
+    const [manualRecipient, setManualRecipient] = useState('');
 
     const headers = useMemo(
         () => ({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }),
@@ -100,6 +103,34 @@ export default function EmailPage({ token }) {
         }
     };
 
+    const triggerMailWithOverride = async ({ orderId, type, status, recipientOverrideValue }) => {
+        const actionKey = `${orderId}:${type}:manual`;
+        setSending((prev) => ({ ...prev, [actionKey]: true }));
+        try {
+            const res = await fetch(`${API}/orders/${orderId}/email/resend`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    type,
+                    status,
+                    recipient_override: String(recipientOverrideValue || '').trim() || undefined,
+                }),
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data?.error || 'Failed to send email');
+            }
+
+            await fetchRows();
+            alert(`Email sent successfully for order #${orderId} to ${data?.recipient || 'recipient'}`);
+        } catch (err) {
+            alert(err.message || 'Failed to send email');
+        } finally {
+            setSending((prev) => ({ ...prev, [actionKey]: false }));
+        }
+    };
+
     return (
         <div>
             <div className="admin-page-header">
@@ -126,6 +157,80 @@ export default function EmailPage({ token }) {
                     {loading ? 'Refreshing...' : 'Refresh'}
                 </button>
             </div>
+
+            <section className="health-log-card" style={{ marginBottom: '14px' }}>
+                <h2>Manual Mail Sender</h2>
+                <div className="email-manual-grid">
+                    <select
+                        className="filter-select"
+                        value={selectedOrderId}
+                        onChange={(e) => {
+                            const orderId = e.target.value;
+                            setSelectedOrderId(orderId);
+                            const selected = rows.find((row) => String(row.id) === String(orderId));
+                            if (selected?.email) {
+                                setManualRecipient(selected.email);
+                            }
+                        }}
+                    >
+                        <option value="">Select customer/order</option>
+                        {rows.map((row) => (
+                            <option key={row.id} value={row.id}>
+                                #{row.id} - {row.customer_name || 'Customer'} - {row.email || 'No email'}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        className="filter-select"
+                        value={selectedTemplate}
+                        onChange={(e) => setSelectedTemplate(e.target.value)}
+                    >
+                        <option value="order_confirmation">Order Mail</option>
+                        <option value="packed">Packed Mail</option>
+                        <option value="out_for_delivery">Out for Delivery Mail</option>
+                        <option value="delivered">Delivered Mail</option>
+                    </select>
+
+                    <input
+                        className="search-input"
+                        placeholder="Recipient email"
+                        value={manualRecipient}
+                        onChange={(e) => setManualRecipient(e.target.value)}
+                    />
+
+                    <button
+                        className="btn-admin success"
+                        onClick={async () => {
+                            const orderId = Number.parseInt(String(selectedOrderId), 10);
+                            if (!Number.isInteger(orderId)) {
+                                alert('Please select an order/user first.');
+                                return;
+                            }
+
+                            const statusMap = {
+                                packed: 'Packed',
+                                out_for_delivery: 'Out for Delivery',
+                                delivered: 'Delivered',
+                            };
+
+                            const isConfirmation = selectedTemplate === 'order_confirmation';
+                            const type = isConfirmation ? 'order_confirmation' : 'status_update';
+                            const status = isConfirmation ? undefined : statusMap[selectedTemplate];
+
+                            await triggerMailWithOverride({
+                                orderId,
+                                type,
+                                status,
+                                recipientOverrideValue: manualRecipient,
+                            });
+                        }}
+                        disabled={Boolean(sending[`${selectedOrderId}:${selectedTemplate === 'order_confirmation' ? 'order_confirmation' : 'status_update'}:manual`])}
+                    >
+                        {sending[`${selectedOrderId}:${selectedTemplate === 'order_confirmation' ? 'order_confirmation' : 'status_update'}:manual`] ? 'Sending...' : 'Send Manual Mail'}
+                    </button>
+                </div>
+            </section>
 
             <p className="email-center-tip">
                 Leave override empty to send to customer email. Fill override to send a manual copy to another email.
