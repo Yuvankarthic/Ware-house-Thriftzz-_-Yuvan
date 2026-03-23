@@ -33,6 +33,7 @@ export default function EmailPage({ token }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
+    const [recipientOverride, setRecipientOverride] = useState('');
     const [sending, setSending] = useState({});
 
     const headers = useMemo(
@@ -78,7 +79,11 @@ export default function EmailPage({ token }) {
             const res = await fetch(`${API}/orders/${orderId}/email/resend`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ type, status }),
+                body: JSON.stringify({
+                    type,
+                    status,
+                    recipient_override: recipientOverride.trim() || undefined,
+                }),
             });
             const data = await res.json();
 
@@ -87,7 +92,7 @@ export default function EmailPage({ token }) {
             }
 
             await fetchRows();
-            alert(`Email sent successfully for order #${orderId}`);
+            alert(`Email sent successfully for order #${orderId} to ${data?.recipient || 'recipient'}`);
         } catch (err) {
             alert(err.message || 'Failed to send email');
         } finally {
@@ -111,10 +116,20 @@ export default function EmailPage({ token }) {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
+                <input
+                    className="search-input"
+                    placeholder="Optional: send to this email instead"
+                    value={recipientOverride}
+                    onChange={(e) => setRecipientOverride(e.target.value)}
+                />
                 <button className="btn-admin primary" onClick={fetchRows} disabled={loading}>
                     {loading ? 'Refreshing...' : 'Refresh'}
                 </button>
             </div>
+
+            <p className="email-center-tip">
+                Leave override empty to send to customer email. Fill override to send a manual copy to another email.
+            </p>
 
             {error && <p className="email-center-error">{error}</p>}
 

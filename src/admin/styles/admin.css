@@ -1100,9 +1100,15 @@
 /* ═══════ EMAIL CENTER ═══════ */
 .email-center-toolbar {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 1fr auto;
     gap: 10px;
     margin-bottom: 14px;
+}
+
+.email-center-tip {
+    margin: -4px 0 12px;
+    color: var(--admin-text-muted);
+    font-size: 0.78rem;
 }
 
 .email-center-error {

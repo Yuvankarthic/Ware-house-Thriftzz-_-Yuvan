@@ -476,6 +476,15 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid order id' });
         }
 
+        const recipientOverrideRaw = String(req.body?.recipient_override || '').trim();
+        const recipientOverride = recipientOverrideRaw || null;
+        if (recipientOverride) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(recipientOverride)) {
+                return res.status(400).json({ success: false, error: 'recipient_override must be a valid email' });
+            }
+        }
+
         const type = String(req.body?.type || 'order_confirmation').trim();
         if (!['order_confirmation', 'status_update'].includes(type)) {
             return res.status(400).json({ success: false, error: 'type must be order_confirmation or status_update' });
@@ -487,6 +496,7 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
         }
 
         const order = orderResult.rows[0];
+        const targetOrder = { ...order, email: recipientOverride || order.email };
         let mailResult = null;
         let mailError = null;
         let eventType = 'order_confirmation';
@@ -494,7 +504,7 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
         try {
             if (type === 'order_confirmation') {
                 eventType = 'order_confirmation';
-                mailResult = await sendOrderConfirmationEmail(order);
+                mailResult = await sendOrderConfirmationEmail(targetOrder);
             } else {
                 const status = String(req.body?.status || order.order_status || '').trim();
                 if (!['Packed', 'Out for Delivery', 'Delivered'].includes(status)) {
@@ -505,7 +515,7 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
                 }
 
                 eventType = STATUS_TO_EMAIL_EVENT[status];
-                mailResult = await sendOrderStatusUpdateEmail(order, status);
+                mailResult = await sendOrderStatusUpdateEmail(targetOrder, status);
             }
         } catch (err) {
             mailError = err;
@@ -514,7 +524,7 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
         const normalized = await logOrderEmailEvent({
             orderId,
             eventType,
-            recipient: order.email,
+            recipient: targetOrder.email,
             result: mailResult,
             error: mailError,
         });
@@ -530,6 +540,7 @@ router.post('/:id/email/resend', authMiddleware, async (req, res) => {
         return res.json({
             success: true,
             message: 'Email trigger completed',
+            recipient: targetOrder.email,
             email: normalized,
         });
     } catch (err) {
