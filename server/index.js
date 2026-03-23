@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
@@ -42,6 +43,103 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
+// Razorpay webhook must use raw JSON body for signature verification.
+app.post('/razorpay-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const receivedAt = new Date().toISOString();
+    try {
+        const rawBody = Buffer.isBuffer(req.body)
+            ? req.body.toString('utf8')
+            : JSON.stringify(req.body || {});
+
+        let payload = {};
+        try {
+            payload = JSON.parse(rawBody);
+        } catch (parseErr) {
+            console.error('❌ Razorpay webhook: invalid JSON payload', parseErr.message);
+            return res.status(200).send('OK');
+        }
+
+        console.log('🔔 Razorpay Webhook Received:', {
+            receivedAt,
+            event: payload?.event,
+            account_id: payload?.account_id || null,
+        });
+        console.log('🧾 Razorpay webhook payload:', payload);
+
+        const signature = req.headers['x-razorpay-signature'];
+        const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+        if (webhookSecret && !signature) {
+            console.error('❌ Razorpay webhook missing signature header. Event ignored.');
+            return res.status(200).send('OK');
+        }
+
+        if (webhookSecret && signature) {
+            const expectedSignature = crypto
+                .createHmac('sha256', webhookSecret)
+                .update(rawBody)
+                .digest('hex');
+
+            if (expectedSignature !== signature) {
+                console.error('❌ Razorpay webhook signature mismatch. Event ignored.');
+                return res.status(200).send('OK');
+            }
+        }
+
+        if (!webhookSecret) {
+            console.warn('⚠️ RAZORPAY_WEBHOOK_SECRET is not set. Signature verification skipped.');
+        }
+
+        const event = String(payload?.event || '');
+        const handledEvents = new Set(['payment.captured', 'order.paid']);
+
+        if (!handledEvents.has(event)) {
+            console.log(`ℹ️ Razorpay webhook ignored (event: ${event || 'unknown'})`);
+            return res.status(200).send('OK');
+        }
+
+        const paymentEntity = payload?.payload?.payment?.entity || null;
+        const orderEntity = payload?.payload?.order?.entity || null;
+
+        const paymentId = paymentEntity?.id || null;
+        const razorpayOrderId = paymentEntity?.order_id || orderEntity?.id || null;
+        const amountPaise = Number(paymentEntity?.amount || orderEntity?.amount || 0);
+        const amount = Number.isFinite(amountPaise) ? amountPaise / 100 : 0;
+
+        console.log('💳 Razorpay payment event details:', {
+            event,
+            payment_id: paymentId,
+            order_id: razorpayOrderId,
+            amount,
+        });
+
+        if (!paymentId && !razorpayOrderId) {
+            console.warn('⚠️ Razorpay webhook missing payment/order identifiers.');
+            return res.status(200).send('OK');
+        }
+
+        const updateResult = await pool.query(
+            `UPDATE orders
+             SET payment_status = 'paid',
+                 payment_id = COALESCE(payment_id, $1),
+                 updated_at = NOW()
+             WHERE payment_id = $1 OR payment_id = $2
+             RETURNING id, payment_id, payment_status`,
+            [paymentId, razorpayOrderId]
+        );
+
+        console.log('✅ Razorpay webhook order update result:', {
+            matched_orders: updateResult.rows.length,
+            order_ids: updateResult.rows.map((row) => row.id),
+        });
+
+        return res.status(200).send('OK');
+    } catch (err) {
+        console.error('❌ Razorpay webhook processing error:', err.message);
+        return res.status(200).send('OK');
+    }
+});
 
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
