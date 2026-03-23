@@ -160,7 +160,7 @@ export default function OrdersPage({ token, user }) {
 
             {/* Table */}
             <div className="orders-table-wrapper" style={{ overflowX: 'auto' }}>
-                <table className="orders-table" style={{ minWidth: '980px' }}>
+                <table className="orders-table orders-mobile-cards" style={{ minWidth: '980px' }}>
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -177,8 +177,8 @@ export default function OrdersPage({ token, user }) {
                             return (
                                 <tr key={o.id} className={isUrgent(o) ? 'urgent' : ''}
                                     onClick={() => setSelectedOrder(o)}>
-                                    <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
-                                    <td style={{ whiteSpace: 'normal', minWidth: 260 }}>
+                                    <td data-label="ID" style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
+                                    <td data-label="Customer" style={{ whiteSpace: 'normal', minWidth: 260 }}>
                                         <div style={{ fontWeight: 700 }}>{o.customer_name}</div>
                                         <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>{o.phone}</div>
                                         <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>{o.email || 'No email'}</div>
@@ -189,7 +189,7 @@ export default function OrdersPage({ token, user }) {
                                             {o.full_address}
                                         </div>
                                     </td>
-                                    <td style={{ whiteSpace: 'normal', minWidth: 220 }}>
+                                    <td data-label="Product" style={{ whiteSpace: 'normal', minWidth: 220 }}>
                                         <div style={{ fontWeight: 700 }}>{o.product_name}</div>
                                         <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 3 }}>Qty: {o.quantity}</div>
                                         <div style={{ fontSize: '0.85rem', fontWeight: 700, marginTop: 4 }}>₹{o.order_value}</div>
@@ -197,8 +197,8 @@ export default function OrdersPage({ token, user }) {
                                             <span className="status-badge delivered">{o.payment_status}</span>
                                         </div>
                                     </td>
-                                    <td><span className={`status-badge ${statusClass(o.order_status)}`}>{o.order_status}</span></td>
-                                    <td style={{ whiteSpace: 'normal', minWidth: 210 }}>
+                                    <td data-label="Status"><span className={`status-badge ${statusClass(o.order_status)}`}>{o.order_status}</span></td>
+                                    <td data-label="Workflow" style={{ whiteSpace: 'normal', minWidth: 210 }}>
                                         <div className="order-workflow-inline">
                                             <span className={['Packed', 'Out for Delivery', 'Delivered'].includes(o.order_status) ? 'done' : ''}>Packed</span>
                                             <span className={['Out for Delivery', 'Delivered'].includes(o.order_status) ? 'done' : ''}>Out</span>
@@ -208,7 +208,7 @@ export default function OrdersPage({ token, user }) {
                                             {new Date(o.created_at).toLocaleString()}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Actions">
                                         <div className="action-btns" onClick={e => e.stopPropagation()}>
                                             {action && (
                                                 <button className={`btn-admin ${action.cls}`}

@@ -125,7 +125,7 @@ export default function DashboardPage({ token }) {
             {/* Recent Orders */}
             <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 14 }}>Recent Orders</h2>
             <div className="orders-table-wrapper" style={{ maxHeight: 400 }}>
-                <table className="orders-table">
+                <table className="orders-table dashboard-mobile-cards">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -139,12 +139,12 @@ export default function DashboardPage({ token }) {
                     <tbody>
                         {recentOrders.map(o => (
                             <tr key={o.id} className={o.order_status === 'New Order' && isUrgent(o.created_at) ? 'urgent' : ''}>
-                                <td style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
-                                <td>{o.customer_name}</td>
-                                <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{o.product_name}</td>
-                                <td style={{ fontWeight: 700 }}>₹{o.order_value}</td>
-                                <td><span className={`status-badge ${statusClass(o.order_status)}`}>{o.order_status}</span></td>
-                                <td style={{ color: 'var(--admin-text-muted)' }}>{new Date(o.created_at).toLocaleTimeString()}</td>
+                                <td data-label="ID" style={{ fontWeight: 700, color: 'var(--admin-accent)' }}>{o.id}</td>
+                                <td data-label="Customer">{o.customer_name}</td>
+                                <td data-label="Product" style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{o.product_name}</td>
+                                <td data-label="Value" style={{ fontWeight: 700 }}>₹{o.order_value}</td>
+                                <td data-label="Status"><span className={`status-badge ${statusClass(o.order_status)}`}>{o.order_status}</span></td>
+                                <td data-label="Time" style={{ color: 'var(--admin-text-muted)' }}>{new Date(o.created_at).toLocaleTimeString()}</td>
                             </tr>
                         ))}
                         {recentOrders.length === 0 && (

@@ -1968,6 +1968,18 @@
         margin-bottom: 20px;
     }
 
+    .admin-page-header > div {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    .system-status-indicator {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
     .admin-page-header h1 {
         font-size: 1.3rem;
     }
@@ -2036,6 +2048,77 @@
     .order-detail-panel {
         width: 100%;
         max-width: none;
+    }
+
+    .orders-table.orders-mobile-cards,
+    .orders-table.dashboard-mobile-cards,
+    .orders-table.email-mobile-cards {
+        min-width: 0 !important;
+        width: 100%;
+    }
+
+    .orders-table.orders-mobile-cards thead,
+    .orders-table.dashboard-mobile-cards thead,
+    .orders-table.email-mobile-cards thead {
+        display: none;
+    }
+
+    .orders-table.orders-mobile-cards tbody,
+    .orders-table.dashboard-mobile-cards tbody,
+    .orders-table.email-mobile-cards tbody {
+        display: grid;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .orders-table.orders-mobile-cards tr,
+    .orders-table.dashboard-mobile-cards tr,
+    .orders-table.email-mobile-cards tr {
+        display: block;
+        border: 1px solid rgba(78, 58, 45, 0.18);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 10px;
+    }
+
+    .orders-table.orders-mobile-cards td,
+    .orders-table.dashboard-mobile-cards td,
+    .orders-table.email-mobile-cards td {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 8px;
+        align-items: start;
+        white-space: normal !important;
+        padding: 7px 4px;
+        border-bottom: 1px dashed rgba(78, 58, 45, 0.12);
+        min-width: 0 !important;
+    }
+
+    .orders-table.orders-mobile-cards td:last-child,
+    .orders-table.dashboard-mobile-cards td:last-child,
+    .orders-table.email-mobile-cards td:last-child {
+        border-bottom: none;
+    }
+
+    .orders-table.orders-mobile-cards td::before,
+    .orders-table.dashboard-mobile-cards td::before,
+    .orders-table.email-mobile-cards td::before {
+        content: attr(data-label);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #7a5f4b;
+    }
+
+    .orders-table.orders-mobile-cards .action-btns,
+    .orders-table.email-mobile-cards .email-actions {
+        width: 100%;
+    }
+
+    .orders-table.orders-mobile-cards .action-btns .btn-admin,
+    .orders-table.email-mobile-cards .email-actions .btn-admin {
+        width: 100%;
     }
 }
 

@@ -53,6 +53,7 @@ const ProductViewer = ({
     const handleBuyNow = () => {
         if (!product.soldOut) {
             buyNow(product);
+            onClose();
         }
     };
 

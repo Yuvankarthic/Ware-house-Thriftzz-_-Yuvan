@@ -239,7 +239,7 @@ export default function EmailPage({ token }) {
             {error && <p className="email-center-error">{error}</p>}
 
             <div className="orders-table-wrapper email-center-table-wrap">
-                <table className="orders-table email-center-table">
+                <table className="orders-table email-center-table email-mobile-cards">
                     <thead>
                         <tr>
                             <th>Order</th>
@@ -263,14 +263,14 @@ export default function EmailPage({ token }) {
 
                             return (
                                 <tr key={row.id}>
-                                    <td style={{ fontWeight: 700 }}>#{row.id}</td>
-                                    <td>
+                                    <td data-label="Order" style={{ fontWeight: 700 }}>#{row.id}</td>
+                                    <td data-label="Customer">
                                         <div style={{ fontWeight: 700 }}>{row.customer_name || 'N/A'}</div>
                                         <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>{row.phone || 'No phone'}</div>
                                     </td>
-                                    <td>{row.email || 'No email'}</td>
-                                    <td>{row.order_status || 'N/A'}</td>
-                                    <td>
+                                    <td data-label="Email">{row.email || 'No email'}</td>
+                                    <td data-label="Order Status">{row.order_status || 'N/A'}</td>
+                                    <td data-label="Confirmation Mail">
                                         <span className={`mail-status-badge ${confirmationState}`}>
                                             {mailStateLabel(row.confirmation_status)}
                                         </span>
@@ -278,7 +278,7 @@ export default function EmailPage({ token }) {
                                             <p className="mail-status-reason">{row.confirmation_reason}</p>
                                         )}
                                     </td>
-                                    <td>
+                                    <td data-label="Status Update Mail">
                                         <span className={`mail-status-badge ${statusState}`}>
                                             {eventLabel(row.status_event_type)} · {mailStateLabel(row.status_email_status || 'pending')}
                                         </span>
@@ -286,10 +286,10 @@ export default function EmailPage({ token }) {
                                             <p className="mail-status-reason">{row.status_email_reason}</p>
                                         )}
                                     </td>
-                                    <td>
+                                    <td data-label="Last Attempt">
                                         {lastAttempt ? new Date(lastAttempt).toLocaleString() : 'N/A'}
                                     </td>
-                                    <td>
+                                    <td data-label="Actions">
                                         <div className="email-actions">
                                             <button
                                                 className="btn-admin primary"
