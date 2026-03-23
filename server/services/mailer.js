@@ -2,15 +2,51 @@ import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 
 // Determine which email service to use
-const useService = process.env.EMAIL_SERVICE || 'nodemailer';
-const isSendGrid = useService === 'sendgrid' && process.env.SENDGRID_API_KEY;
+const useService = String(process.env.EMAIL_SERVICE || 'sendgrid').toLowerCase();
+const hasSendGrid = Boolean(process.env.SENDGRID_API_KEY);
+const hasBrevo = Boolean(process.env.BREVO_API_KEY);
+const isSendGrid = useService === 'sendgrid' && hasSendGrid;
+const isBrevo = useService === 'brevo' && hasBrevo;
 
 if (isSendGrid) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     console.log('✅ SendGrid email service initialized');
+} else if (isBrevo) {
+  console.log('✅ Brevo email service initialized');
 } else {
     console.log('ℹ️ Using Nodemailer for email service');
 }
+
+const sendViaBrevo = async ({ to, from, subject, html, text }) => {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: { email: from, name: 'WHT Payments' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text,
+    }),
+  });
+
+  if (!response.ok) {
+    let details = '';
+    try {
+      const body = await response.json();
+      details = body?.message || body?.code || '';
+    } catch {
+      details = '';
+    }
+    throw new Error(`Brevo API error (${response.status})${details ? `: ${details}` : ''}`);
+  }
+
+  const payload = await response.json().catch(() => ({}));
+  return { sent: true, messageId: payload?.messageId || 'brevo-sent' };
+};
 
 const formatCurrency = (value) => {
     const amount = Number(value || 0);
@@ -104,8 +140,8 @@ const buildOrderEmailHtml = (order) => {
 };
 
 const isMailerConfigured = () => {
-    // SendGrid is configured if EMAIL_SERVICE=sendgrid and key is present
-    if (isSendGrid) return true;
+  // API providers
+  if (hasSendGrid || hasBrevo) return true;
     // Otherwise require SMTP credentials for Nodemailer
     return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 };
@@ -235,28 +271,42 @@ export const sendOrderConfirmationEmail = async (order) => {
         const fromAddress = getFromAddress();
         const subject = `Order Received - #${order.id}`;
         const html = buildOrderEmailHtml(order);
+      const text = `Order Received - #${order.id}\n\nHi ${order.customer_name || 'Customer'}, your order has been received successfully.`;
         
-        // Use SendGrid if configured
-        if (isSendGrid) {
-            const msg = {
-                to: order.email,
-                from: fromAddress,
-                subject,
-                html,
-            };
-            const response = await sgMail.send(msg);
-            const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
-            console.log(`✅ Order confirmation email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
-            return { sent: true, messageId };
+      // Preferred provider: SendGrid
+      if (isSendGrid) {
+        try {
+          const msg = { to: order.email, from: fromAddress, subject, html, text };
+          const response = await sgMail.send(msg);
+          const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
+          console.log(`✅ Order confirmation email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
+          return { sent: true, messageId, provider: 'sendgrid' };
+        } catch (sgErr) {
+          console.error(`❌ SendGrid failed for ${order.email}:`, sgErr?.message || sgErr);
+          if (!hasBrevo && !(process.env.SMTP_USER && process.env.SMTP_PASS)) throw sgErr;
+        }
+      }
+
+      // Preferred provider: Brevo
+      if (isBrevo || (!isSendGrid && hasBrevo)) {
+        try {
+          const result = await sendViaBrevo({ to: order.email, from: fromAddress, subject, html, text });
+          console.log(`✅ Order confirmation email sent via Brevo to ${order.email}. Message ID: ${result.messageId}`);
+          return { ...result, provider: 'brevo' };
+        } catch (brErr) {
+          console.error(`❌ Brevo failed for ${order.email}:`, brErr?.message || brErr);
+          if (!(process.env.SMTP_USER && process.env.SMTP_PASS)) throw brErr;
+        }
         }
         
-        // Fallback to Nodemailer
+      // Last fallback: Nodemailer
         const transporter = createTransporter();
         const sendPromise = transporter.sendMail({
             from: `WHT Payments <${fromAddress}>`,
             to: order.email,
             subject,
             html,
+        text,
         });
         
         const timeoutPromise = new Promise((_, reject) =>
@@ -265,7 +315,7 @@ export const sendOrderConfirmationEmail = async (order) => {
         
         const info = await Promise.race([sendPromise, timeoutPromise]);
         console.log(`✅ Order confirmation email sent via Nodemailer to ${order.email}. Message ID: ${info.messageId}`);
-        return { sent: true, messageId: info.messageId };
+        return { sent: true, messageId: info.messageId, provider: 'nodemailer' };
     } catch (error) {
         console.error(`❌ Failed to send order confirmation email to ${order.email}:`, error.code || error.message);
         throw error;
@@ -292,30 +342,44 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     const fromAddress = getFromAddress();
     const subject = `Order #${order.id} Update - ${status}`;
     const html = buildOrderStatusEmailHtml(order, status);
+    const text = `Order #${order.id} Update - ${status}\n\nHi ${order.customer_name || 'Customer'}, your order status is now ${status}.`;
     
     console.log(`📧 Sending status update email to ${order.email} (Order #${order.id}: ${status})...`);
     
-    // Use SendGrid if configured
+    // Preferred provider: SendGrid
     if (isSendGrid) {
-      const msg = {
-        to: order.email,
-        from: fromAddress,
-        subject,
-        html,
-      };
-      const response = await sgMail.send(msg);
-      const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
-      console.log(`✅ Status update email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
-      return { sent: true, messageId };
+      try {
+        const msg = { to: order.email, from: fromAddress, subject, html, text };
+        const response = await sgMail.send(msg);
+        const messageId = response[0]?.messageId || response[0]?.headers?.['x-message-id'] || 'unknown';
+        console.log(`✅ Status update email sent via SendGrid to ${order.email}. Message ID: ${messageId}`);
+        return { sent: true, messageId, provider: 'sendgrid' };
+      } catch (sgErr) {
+        console.error(`❌ SendGrid status email failed for ${order.email}:`, sgErr?.message || sgErr);
+        if (!hasBrevo && !(process.env.SMTP_USER && process.env.SMTP_PASS)) throw sgErr;
+      }
+    }
+
+    // Preferred provider: Brevo
+    if (isBrevo || (!isSendGrid && hasBrevo)) {
+      try {
+        const result = await sendViaBrevo({ to: order.email, from: fromAddress, subject, html, text });
+        console.log(`✅ Status update email sent via Brevo to ${order.email}. Message ID: ${result.messageId}`);
+        return { ...result, provider: 'brevo' };
+      } catch (brErr) {
+        console.error(`❌ Brevo status email failed for ${order.email}:`, brErr?.message || brErr);
+        if (!(process.env.SMTP_USER && process.env.SMTP_PASS)) throw brErr;
+      }
     }
     
-    // Fallback to Nodemailer
+    // Last fallback: Nodemailer
     const transporter = createTransporter();
     const sendPromise = transporter.sendMail({
       from: `WHT Payments <${fromAddress}>`,
       to: order.email,
       subject,
       html,
+      text,
     });
     
     const timeoutPromise = new Promise((_, reject) =>
@@ -324,7 +388,7 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
     
     const info = await Promise.race([sendPromise, timeoutPromise]);
     console.log(`✅ Status update email sent via Nodemailer to ${order.email}. Message ID: ${info.messageId}`);
-    return { sent: true, messageId: info.messageId };
+    return { sent: true, messageId: info.messageId, provider: 'nodemailer' };
   } catch (error) {
     console.error(`❌ Failed to send status update email to ${order.email}:`, error.code || error.message);
     throw error;
@@ -342,6 +406,12 @@ export const getMailerHealth = () => {
   return {
     status: configured ? 'online' : 'warning',
     configured,
+    service: useService,
+    providers: {
+      sendgrid: hasSendGrid,
+      brevo: hasBrevo,
+      smtp: Boolean(process.env.SMTP_USER && process.env.SMTP_PASS),
+    },
     host: transportConfig.host,
     port: transportConfig.port,
     secure: transportConfig.secure,

@@ -18,7 +18,6 @@ import activityRoutes from './routes/activity.js';
 import publicRoutes from './routes/public.js';
 import pool from './db.js';
 import { getMailerHealth } from './services/mailer.js';
-import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -103,10 +102,12 @@ app.get('/health', async (_req, res) => {
 // ── Test Email Endpoint ──
 app.get('/test-email', async (_req, res) => {
     try {
-        const service = process.env.EMAIL_SERVICE || 'nodemailer';
+        const service = String(process.env.EMAIL_SERVICE || 'sendgrid').toLowerCase();
         const isSendGrid = service === 'sendgrid' && process.env.SENDGRID_API_KEY;
+        const isBrevo = service === 'brevo' && process.env.BREVO_API_KEY;
+        const hasBrevo = Boolean(process.env.BREVO_API_KEY);
         
-        console.log(`🧪 Testing email service: ${isSendGrid ? 'SendGrid' : 'Nodemailer'}...`);
+        console.log(`🧪 Testing email service: ${isSendGrid ? 'SendGrid' : isBrevo ? 'Brevo' : service}...`);
         
         // Validate required variables
         if (!process.env.MAIL_FROM) {
@@ -122,7 +123,7 @@ app.get('/test-email', async (_req, res) => {
         const html = `
             <h2>Test Email Success 🚀</h2>
             <p>If you are reading this, the WHT email system is working correctly!</p>
-            <p><strong>Service:</strong> ${isSendGrid ? 'SendGrid' : 'Nodemailer'}</p>
+            <p><strong>Service:</strong> ${isSendGrid ? 'SendGrid' : isBrevo ? 'Brevo' : service}</p>
             <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
         `;
         
@@ -148,17 +149,48 @@ app.get('/test-email', async (_req, res) => {
                 timestamp: new Date().toISOString()
             });
         }
+
+        if (isBrevo || (!isSendGrid && hasBrevo)) {
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                },
+                body: JSON.stringify({
+                    sender: { email: process.env.MAIL_FROM, name: 'WHT Payments' },
+                    to: [{ email: recipient }],
+                    subject,
+                    htmlContent: html,
+                    textContent: text,
+                }),
+            });
+
+            if (!response.ok) {
+                const body = await response.text();
+                throw new Error(`Brevo API error (${response.status}): ${body}`);
+            }
+
+            return res.status(200).json({
+                status: 'success',
+                message: 'Test email sent successfully via Brevo',
+                service: 'Brevo',
+                recipient,
+                timestamp: new Date().toISOString()
+            });
+        }
         
-        // SendGrid not configured - return error
+        // No supported API email provider configured
         return res.status(400).json({
             status: 'error',
             message: 'Email service not configured',
             missingConfig: {
                 EMAIL_SERVICE: !process.env.EMAIL_SERVICE,
                 SENDGRID_API_KEY: !process.env.SENDGRID_API_KEY,
+                BREVO_API_KEY: !process.env.BREVO_API_KEY,
                 MAIL_FROM: !process.env.MAIL_FROM,
             },
-            hint: 'Set EMAIL_SERVICE=sendgrid and SENDGRID_API_KEY in environment variables'
+            hint: 'Set EMAIL_SERVICE to sendgrid or brevo and provide matching API key'
         });
         
     } catch (error) {
