@@ -29,6 +29,67 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+const markOrdersPaidByRazorpayIdentifiers = async ({ paymentId, razorpayOrderId }) => {
+    const normalizedPaymentId = paymentId || null;
+    const normalizedRazorpayOrderId = razorpayOrderId || null;
+
+    if (!normalizedPaymentId && !normalizedRazorpayOrderId) {
+        return { matchedOrders: 0, orderIds: [] };
+    }
+
+    const result = await pool.query(
+        `UPDATE orders
+         SET payment_status = 'paid',
+             payment_id = COALESCE(payment_id, $1),
+             updated_at = NOW()
+         WHERE ($1 IS NOT NULL AND payment_id = $1)
+            OR ($2 IS NOT NULL AND payment_id = $2)
+         RETURNING id`,
+        [normalizedPaymentId, normalizedRazorpayOrderId]
+    );
+
+    return {
+        matchedOrders: result.rows.length,
+        orderIds: result.rows.map((row) => row.id),
+    };
+};
+
+const scheduleWebhookReconciliation = ({ paymentId, razorpayOrderId, event, maxAttempts = 5, attempt = 1 }) => {
+    if (attempt > maxAttempts) return;
+
+    const waitMs = 5000 * attempt;
+    setTimeout(async () => {
+        try {
+            const retry = await markOrdersPaidByRazorpayIdentifiers({ paymentId, razorpayOrderId });
+            console.log('🔁 Razorpay webhook reconciliation attempt:', {
+                event,
+                attempt,
+                matched_orders: retry.matchedOrders,
+                order_ids: retry.orderIds,
+            });
+
+            if (retry.matchedOrders === 0) {
+                scheduleWebhookReconciliation({
+                    paymentId,
+                    razorpayOrderId,
+                    event,
+                    maxAttempts,
+                    attempt: attempt + 1,
+                });
+            }
+        } catch (retryErr) {
+            console.error('❌ Razorpay webhook reconciliation error:', retryErr.message);
+            scheduleWebhookReconciliation({
+                paymentId,
+                razorpayOrderId,
+                event,
+                maxAttempts,
+                attempt: attempt + 1,
+            });
+        }
+    }, waitMs);
+};
+
 // ── CORS Configuration ──
 const corsOptions = {
     origin: [
@@ -119,20 +180,17 @@ app.post('/razorpay-webhook', express.raw({ type: 'application/json' }), async (
             return res.status(200).send('OK');
         }
 
-        const updateResult = await pool.query(
-            `UPDATE orders
-             SET payment_status = 'paid',
-                 payment_id = COALESCE(payment_id, $1),
-                 updated_at = NOW()
-             WHERE payment_id = $1 OR payment_id = $2
-             RETURNING id, payment_id, payment_status`,
-            [paymentId, razorpayOrderId]
-        );
+        const updateResult = await markOrdersPaidByRazorpayIdentifiers({ paymentId, razorpayOrderId });
 
         console.log('✅ Razorpay webhook order update result:', {
-            matched_orders: updateResult.rows.length,
-            order_ids: updateResult.rows.map((row) => row.id),
+            matched_orders: updateResult.matchedOrders,
+            order_ids: updateResult.orderIds,
         });
+
+        if (updateResult.matchedOrders === 0) {
+            console.warn('⚠️ No order matched yet. Scheduling reconciliation retries...');
+            scheduleWebhookReconciliation({ paymentId, razorpayOrderId, event });
+        }
 
         return res.status(200).send('OK');
     } catch (err) {
