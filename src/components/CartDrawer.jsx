@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2, ArrowLeft, MapPin, ShoppingBag, CheckCircle2 } from 'lucide-react';
@@ -35,6 +35,7 @@ const CartDrawer = () => {
     const [recommendedItem, setRecommendedItem] = useState(null);
     const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
     const [isRecommendedPreviewOpen, setIsRecommendedPreviewOpen] = useState(false);
+    const hasInitializedStepForOpen = useRef(false);
 
     const isFormValid = useMemo(() => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,8 +57,17 @@ const CartDrawer = () => {
     };
 
     useEffect(() => {
-        if (!isCartOpen) return;
-        setStep(consumeCheckoutEntryStep());
+        if (!isCartOpen) {
+            hasInitializedStepForOpen.current = false;
+            return;
+        }
+
+        // On mobile, viewport resize (keyboard open/close) can re-render context.
+        // Initialize step only once per drawer-open cycle to avoid resetting to cart.
+        if (!hasInitializedStepForOpen.current) {
+            setStep(consumeCheckoutEntryStep());
+            hasInitializedStepForOpen.current = true;
+        }
     }, [isCartOpen, consumeCheckoutEntryStep]);
 
     useEffect(() => {
