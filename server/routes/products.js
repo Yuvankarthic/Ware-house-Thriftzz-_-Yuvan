@@ -50,7 +50,27 @@ const normalizePublicAssetUrl = (value) => {
 
 const sanitizeProduct = (row = {}) => ({
   ...row,
-  image_url: normalizePublicAssetUrl(row.image_url),
+  image_urls: (() => {
+    const rawList = Array.isArray(row.image_urls) ? row.image_urls : [];
+    const normalizedList = rawList
+      .map((item) => normalizePublicAssetUrl(item))
+      .filter(Boolean);
+
+    const primary = normalizePublicAssetUrl(row.image_url);
+    if (primary && !normalizedList.includes(primary)) {
+      normalizedList.unshift(primary);
+    }
+
+    return normalizedList;
+  })(),
+  image_url: (() => {
+    const primary = normalizePublicAssetUrl(row.image_url);
+    if (primary) return primary;
+    if (Array.isArray(row.image_urls) && row.image_urls.length > 0) {
+      return normalizePublicAssetUrl(row.image_urls[0]);
+    }
+    return null;
+  })(),
 });
 
 const ensureProductColumns = async () => {
@@ -60,6 +80,7 @@ const ensureProductColumns = async () => {
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);`);
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);`);
   await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS show_on_main BOOLEAN NOT NULL DEFAULT true;`);
+  await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb;`);
 
   productColumnsReady = true;
 };
@@ -118,7 +139,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/products - create product with image upload
-router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
+router.post('/', authMiddleware, upload.fields([{ name: 'images', maxCount: 10 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   try {
     await ensureProductColumns();
 
@@ -128,17 +149,29 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       return res.status(400).json({ success: false, error: 'Name and price are required' });
     }
 
-    const imageUploadResult = req.file ? await uploadToCloudinary(req.file.buffer) : null;
-    const image_url = imageUploadResult?.secure_url || null;
+    const imageFiles = [
+      ...((req.files && Array.isArray(req.files.images)) ? req.files.images : []),
+      ...((req.files && Array.isArray(req.files.image)) ? req.files.image : []),
+    ];
+
+    const uploadedImages = imageFiles.length > 0
+      ? await Promise.all(imageFiles.map((file) => uploadToCloudinary(file.buffer)))
+      : [];
+
+    const imageUrls = uploadedImages
+      .map((item) => item?.secure_url)
+      .filter(Boolean);
+
+    const image_url = imageUrls[0] || null;
 
     const showOnMain = parseBoolean(show_on_main, true);
     const productCategory = category?.trim() || 'Jackets';
 
     const result = await query(
-      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, category, chest_length, shoulder_length, show_on_main)
-       VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, image_urls, category, chest_length, shoulder_length, show_on_main)
+       VALUES ($1, $2, 1, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11)
        RETURNING *`,
-      [name, price, size || null, fit || null, condition || null, image_url, productCategory, chest_length || null, shoulder_length || null, showOnMain]
+      [name, price, size || null, fit || null, condition || null, image_url, JSON.stringify(imageUrls), productCategory, chest_length || null, shoulder_length || null, showOnMain]
     );
 
     return res.status(201).json({ success: true, product: sanitizeProduct(result.rows[0]) });
@@ -153,8 +186,20 @@ router.put('/:id', authMiddleware, async (req, res) => {
   try {
     await ensureProductColumns();
 
-    const { name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, show_on_main } = req.body;
+    const { name, price, size, fit, condition, image_url, image_urls, category, chest_length, shoulder_length, show_on_main } = req.body;
     const showOnMain = parseBoolean(show_on_main);
+
+    let parsedImageUrls = null;
+    if (Array.isArray(image_urls)) {
+      parsedImageUrls = image_urls;
+    } else if (typeof image_urls === 'string' && image_urls.trim()) {
+      try {
+        const maybeArray = JSON.parse(image_urls);
+        if (Array.isArray(maybeArray)) parsedImageUrls = maybeArray;
+      } catch {
+        parsedImageUrls = null;
+      }
+    }
 
     const result = await query(
       `UPDATE products
@@ -167,10 +212,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
            category = COALESCE($7, category),
            chest_length = COALESCE($8, chest_length),
            shoulder_length = COALESCE($9, shoulder_length),
-           show_on_main = COALESCE($10, show_on_main)
-         WHERE id = $11
+           show_on_main = COALESCE($10, show_on_main),
+           image_urls = COALESCE($11::jsonb, image_urls)
+         WHERE id = $12
          RETURNING *`,
-        [name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, showOnMain, req.params.id]
+        [name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, showOnMain, parsedImageUrls ? JSON.stringify(parsedImageUrls) : null, req.params.id]
     );
 
     if (result.rows.length === 0) {

@@ -24,7 +24,7 @@ export default function Products({ token }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(initialForm);
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
 
   const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -50,7 +50,7 @@ export default function Products({ token }) {
   const openAdd = () => {
     setEditing(null);
     setForm(initialForm);
-    setImageFile(null);
+    setImageFiles([]);
     setOpen(true);
   };
 
@@ -67,7 +67,7 @@ export default function Products({ token }) {
       shoulder_length: product.shoulder_length || '',
       show_on_main: product.show_on_main !== false,
     });
-    setImageFile(null);
+    setImageFiles([]);
     setOpen(true);
   };
 
@@ -99,9 +99,9 @@ export default function Products({ token }) {
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed to update product');
       } else {
-        if (!imageFile) throw new Error('Please upload an image');
+        if (imageFiles.length === 0) throw new Error('Please upload at least one image');
         const fd = new FormData();
-        fd.append('image', imageFile);
+        imageFiles.forEach((file) => fd.append('images', file));
         fd.append('name', form.name);
         fd.append('price', form.price);
         fd.append('category', form.category);
@@ -195,14 +195,17 @@ export default function Products({ token }) {
         <div className="admin-products-grid">
           {products.map((p) => {
             const sold = Number(p.stock) === 0;
+            const imageList = Array.isArray(p.image_urls) ? p.image_urls : (p.image_url ? [p.image_url] : []);
+            const primaryImage = imageList[0] || null;
             return (
               <article key={p.id} className="admin-product-card">
                 <div className="admin-product-image-wrap">
-                  {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} className="admin-product-image" />
+                  {primaryImage ? (
+                    <img src={primaryImage} alt={p.name} className="admin-product-image" />
                   ) : (
                     <div className="admin-product-no-image">No Image</div>
                   )}
+                  {imageList.length > 1 && <div className="admin-product-image-count">+{imageList.length - 1} more</div>}
                   {sold && <div className="admin-product-sold-overlay">Sold</div>}
                 </div>
 
@@ -251,12 +254,16 @@ export default function Products({ token }) {
 
             {!editing && (
               <label className="admin-file-upload">
-                <span>Image Upload</span>
+                <span>Image Upload (Multiple)</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  multiple
+                  onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
                 />
+                {imageFiles.length > 0 && (
+                  <small className="admin-subtext">{imageFiles.length} image(s) selected</small>
+                )}
               </label>
             )}
 

@@ -22,7 +22,7 @@ const mapApiProductToCard = (product) => ({
   fit: product.fit || 'Regular',
   condition: product.condition || 'Vintage',
   category: product.category || 'Jackets',
-  image_url: product.image_url || PLACEHOLDER_IMAGE,
+  image_url: (Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : product.image_url) || PLACEHOLDER_IMAGE,
   stock: Number(product.stock) || 0,
   chest_length: product.chest_length || '',
   shoulder_length: product.shoulder_length || '',

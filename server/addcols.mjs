@@ -2,6 +2,7 @@ import pool from './db.js';
 
 await pool.query(`
   ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT 'Jackets';
+  ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb;
   ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);
   ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);
   ALTER TABLE products ADD COLUMN IF NOT EXISTS show_on_main BOOLEAN NOT NULL DEFAULT true;
