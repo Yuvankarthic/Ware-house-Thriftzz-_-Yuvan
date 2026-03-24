@@ -139,7 +139,12 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/products - create product with image upload
-router.post('/', authMiddleware, upload.fields([{ name: 'images', maxCount: 10 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
+router.post('/', authMiddleware, upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'images[]', maxCount: 10 },
+  { name: 'image', maxCount: 1 },
+  { name: 'image[]', maxCount: 1 },
+]), async (req, res) => {
   try {
     await ensureProductColumns();
 
@@ -151,12 +156,28 @@ router.post('/', authMiddleware, upload.fields([{ name: 'images', maxCount: 10 }
 
     const imageFiles = [
       ...((req.files && Array.isArray(req.files.images)) ? req.files.images : []),
+      ...((req.files && Array.isArray(req.files['images[]'])) ? req.files['images[]'] : []),
       ...((req.files && Array.isArray(req.files.image)) ? req.files.image : []),
+      ...((req.files && Array.isArray(req.files['image[]'])) ? req.files['image[]'] : []),
     ];
 
-    const uploadedImages = imageFiles.length > 0
-      ? await Promise.all(imageFiles.map((file) => uploadToCloudinary(file.buffer)))
-      : [];
+    if (imageFiles.length === 0) {
+      return res.status(400).json({ success: false, error: 'At least one image file is required' });
+    }
+
+    const uploadResults = await Promise.allSettled(
+      imageFiles.map((file) => uploadToCloudinary(file.buffer))
+    );
+
+    const uploadedImages = uploadResults
+      .filter((item) => item.status === 'fulfilled')
+      .map((item) => item.value);
+
+    if (uploadedImages.length === 0) {
+      const firstFailure = uploadResults.find((item) => item.status === 'rejected');
+      const reason = firstFailure?.reason?.message || 'Image upload failed';
+      return res.status(400).json({ success: false, error: reason });
+    }
 
     const imageUrls = uploadedImages
       .map((item) => item?.secure_url)
@@ -177,7 +198,7 @@ router.post('/', authMiddleware, upload.fields([{ name: 'images', maxCount: 10 }
     return res.status(201).json({ success: true, product: sanitizeProduct(result.rows[0]) });
   } catch (err) {
     console.error('❌ POST /api/products error:', err.message);
-    return res.status(500).json({ success: false, error: 'Internal server error' });
+    return res.status(500).json({ success: false, error: err?.message || 'Internal server error' });
   }
 });
 
