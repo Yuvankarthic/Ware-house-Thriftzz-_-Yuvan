@@ -21,6 +21,7 @@ export default function Sidebar({ user, isOpen, onClose }) {
         { to: '/admin/products', label: 'Products', icon: '🛍️' },
         { to: '/admin/health', label: 'System Health', icon: '🩺' },
         { to: '/admin/kanban', label: 'Board', icon: '📋' },
+        { to: '/admin/officers', label: 'Chief Officers Cabin', icon: '👑' },
     ];
 
     if (isAdmin) {

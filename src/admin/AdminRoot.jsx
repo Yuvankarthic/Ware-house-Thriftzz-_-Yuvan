@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import ProductsPage from '../pages/admin/Products';
 import HealthPage from './pages/HealthPage';
 import EmailPage from './pages/EmailPage';
+import OfficersPage from './pages/OfficersPage';
 import './styles/admin.css';
 
 export default function AdminRoot() {
@@ -67,6 +68,7 @@ export default function AdminRoot() {
                     <Route path="/admin/products" render={() => <ProductsPage token={token} user={user} />} />
                     <Route path="/admin/email" render={() => <EmailPage token={token} />} />
                     <Route path="/admin/health" render={() => <HealthPage token={token} />} />
+                    <Route path="/admin/officers" render={() => <OfficersPage token={token} />} />
                     <Redirect to="/admin" />
                 </Switch>
             </main>
