@@ -5,7 +5,11 @@ const API = `${BASE_URL}/api`;
 
 export default function OfficersPage({ token }) {
     const [ceoInsight, setCeoInsight] = useState(null);
+    const [cmoInsight, setCmoInsight] = useState(null);
+    const [cfoInsight, setCfoInsight] = useState(null);
     const [ceoLoading, setCeoLoading] = useState(true);
+    const [cmoLoading, setCmoLoading] = useState(true);
+    const [cfoLoading, setCfoLoading] = useState(true);
     const headers = { Authorization: `Bearer ${token}` };
 
     const fetchCEO = () => {
@@ -19,8 +23,32 @@ export default function OfficersPage({ token }) {
             .finally(() => setCeoLoading(false));
     };
 
+    const fetchCMO = () => {
+        setCmoLoading(true);
+        fetch(`${API}/ai/cmo`, { headers })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) setCmoInsight(data.insight);
+            })
+            .catch(() => {})
+            .finally(() => setCmoLoading(false));
+    };
+
+    const fetchCFO = () => {
+        setCfoLoading(true);
+        fetch(`${API}/ai/cfo`, { headers })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) setCfoInsight(data.insight);
+            })
+            .catch(() => {})
+            .finally(() => setCfoLoading(false));
+    };
+
     useEffect(() => {
         fetchCEO();
+        fetchCMO();
+        fetchCFO();
     }, []);
 
     const cardStyle = {
@@ -56,6 +84,24 @@ export default function OfficersPage({ token }) {
         fontSize: '0.9rem',
     };
 
+    const refreshBtn = (onClick) => (
+        <button
+            onClick={onClick}
+            style={{
+                marginLeft: 'auto',
+                background: 'transparent',
+                border: '1px solid #475569',
+                color: '#94a3b8',
+                padding: '6px 12px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+            }}
+        >
+            ↻ Refresh
+        </button>
+    );
+
     return (
         <div>
             <div className="admin-page-header">
@@ -67,21 +113,7 @@ export default function OfficersPage({ token }) {
                 <div style={titleStyle}>
                     <span style={{ fontSize: '1.2rem' }}>👑</span>
                     <h3 style={labelStyle}>CEO Insights</h3>
-                    <button
-                        onClick={fetchCEO}
-                        style={{
-                            marginLeft: 'auto',
-                            background: '#3b82f6',
-                            border: 'none',
-                            color: '#fff',
-                            padding: '6px 12px',
-                            borderRadius: 6,
-                            cursor: 'pointer',
-                            fontSize: '0.8rem',
-                        }}
-                    >
-                        ↻ Refresh
-                    </button>
+                    {refreshBtn(fetchCEO)}
                 </div>
                 {ceoLoading ? (
                     <p style={placeholderStyle}>CEO is analyzing...</p>
@@ -97,8 +129,15 @@ export default function OfficersPage({ token }) {
                 <div style={titleStyle}>
                     <span style={{ fontSize: '1.2rem' }}>📢</span>
                     <h3 style={{ ...labelStyle, color: '#fcd34d' }}>CMO Insights</h3>
+                    {refreshBtn(fetchCMO)}
                 </div>
-                <p style={placeholderStyle}>Coming soon...</p>
+                {cmoLoading ? (
+                    <p style={placeholderStyle}>CMO is planning campaigns...</p>
+                ) : cmoInsight ? (
+                    <p style={contentStyle}>{cmoInsight}</p>
+                ) : (
+                    <p style={placeholderStyle}>No insights available</p>
+                )}
             </div>
 
             {/* CFO Card */}
@@ -106,8 +145,15 @@ export default function OfficersPage({ token }) {
                 <div style={titleStyle}>
                     <span style={{ fontSize: '1.2rem' }}>💰</span>
                     <h3 style={{ ...labelStyle, color: '#34d399' }}>CFO Insights</h3>
+                    {refreshBtn(fetchCFO)}
                 </div>
-                <p style={placeholderStyle}>Coming soon...</p>
+                {cfoLoading ? (
+                    <p style={placeholderStyle}>CFO is analyzing finances...</p>
+                ) : cfoInsight ? (
+                    <p style={contentStyle}>{cfoInsight}</p>
+                ) : (
+                    <p style={placeholderStyle}>No insights available</p>
+                )}
             </div>
         </div>
     );
