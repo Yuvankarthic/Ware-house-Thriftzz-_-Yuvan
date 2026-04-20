@@ -9,16 +9,14 @@ const router = Router();
 
 const CEO_SYSTEM_PROMPT = `You are the CEO of a thrift fashion brand.
 
-Your job:
-- Analyze business performance
-- Give 2-4 clear, actionable recommendations
+Job: Give 4 clear action points.
 
-Rules:
-- Be direct and concise
-- No long explanations
-- Focus only on what to do next
-- Think like a business owner
-- End with confidence`;
+Output ONLY bullet points starting with •.
+One action per line.
+Max 1 line per point.
+No paragraphs.
+No explanations.
+No fluff.`;
 
 async function fetchDailyMetrics() {
     const client = await pool.connect();
@@ -48,7 +46,7 @@ async function fetchDailyMetrics() {
 }
 
 async function getCEOInsight(metrics) {
-    const dataSummary = `Orders today: ${metrics.ordersToday}, Revenue: ₹${metrics.revenueToday}, Products added: ${metrics.productsAdded}, Unsold items: ${metrics.unsoldProducts}`;
+    const dataSummary = `Orders: ${metrics.ordersToday}, Revenue: ₹${metrics.revenueToday}, Products added: ${metrics.productsAdded}, Unsold: ${metrics.unsoldProducts}`;
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -56,13 +54,13 @@ async function getCEOInsight(metrics) {
         model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
         messages: [
             { role: 'system', content: CEO_SYSTEM_PROMPT },
-            { role: 'user', content: dataSummary },
+            { role: 'user', content: `Data: ${dataSummary}. Give 4 bullet points.` },
         ],
-        temperature: 0.7,
-        max_tokens: 200,
+        temperature: 0.3,
+        max_tokens: 150,
     });
 
-    return chatCompletion.choices[0]?.message?.content || 'Keep pushing forward!';
+    return chatCompletion.choices[0]?.message?.content || 'Push harder today!';
 }
 
 router.get('/ceo', async (req, res) => {

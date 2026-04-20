@@ -9,18 +9,15 @@ const router = Router();
 
 const CMO_SYSTEM_PROMPT = `You are the CMO of a thrift fashion brand.
 
-Your job:
-- Improve sales and visibility
-- Suggest marketing actions
-- Suggest content ideas
+Job: Give 5 marketing actions.
 
-Rules:
-- Be practical
-- Suggest Instagram content, offers, drops
-- Focus on thrift/streetwear culture
-- Give 3-5 clear actions
-- Use bullet points
-- Be direct and concise`;
+Output ONLY bullet points starting with •.
+One action per line.
+Max 1 line per point.
+No paragraphs.
+No explanations.
+No fluff.
+Mention specific products, times, or offers.`;
 
 async function fetchMarketingData() {
     const client = await pool.connect();
@@ -58,11 +55,7 @@ async function fetchMarketingData() {
 }
 
 async function getCMOInsight(data) {
-    const dataSummary = `
-Top selling products (7 days): ${data.topSelling.join(', ') || 'None'}
-Slow/unsold products: ${data.unsoldProducts.join(', ') || 'None'}
-Order trend: ${data.orderTrend.join(', ')}
-`.trim();
+    const dataSummary = `Top: ${data.topSelling.join(', ') || 'None'}. Slow: ${data.unsoldProducts.join(', ') || 'None'}. Trend: ${data.orderTrend.join(', ')}`;
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -70,13 +63,13 @@ Order trend: ${data.orderTrend.join(', ')}
         model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
         messages: [
             { role: 'system', content: CMO_SYSTEM_PROMPT },
-            { role: 'user', content: dataSummary },
+            { role: 'user', content: `Data: ${dataSummary}. Give 5 bullet points.` },
         ],
-        temperature: 0.7,
-        max_tokens: 250,
+        temperature: 0.3,
+        max_tokens: 200,
     });
 
-    return chatCompletion.choices[0]?.message?.content || 'Stay ahead!';
+    return chatCompletion.choices[0]?.message?.content || 'Run more campaigns!';
 }
 
 router.get('/cmo', async (req, res) => {

@@ -9,19 +9,15 @@ const router = Router();
 
 const CFO_SYSTEM_PROMPT = `You are the CFO of a thrift fashion brand.
 
-Your job:
-- Improve revenue
-- Optimize pricing
-- Reduce losses
+Job: Give 5 financial actions.
 
-Rules:
-- Be direct
-- Suggest pricing changes
-- Suggest bundles or upsells
-- Focus on profit
-- Give 3-5 clear actions
-- Use bullet points
-- Think numbers`;
+Output ONLY bullet points starting with •.
+One action per line.
+Max 1 line per point.
+No paragraphs.
+No explanations.
+No fluff.
+Focus on pricing, bundles, profit.`;
 
 async function fetchFinancialData() {
     const client = await pool.connect();
@@ -59,12 +55,7 @@ async function fetchFinancialData() {
 }
 
 async function getCFOInsight(data) {
-    const dataSummary = `
-Revenue today: ₹${data.revenueToday}
-Average order: ₹${data.avgOrder}
-Top revenue products: ${data.topRevenueProducts.join(', ') || 'None'}
-Dead stock: ${data.deadStock.join(', ') || 'None'}
-`.trim();
+    const dataSummary = `Today: ₹${data.revenueToday}. Avg: ₹${data.avgOrder}. Top: ${data.topRevenueProducts.join(', ') || 'None'}. Dead: ${data.deadStock.join(', ') || 'None'}`;
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -72,13 +63,13 @@ Dead stock: ${data.deadStock.join(', ') || 'None'}
         model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
         messages: [
             { role: 'system', content: CFO_SYSTEM_PROMPT },
-            { role: 'user', content: dataSummary },
+            { role: 'user', content: `Data: ${dataSummary}. Give 5 bullet points.` },
         ],
-        temperature: 0.7,
-        max_tokens: 250,
+        temperature: 0.3,
+        max_tokens: 200,
     });
 
-    return chatCompletion.choices[0]?.message?.content || 'Optimize for profit!';
+    return chatCompletion.choices[0]?.message?.content || 'Boost profit margins!';
 }
 
 router.get('/cfo', async (req, res) => {
