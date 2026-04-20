@@ -287,6 +287,9 @@ app.post('/razorpay-webhook', express.raw({ type: 'application/json' }), async (
 app.use(express.json());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+// Temporary test route
+app.get('/test', (req, res) => res.send("Server working"));
+
 // ── Root route ──
 app.get('/', (_req, res) => {
     res.json({ message: 'Backend working', version: '1.0.0', timestamp: new Date().toISOString() });
