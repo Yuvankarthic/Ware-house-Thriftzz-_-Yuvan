@@ -9,6 +9,8 @@ export default function DashboardPage({ token }) {
     const [metrics, setMetrics] = useState(null);
     const [recentOrders, setRecentOrders] = useState([]);
     const [toast, setToast] = useState(null);
+    const [ceoInsight, setCeoInsight] = useState(null);
+    const [ceoLoading, setCeoLoading] = useState(true);
     const [systemOnline, setSystemOnline] = useState(true);
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const prevCountRef = useRef(0);
@@ -58,6 +60,16 @@ export default function DashboardPage({ token }) {
         // Dashboard stays live, but less aggressive to reduce UI churn
         const interval = setInterval(fetchData, 3000);
         return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        fetch(`${API}/ai/ceo`, { headers })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) setCeoInsight(data.insight);
+            })
+            .catch(() => {})
+            .finally(() => setCeoLoading(false));
     }, []);
 
     const statusClass = (s) => s.toLowerCase().replace(/\s+/g, '-');
@@ -120,6 +132,28 @@ export default function DashboardPage({ token }) {
                 <MetricCard icon="🚗" value={metrics?.out_for_delivery ?? '—'} label="Out for Delivery" color="cyan" />
                 <MetricCard icon="✅" value={metrics?.delivered_today ?? '—'} label="Delivered Today" color="green" />
                 <MetricCard icon="💰" value={metrics ? `₹${metrics.revenue_today}` : '—'} label="Revenue Today" color="green" />
+            </div>
+
+            {/* CEO Insights */}
+            <div style={{
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                border: '1px solid #3b82f6',
+                borderRadius: 12,
+                padding: 20,
+                marginBottom: 24,
+                boxShadow: '0 4px 20px rgba(59, 130, 246, 0.15)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                    <span style={{ fontSize: '1.4rem' }}>👑</span>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', margin: 0 }}>CEO Insights</h3>
+                </div>
+                {ceoLoading ? (
+                    <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>Analyzing business...</p>
+                ) : ceoInsight ? (
+                    <p style={{ color: '#e2e8f0', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>{ceoInsight}</p>
+                ) : (
+                    <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>No insights available</p>
+                )}
             </div>
 
             {/* Recent Orders */}

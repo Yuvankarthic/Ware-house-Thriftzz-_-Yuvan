@@ -18,6 +18,7 @@ import operationsRoutes from './routes/operations.js';
 import activityRoutes from './routes/activity.js';
 import publicRoutes from './routes/public.js';
 import chatbotRoutes from './routes/chatbot.js';
+import ceoRoutes from './routes/ceo.js';
 import pool from './db.js';
 import { getMailerHealth, sendOrderConfirmationEmail } from './services/mailer.js';
 import sgMail from '@sendgrid/mail';
@@ -304,6 +305,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/operations', operationsRoutes);
 app.use('/api', activityRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/ai', ceoRoutes);
 app.use('/api', publicRoutes);
 
 // Root aliases for direct calls without /api prefix.
