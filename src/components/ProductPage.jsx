@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { products } from '../data/products';
+import { products as staticProducts } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { trackEvent } from '../utils/activityTracker';
-import ProductImageSlider from './ProductImageSlider'; // NEW: Import the slider component
+import ProductImageSlider from './ProductImageSlider';
+import BASE_URL from '../config/api';
 import '../styles/ProductPage.css';
 
 const ProductPage = () => {
@@ -11,22 +12,59 @@ const ProductPage = () => {
     const history = useHistory();
     const { addToCart, buyNow } = useCart();
     const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const found = products.find(p => p.id === parseInt(id));
-        if (found) {
-            setProduct(found);
-            window.scrollTo(0, 0);
-            trackEvent('product_view', found.id, 'product_page');
-        } else {
-            // If product not found, redirect to home or a 404 page
-            history.push('/');
-        }
+        const fetchProduct = async () => {
+            // Check static products first
+            let found = staticProducts.find(p => p.id === parseInt(id));
+            
+            // If not found, it might be an API UUID (from category page)
+            if (!found) {
+                try {
+                    const cleanId = id.replace('api-', '');
+                    const res = await fetch(`${BASE_URL}/api/products`);
+                    const data = await res.json();
+                    const list = Array.isArray(data) ? data : data?.products || [];
+                    const apiProduct = list.find(p => String(p.id) === cleanId);
+                    
+                    if (apiProduct) {
+                        found = {
+                            id: `api-${apiProduct.id}`,
+                            name: apiProduct.name,
+                            price: Number(apiProduct.price) || 0,
+                            size: apiProduct.size || 'N/A',
+                            fit: apiProduct.fit || 'Regular',
+                            condition: apiProduct.condition || 'Vintage',
+                            category: apiProduct.category || 'Jackets',
+                            images: (Array.isArray(apiProduct.image_urls) && apiProduct.image_urls.length > 0) 
+                                     ? apiProduct.image_urls 
+                                     : [apiProduct.image_url || '/images/placeholder.jpg'],
+                            stock: Number(apiProduct.stock) || 0,
+                            soldOut: Number(apiProduct.stock) <= 0
+                        };
+                    }
+                } catch (e) {
+                    console.error('Failed to parse API product', e);
+                }
+            }
+
+            if (found) {
+                setProduct(found);
+                window.scrollTo(0, 0);
+                trackEvent('product_view', found.id, 'product_page');
+            } else {
+                // If product not found, redirect to shop
+                history.push('/shop');
+            }
+            setLoading(false);
+        };
+        
+        fetchProduct();
     }, [id, history]);
 
-    if (!product) {
-        // Render nothing or a loading spinner while the product is being found
-        return null;
+    if (loading || !product) {
+        return <div className="product-page-container"><p>Loading...</p></div>;
     }
 
     const handleAddToCart = (e) => {

@@ -100,7 +100,7 @@ export default function CategoryPage() {
     <section className="product-grid-section" id="category-grid">
       <div style={{ marginBottom: '1rem', padding: '0 1rem' }}>
         <button 
-          onClick={() => history.push('/')} 
+          onClick={() => history.push('/shop')} 
           style={{ 
             background: 'none', 
             border: 'none', 
