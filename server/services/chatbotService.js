@@ -108,14 +108,14 @@ export async function getChatbotResponse(userMessage, history = []) {
         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
         const chatCompletion = await groq.chat.completions.create({
             messages: messages,
-            model: "llama3-8b-8192",
+            model: "mixtral-8x7b-32768",
             temperature: 0.7,
             max_tokens: 150,
         });
 
-        return chatCompletion.choices[0]?.message?.content || "Oops, my fashion brain lagged. Try again in a sec 😅";
+        return chatCompletion.choices[0]?.message?.content || "Oops, my fashion brain lagged 😵‍💫 Try again!";
     } catch (error) {
         console.error("Groq API Error:", error.message);
-        throw new Error("Failed to get chatbot response");
+        return "Oops, my fashion brain lagged 😵‍💫 Try again!";
     }
 }
