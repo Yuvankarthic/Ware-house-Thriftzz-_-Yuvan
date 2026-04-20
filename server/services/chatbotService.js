@@ -1,8 +1,6 @@
 import Groq from "groq-sdk";
 import pool from '../db.js';
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 const SYSTEM_PROMPT = `You are 'Alien', a witty AI stylist for a thrift fashion brand called Wearhouse.
 
 Rules:
@@ -107,6 +105,7 @@ export async function getChatbotResponse(userMessage, history = []) {
 
         messages.push({ role: "user", content: userMessage });
 
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
         const chatCompletion = await groq.chat.completions.create({
             messages: messages,
             model: "llama3-8b-8192",
