@@ -87,33 +87,46 @@ const Chatbot = () => {
         scrollToBottom();
     }, [messages, isOpen]);
 
+    const sendMessage = async (userMessage, chatHistory) => {
+        try {
+            const response = await fetch("https://ware-house-thriftzz-yuvan.onrender.com/api/chatbot", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    history: chatHistory || []
+                })
+            });
+            const data = await response.json();
+            return data.reply;
+        } catch (error) {
+            console.error("Chatbot API Error:", error);
+            throw error;
+        }
+    };
+
     const handleSend = async (e) => {
         e.preventDefault();
         if (!inputValue.trim()) return;
 
-        const userMsg = { id: Date.now(), text: inputValue, sender: 'user', type: 'text' };
+        const currentInput = inputValue;
+        const userMsg = { id: Date.now(), text: currentInput, sender: 'user', type: 'text' };
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsTyping(true);
 
         try {
-            // Prepare limited history so we don't send massive payloads to Groq
             const history = messages
                 .slice(-10) 
                 .map(msg => ({ sender: msg.sender, text: msg.text }));
 
-            // Make the API call to our new backend route
-            const response = await fetch(`${BASE_URL}/api/chatbot`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: inputValue, history })
-            });
-
-            const data = await response.json();
+            const replyText = await sendMessage(currentInput, history);
             
             const botMsg = { 
                 id: Date.now() + 1, 
-                text: data.reply || "Oops, my fashion brain lagged. Try again in a sec 😅", 
+                text: replyText || "Oops, my fashion brain lagged. Try again in a sec 😅", 
                 sender: 'bot',
                 type: 'text'
             };
