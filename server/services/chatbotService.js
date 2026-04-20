@@ -104,7 +104,7 @@ export async function getChatbotResponse(userMessage, history = []) {
 
         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
         const chatCompletion = await groq.chat.completions.create({
-            model: process.env.GROQ_MODEL || "llama3-70b-8192",
+            model: process.env.GROQ_MODEL || "llama3-8b-instant",
             messages: messages,
             temperature: 0.7,
             max_tokens: 150,
