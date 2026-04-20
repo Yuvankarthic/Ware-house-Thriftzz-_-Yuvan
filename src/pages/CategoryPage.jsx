@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Check, Heart, Plus } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Check, Heart, Plus, ArrowLeft } from 'lucide-react';
+import { useParams, useHistory } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import BASE_URL from '../config/api';
@@ -41,6 +41,7 @@ const toCanonicalCategoryKey = (value = '') => {
 
 export default function CategoryPage() {
   const { category } = useParams();
+  const history = useHistory();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
@@ -97,6 +98,28 @@ export default function CategoryPage() {
 
   return (
     <section className="product-grid-section" id="category-grid">
+      <div style={{ marginBottom: '1rem', padding: '0 1rem' }}>
+        <button 
+          onClick={() => history.push('/')} 
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: 'var(--text-main)',
+            fontWeight: '600',
+            fontSize: '1rem',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            backgroundColor: 'var(--bg-card)'
+          }}
+        >
+          <ArrowLeft size={18} /> Back to Home
+        </button>
+      </div>
+
       <div className="section-header-block">
         <span className="section-eyebrow">Category</span>
         <h2 className="section-title category-page-title">
@@ -124,7 +147,15 @@ export default function CategoryPage() {
               const isAdded = addedProductId === product.id;
 
               return (
-                <article key={product.id} className="admin-product-card shop-admin-product-card">
+                <article 
+                  key={product.id} 
+                  className="admin-product-card shop-admin-product-card"
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    if (e.target.closest('button')) return;
+                    history.push(`/product/${product.id.replace('api-', '')}`);
+                  }}
+                >
                   <div className="admin-product-image-wrap">
                     {product.image_url ? (
                       <img src={product.image_url} alt={product.name} className="admin-product-image" />

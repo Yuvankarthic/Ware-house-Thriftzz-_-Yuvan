@@ -1,3 +1,5 @@
+import { BASE_URL } from '../config/api';
+
 const PLACEHOLDER_IMAGE = '/images/placeholder.jpg';
 
 const isPrivateOrLocalHost = (hostname = '') => {
@@ -18,16 +20,35 @@ export const sanitizeImageUrl = (value, fallback = PLACEHOLDER_IMAGE) => {
     const raw = value.trim();
     if (!raw) return fallback;
 
-    if (raw.startsWith('/')) return raw;
+    // Handle local placeholder image (served from Netlify/public directory)
+    if (raw === PLACEHOLDER_IMAGE) return raw;
+
+    // Append BASE_URL to internal upload paths
+    if (raw.startsWith('/uploads')) {
+        return `${BASE_URL}${raw}`;
+    }
+
+    if (raw.startsWith('/')) {
+        // If it's some other relative path, you might want to return it raw or prepend BASE_URL depending on your setup.
+        // Usually, user-uploaded images go to /uploads. 
+        return raw;
+    }
+    
     if (raw.startsWith('data:image/')) return raw;
 
     try {
         const parsed = new URL(raw, window.location.origin);
+        
+        // If the URL points to any old localhost port (e.g., localhost:7070 or 3003), 
+        // rewrite it to use the new BASE_URL
+        if (isPrivateOrLocalHost(parsed.hostname)) {
+            return `${BASE_URL}${parsed.pathname}${parsed.search}`;
+        }
+
         const protocol = parsed.protocol.toLowerCase();
         if (protocol !== 'http:' && protocol !== 'https:') return fallback;
 
-        if (isPrivateOrLocalHost(parsed.hostname)) return fallback;
-
+        // Force HTTPS for secure environments if the old URL was HTTP
         if (window.location.protocol === 'https:' && protocol === 'http:') {
             parsed.protocol = 'https:';
         }
