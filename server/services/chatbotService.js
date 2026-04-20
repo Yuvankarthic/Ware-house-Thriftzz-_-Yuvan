@@ -12,7 +12,6 @@ Rules:
 
 Goal: Help users discover products, track orders, and convert them into buyers.`;
 
-// Tool 1: Product Search
 async function searchProducts(message) {
     try {
         const text = message.toLowerCase();
@@ -38,7 +37,6 @@ async function searchProducts(message) {
     }
 }
 
-// Tool 2: Order Lookup
 async function lookupOrder(message) {
     try {
         const orderIdMatch = message.match(/order\s*#?\s*([a-zA-Z0-9-]+)/i) || message.match(/\b([A-Z0-9]{6,})\b/i);
@@ -54,7 +52,6 @@ async function lookupOrder(message) {
     }
 }
 
-// Intent Router
 async function detectAndExecuteIntent(message) {
     const text = message.toLowerCase();
     
@@ -74,7 +71,7 @@ async function detectAndExecuteIntent(message) {
     if (/(jacket|hoodie|shirt|pant|jeans|sweater|show products|price|under|cheap|latest)/i.test(text)) {
         const products = await searchProducts(message);
         if (products && products.length > 0) {
-            const productLines = products.map(p => `- ${p.name}: ₹${p.price}`).join('\\n');
+            const productLines = products.map(p => `- ${p.name}: ₹${p.price}`).join('\n');
             return `[SYSTEM ALERT: Found these products in the database exactly matching the user's request. Present them cleanly:\n${productLines}]`;
         } else {
             return `[SYSTEM ALERT: User asked for a product but database returned 0 results. Tell the user we're currently out of stock for that specifically.]`;
@@ -107,15 +104,15 @@ export async function getChatbotResponse(userMessage, history = []) {
 
         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
         const chatCompletion = await groq.chat.completions.create({
+            model: process.env.GROQ_MODEL || "llama3-70b-8192",
             messages: messages,
-            model: "mixtral-8x7b-32768",
             temperature: 0.7,
             max_tokens: 150,
         });
 
-        return chatCompletion.choices[0]?.message?.content || "Oops, my fashion brain lagged 😵‍💫 Try again!";
+        return chatCompletion.choices[0]?.message?.content || "Oops, Alien lost signal 👽📡 Try again!";
     } catch (error) {
-        console.error("Groq API Error:", error.message);
-        return "Oops, my fashion brain lagged 😵‍💫 Try again!";
+        console.error("Groq API Error:", error);
+        return "Oops, Alien lost signal 👽📡 Try again!";
     }
 }
