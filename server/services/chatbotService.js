@@ -107,7 +107,7 @@ async function searchProductsDB(category, priceLimit = null, rawMessage = "") {
         console.log("PRICE:", priceLimit);
 
         let query = `
-            SELECT id, name, price, category, image_urls, images, chest_length, shoulder_length, size, condition
+            SELECT id, name, price, category, image_urls, chest_length, shoulder_length, size, condition
             FROM products 
             WHERE stock > 0
         `;
@@ -132,7 +132,7 @@ async function searchProductsDB(category, priceLimit = null, rawMessage = "") {
         
         if (rows.length === 0) {
             const fallbackQuery = `
-                SELECT id, name, price, category, image_urls, images, chest_length, shoulder_length, size, condition
+                SELECT id, name, price, category, image_urls, chest_length, shoulder_length, size, condition
                 FROM products 
                 WHERE stock > 0 
                 ORDER BY created_at DESC LIMIT 5
@@ -151,9 +151,6 @@ async function searchProductsDB(category, priceLimit = null, rawMessage = "") {
 function getProductImageUrl(product) {
     if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
         return product.image_urls[0];
-    }
-    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-        return product.images[0];
     }
     return null;
 }
