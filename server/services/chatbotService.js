@@ -79,22 +79,15 @@ function detectIntent(text) {
     return 'fallback';
 }
 
-function extractSearchTerms(text) {
-    const terms = text.toLowerCase();
-    const found = [];
+function extractCategory(text) {
+    const t = text.toLowerCase();
     
-    PRODUCT_CATEGORIES.forEach(cat => {
-        if (terms.includes(cat)) {
-            found.push(cat);
-        }
-    });
+    if (t.includes("shirt") || t.includes("tshirt") || t.includes("t-shirt")) return "shirt";
+    if (t.includes("jacket")) return "jacket";
+    if (t.includes("jeans") || t.includes("pant")) return "jeans";
+    if (t.includes("hoodie")) return "hoodie";
     
-    if (found.length > 0) {
-        return found.join(' ');
-    }
-    
-    const words = terms.split(/\s+/).filter(w => w.length > 2);
-    return words.slice(0, 2).join(' ');
+    return null;
 }
 
 function extractPriceFilter(text) {
@@ -107,16 +100,23 @@ function extractPriceFilter(text) {
     return null;
 }
 
-async function searchProductsDB(searchTerm, priceLimit = null) {
+async function searchProductsDB(category, priceLimit = null, rawMessage = "") {
     try {
-        const searchPattern = `%${searchTerm}%`;
+        console.log("INPUT:", rawMessage);
+        console.log("CATEGORY:", category);
+        console.log("PRICE:", priceLimit);
+
         let query = `
             SELECT id, name, price, category, image_urls, images, chest_length, shoulder_length, size, condition
             FROM products 
-            WHERE stock > 0 
-              AND (name ILIKE $1 OR category ILIKE $1)
+            WHERE stock > 0
         `;
-        const params = [searchPattern];
+        const params = [];
+        
+        if (category) {
+            params.push(`%${category}%`);
+            query += ` AND LOWER(category) LIKE LOWER($${params.length})`;
+        }
         
         if (priceLimit) {
             params.push(priceLimit);
@@ -124,6 +124,9 @@ async function searchProductsDB(searchTerm, priceLimit = null) {
         }
         
         query += ' ORDER BY created_at DESC LIMIT 5';
+        
+        console.log("QUERY:", query);
+        console.log("PARAMS:", params);
         
         const { rows } = await pool.query(query, params);
         
@@ -277,16 +280,16 @@ export async function getChatbotResponse(userMessage, history = []) {
         }
         
         if (intent === 'product_query') {
-            const searchTerms = extractSearchTerms(text);
+            const category = extractCategory(text);
             const priceLimit = extractPriceFilter(text);
             
-            const { products, isFallback } = await searchProductsDB(searchTerms, priceLimit);
+            const { products, isFallback } = await searchProductsDB(category, priceLimit, text);
             
             if (products && products.length > 0) {
                 const productData = formatProductDisplay(products);
                 
                 const intro = isFallback 
-                    ? "Couldn't find exactly what you wanted, but here are some fresh pieces 👇"
+                    ? "Couldn't find exact match, but here are some fresh pieces 👇"
                     : `Found ${products.length} pieces! Tap any to add to cart 👇`;
                 
                 return {
@@ -304,15 +307,15 @@ export async function getChatbotResponse(userMessage, history = []) {
             };
         }
         
-        const searchTerm = extractSearchTerms(text);
-        if (searchTerm && searchTerm.length > 2) {
-            const { products, isFallback } = await searchProductsDB(searchTerm);
+        const categoryFallback = extractCategory(text);
+        if (categoryFallback) {
+            const { products, isFallback } = await searchProductsDB(categoryFallback, null, text);
             
             if (products && products.length > 0) {
                 const productData = formatProductDisplay(products);
                 return {
                     type: "products",
-                    text: `Found these! 👇`,
+                    text: isFallback ? "Couldn't find exact match, but here are some fresh pieces 👇" : `Found these! 👇`,
                     products: productData,
                     isFallback
                 };
