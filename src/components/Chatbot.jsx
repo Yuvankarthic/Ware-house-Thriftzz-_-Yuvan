@@ -29,7 +29,6 @@ const UFOIcon = () => (
             </linearGradient>
         </defs>
         
-        {/* Yellow Beam */}
         <path d="M30 75 L50 95 L70 75" fill="url(#beamGradient)" opacity="0.6" className="ufo-beam"/>
         <defs>
             <linearGradient id="beamGradient" x1="50%" y1="0%" x2="50%" y2="100%">
@@ -38,31 +37,23 @@ const UFOIcon = () => (
             </linearGradient>
         </defs>
         
-        {/* Dome glow */}
         <ellipse cx="50" cy="45" rx="18" ry="12" fill="#FFE066" opacity="0.15" filter="url(#ufoGlow)"/>
-        
-        {/* Glass Dome */}
         <ellipse cx="50" cy="42" rx="16" ry="14" fill="url(#domeGlass)" stroke="#D4A5B9" strokeWidth="1"/>
         
-        {/* Alien inside dome */}
         <circle cx="44" cy="40" r="2.5" fill="#2D3436"/>
         <circle cx="56" cy="40" r="2.5" fill="#2D3436"/>
         
-        {/* UFO Body - Saucer */}
         <ellipse cx="50" cy="55" rx="32" ry="12" fill="url(#tealBody)" filter="url(#ufoGlow)"/>
         <ellipse cx="50" cy="52" rx="32" ry="12" fill="url(#tealBody)"/>
         
-        {/* Dome base */}
         <ellipse cx="50" cy="48" rx="16" ry="6" fill="#FF8FB3"/>
         
-        {/* Rim lights */}
         <circle cx="20" cy="55" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
         <circle cx="35" cy="63" r="2.5" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
         <circle cx="50" cy="67" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
         <circle cx="65" cy="63" r="2.5" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
         <circle cx="80" cy="55" r="3" fill="#FFE066" filter="url(#ufoGlow)" className="ufo-light"/>
         
-        {/* Highlight */}
         <ellipse cx="40" cy="48" rx="10" ry="4" fill="white" opacity="0.3"/>
     </svg>
 );
@@ -70,10 +61,11 @@ const UFOIcon = () => (
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi, I am Alien, your Wearhouse assistant. Ask me: 'What is Wearhouse?', 'What is the motive of this website?', or 'Show me jackets'.", sender: 'bot', type: 'text' }
+        { id: 1, text: "Hi, I am Alien, your Wearhouse assistant! 🛸\n\nAsk me anything about:\n• Products & prices\n• Track your order\n• Shipping & returns", sender: 'bot', type: 'text' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [pendingOrderLookup, setPendingOrderLookup] = useState(null);
     const messagesEndRef = useRef(null);
     const { addToCart } = useCart();
 
@@ -89,7 +81,7 @@ const Chatbot = () => {
 
     const sendMessage = async (userMessage, chatHistory) => {
         try {
-            const response = await fetch("https://ware-house-thriftzz-yuvan.onrender.com/api/chatbot", {
+            const response = await fetch(`${BASE_URL}/api/chatbot`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -107,8 +99,71 @@ const Chatbot = () => {
         }
     };
 
+    const trackOrder = async (orderId, phone) => {
+        try {
+            const response = await fetch(`${BASE_URL}/api/orders/track-order?order_id=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(phone || '')}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                return { 
+                    success: true, 
+                    order: {
+                        id: data.order_id,
+                        shipping_status: data.order_status,
+                        payment_status: data.status,
+                        total: 0,
+                        created_at: new Date().toISOString()
+                    }
+                };
+            }
+            return { success: false, error: data.error || 'Order not found' };
+        } catch (error) {
+            console.error("Order tracking error:", error);
+            return { success: false, error: 'Could not track order' };
+        }
+    };
+
     const handleSend = async (e) => {
         e.preventDefault();
+        
+        if (pendingOrderLookup) {
+            const input = inputValue.trim();
+            if (!input) return;
+            
+            const userMsg = { id: Date.now(), text: input, sender: 'user', type: 'text' };
+            setMessages(prev => [...prev, userMsg]);
+            setInputValue('');
+            setIsTyping(true);
+
+            const phoneMatch = input.match(/^(\d{10,})$/);
+            const orderId = pendingOrderLookup.orderId || input;
+
+            const result = await trackOrder(orderId, phoneMatch ? phoneMatch[1] : null);
+            
+            let replyText = '';
+            if (result.success && result.order) {
+                const o = result.order;
+                replyText = `📦 *Order Found!*\n\n*Order ID:* ${o.id}\n*Status:* ${o.shipping_status || o.payment_status}\n*Total:* ₹${o.total}\n*Date:* ${new Date(o.created_at).toLocaleDateString()}`;
+            } else {
+                replyText = "😕 Couldn't find an order with those details. Please check your Order ID or registered phone number.";
+            }
+
+            const botMsg = { 
+                id: Date.now() + 1, 
+                text: replyText, 
+                sender: 'bot',
+                type: 'text'
+            };
+            setMessages(prev => [...prev, botMsg]);
+            setPendingOrderLookup(null);
+            setIsTyping(false);
+            return;
+        }
+
         if (!inputValue.trim()) return;
 
         const currentInput = inputValue;
@@ -117,11 +172,21 @@ const Chatbot = () => {
         setInputValue('');
         setIsTyping(true);
 
-        try {
-            const history = messages
-                .slice(-10) 
-                .map(msg => ({ sender: msg.sender, text: msg.text }));
+        if (/track.*order|order.*status|where.*order|my order/i.test(currentInput)) {
+            setPendingOrderLookup({ step: 'orderId' });
+            const botMsg = { 
+                id: Date.now() + 1, 
+                text: "Sure! Let's track your order 📦\n\nPlease enter your Order ID (e.g., ORD-123456) or your registered phone number.", 
+                sender: 'bot',
+                type: 'text'
+            };
+            setMessages(prev => [...prev, botMsg]);
+            setIsTyping(false);
+            return;
+        }
 
+        try {
+            const history = messages.slice(-10).map(msg => ({ sender: msg.sender, text: msg.text }));
             const replyText = await sendMessage(currentInput, history);
             
             const botMsg = { 
@@ -144,13 +209,12 @@ const Chatbot = () => {
         }
     };
 
-    // Render mini product card in chat
     const renderProductMessage = (msg) => {
         return (
             <div className="chat-message bot message-format-products">
                 <div className="message-text">{msg.text}</div>
                 <div className="chat-product-carousel">
-                    {msg.products.slice(0, 5).map(product => ( // limit to 5 to avoid enormous chat bubbles
+                    {msg.products.slice(0, 5).map(product => (
                         <div key={product.id} className="chat-product-card">
                             <img src={product.images[0]} alt={product.name} />
                             <div className="chat-product-info">
@@ -234,7 +298,7 @@ const Chatbot = () => {
                         <form className="chatbot-input" onSubmit={handleSend}>
                             <input
                                 type="text"
-                                placeholder="Type a message..."
+                                placeholder={pendingOrderLookup ? "Enter Order ID or phone number" : "Type a message..."}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 disabled={isTyping}

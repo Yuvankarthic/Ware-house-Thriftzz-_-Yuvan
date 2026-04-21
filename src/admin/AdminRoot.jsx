@@ -12,6 +12,8 @@ import ProductsPage from '../pages/admin/Products';
 import HealthPage from './pages/HealthPage';
 import EmailPage from './pages/EmailPage';
 import OfficersPage from './pages/OfficersPage';
+import InstagramScriptPage from './pages/InstagramScriptPage';
+import AdminChatbotPage from './pages/AdminChatbotPage';
 import './styles/admin.css';
 
 export default function AdminRoot() {
@@ -69,6 +71,8 @@ export default function AdminRoot() {
                     <Route path="/admin/email" render={() => <EmailPage token={token} />} />
                     <Route path="/admin/health" render={() => <HealthPage token={token} />} />
                     <Route path="/admin/officers" render={() => <OfficersPage token={token} />} />
+                    <Route path="/admin/instagram" render={() => <InstagramScriptPage token={token} />} />
+                    <Route path="/admin/chatbot" render={() => <AdminChatbotPage token={token} />} />
                     <Redirect to="/admin" />
                 </Switch>
             </main>

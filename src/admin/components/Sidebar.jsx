@@ -27,6 +27,8 @@ export default function Sidebar({ user, isOpen, onClose }) {
     if (isAdmin) {
         links.push({ to: '/admin/analytics', label: 'Analytics', icon: '📈' });
         links.push({ to: '/admin/team', label: 'Team', icon: '👥' });
+        links.push({ to: '/admin/instagram', label: 'IG Script AI', icon: '📸' });
+        links.push({ to: '/admin/chatbot', label: 'Admin Chatbot', icon: '🧠' });
     }
 
     return (
