@@ -5,7 +5,8 @@ const SYSTEM_PROMPT_BASE = `You are an AI stylist and sales assistant for thrift
 
 Job:
 * Help users find products
-* Answer business questions (contact, shipping, returns)
+* Answer business questions (contact, shipping, returns, order process)
+* Answer questions about HOW TO ORDER
 * Fun, Gen-Z, witty tone
 * 1-2 sentences max
 
@@ -17,11 +18,18 @@ BUSINESS INFO:
 * Shipping: 3-5 days, NO COD available
 * Returns: No returns
 
-PRODUCTS:
-(Only suggest products from database - format: "Name - ₹Price")
+HOW TO ORDER (always explain when asked):
+1. Browse products on website
+2. Add to cart
+3. Checkout with address
+4. Pay via Razorpay (UPI/Card/Netbanking)
+5. Order confirmed via email
+
+PRODUCT SEARCH:
+When user asks for products, search the database and return products with images.
 
 RULES:
-* NEVER say "I don't know" for contact/shipping/returns - use provided info
+* NEVER say "I don't know" for contact/shipping/returns/order process - use provided info
 * NEVER make up products
 * If no product found → say "Nothing matching that vibe rn 👀"
 * Keep tone friendly, playful, modern
@@ -55,7 +63,7 @@ async function searchProductsDB(message) {
     const priceLimit = extractPriceFilter(text);
     const category = extractCategory(text);
     
-    let query = 'SELECT name, price, category FROM products WHERE stock > 0';
+    let query = 'SELECT id, name, price, category, image_urls, images FROM products WHERE stock > 0';
     const params = [];
     
     if (priceLimit) {
@@ -68,10 +76,10 @@ async function searchProductsDB(message) {
       query += ` AND category ILIKE $${params.length}`;
     }
     
-    query += ' ORDER BY created_at DESC LIMIT 5';
+    query += ' ORDER BY created_at DESC LIMIT 10';
     
     if (params.length === 0) {
-      const { rows } = await pool.query(`SELECT name, price, category FROM products WHERE stock > 0 ORDER BY created_at DESC LIMIT 5`);
+      const { rows } = await pool.query(`SELECT id, name, price, category, image_urls, images FROM products WHERE stock > 0 ORDER BY created_at DESC LIMIT 10`);
       return rows;
     }
     
@@ -83,13 +91,33 @@ async function searchProductsDB(message) {
   }
 }
 
+function getProductImageUrl(product) {
+  if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+    return product.image_urls[0];
+  }
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    return product.images[0];
+  }
+  return null;
+}
+
+const ORDER_PROCESS_TEXT = `🛒 HOW TO ORDER FROM WEARHOUSE:
+
+1. **Browse** - Visit our shop and find your vibe
+2. **Add to Cart** - Click "Add to Cart" on any product
+3. **Checkout** - Enter your delivery address
+4. **Pay** - Pay securely via Razorpay (UPI/Card/Netbanking)
+5. **Done!** - You'll get confirmation via email 📧
+
+⚠️ Note: We don't offer Cash on Delivery. Full payment required.`;
+
 async function lookupOrderDB(message) {
   try {
     const orderIdMatch = message.match(/order\s*#?\s*([a-zA-Z0-9-]+)/i) || message.match(/\b([A-Z0-9]{6,})\b/i);
     if (orderIdMatch && orderIdMatch[1]) {
       const orderId = orderIdMatch[1].trim();
       const { rows } = await pool.query(
-        `SELECT payment_status, shipping_status, created_at FROM orders WHERE id::text = $1 OR payment_id = $1 LIMIT 1`, 
+        `SELECT id, payment_status, shipping_status, total, created_at, name as product_name, phone FROM orders WHERE id::text = $1 OR payment_id = $1 OR phone = $1 LIMIT 1`, 
         [orderId]
       );
       return rows.length > 0 ? rows[0] : { error: "not_found" };
@@ -102,14 +130,17 @@ async function lookupOrderDB(message) {
 }
 
 async function detectOrderIntent(text) {
-  if (/(track order|order status|my order|where is my order)/i.test(text)) {
+  if (/(track order|order status|where is my order|my order|check order)/i.test(text)) {
     const orderData = await lookupOrderDB(text);
     if (orderData?.promptUser) {
-      return "Ask user for Order ID or Payment ID";
+      return { type: "prompt", message: "Ask user for Order ID or Phone Number" };
     } else if (orderData && !orderData.error) {
-      return `Order found! Status: ${orderData.shipping_status || orderData.payment_status} on ${new Date(orderData.created_at).toLocaleDateString()}`;
+      return { 
+        type: "order_found",
+        message: `📦 Order #${orderData.id}\n\nStatus: ${orderData.shipping_status || orderData.payment_status}\nTotal: ₹${orderData.total}\nDate: ${new Date(orderData.created_at).toLocaleDateString()}`
+      };
     } else if (orderData?.error === "not_found") {
-      return "Order not found - check ID and try again";
+      return { type: "not_found", message: "😕 Order not found. Please check your Order ID or registered phone number." };
     }
   }
   return null;
@@ -123,36 +154,61 @@ export async function getChatbotResponse(userMessage, history = []) {
       content: msg.text
     }));
 
+    if (/(how to order|order process|how do i order|procedure to buy|steps to buy|buy.*how)/i.test(text)) {
+      return { 
+        type: "text", 
+        text: ORDER_PROCESS_TEXT,
+        quickReply: "Browse Products"
+      };
+    }
+
     const orderIntent = await detectOrderIntent(text);
     if (orderIntent) {
-      const messages = [
-        { role: "system", content: SYSTEM_PROMPT_BASE },
-        ...formattedHistory,
-        { role: "user", content: userMessage }
-      ];
-      
-      if (orderIntent.startsWith("Order found")) {
-        messages[0].content += `\n\n[ORDER STATUS: ${orderIntent}]`;
-      } else if (orderIntent === "Ask user for Order ID or Payment ID") {
-        messages[0].content += `\n\n[SYSTEM: User wants order status. Ask for Order ID or Payment ID]`;
+      if (orderIntent.type === "prompt") {
+        return {
+          type: "text",
+          text: "Sure! Let's track your order 📦\n\nPlease enter your Order ID or your registered phone number.",
+        };
+      } else if (orderIntent.type === "order_found" || orderIntent.type === "not_found") {
+        return {
+          type: "text",
+          text: orderIntent.message
+        };
       }
+    }
+
+    const wantsProducts = /show|give|what.*available|list|products|hoodie|shirt| jacket|jeans|pant|tshirt|sweater|find|looking/i.test(text);
+    
+    if (wantsProducts) {
+      const products = await searchProductsDB(userMessage);
       
-      const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-      const chatCompletion = await groq.chat.completions.create({
-        model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 150,
-      });
-      
-      return chatCompletion.choices[0]?.message?.content || FALLBACK_AI_ERROR;
+      if (products && products.length > 0) {
+        const productData = products.slice(0, 6).map(p => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          category: p.category,
+          image: getProductImageUrl(p)
+        }));
+        
+        return {
+          type: "products",
+          text: `Found ${products.length} items! Tap any to add to cart 👇`,
+          products: productData
+        };
+      } else {
+        return {
+          type: "text",
+          text: "Nothing matching that vibe rn 👀 Try a different style or increase your budget!"
+        };
+      }
     }
 
     const products = await searchProductsDB(userMessage);
     
     let productSection = "";
     if (products && products.length > 0) {
-      productSection = "\n\n" + products.map(p => `${p.name} - ₹${p.price}`).join("\n");
+      productSection = "\n\n" + products.slice(0, 5).map(p => `${p.name} - ₹${p.price}`).join("\n");
     } else {
       productSection = "\n\n(No products available for this search)";
     }
@@ -176,12 +232,12 @@ export async function getChatbotResponse(userMessage, history = []) {
     const reply = chatCompletion.choices[0]?.message?.content?.trim();
     
     if (!reply || products === null) {
-      return FALLBACK_DB_ERROR;
+      return { type: "text", text: FALLBACK_DB_ERROR };
     }
     
-    return reply;
+    return { type: "text", text: reply };
   } catch (error) {
     console.error("Groq API Error:", error);
-    return FALLBACK_AI_ERROR;
+    return { type: "text", text: FALLBACK_AI_ERROR };
   }
 }

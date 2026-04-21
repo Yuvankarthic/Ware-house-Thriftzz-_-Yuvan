@@ -25,6 +25,9 @@ export default function Products({ token }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(initialForm);
   const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [step, setStep] = useState('form');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -51,6 +54,8 @@ export default function Products({ token }) {
     setEditing(null);
     setForm(initialForm);
     setImageFiles([]);
+    setImagePreviews([]);
+    setStep('form');
     setOpen(true);
   };
 
@@ -68,7 +73,30 @@ export default function Products({ token }) {
       show_on_main: product.show_on_main !== false,
     });
     setImageFiles([]);
+    setImagePreviews([]);
+    setStep('form');
     setOpen(true);
+  };
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    setImageFiles(files);
+    
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  const goToPreview = () => {
+    if (!form.name || !form.price) {
+      setError('Please fill in name and price');
+      return;
+    }
+    setError('');
+    setStep('preview');
+  };
+
+  const goBackToForm = () => {
+    setStep('form');
   };
 
   const submit = async (e) => {
@@ -99,7 +127,7 @@ export default function Products({ token }) {
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed to update product');
       } else {
-        if (imageFiles.length === 0) throw new Error('Please upload at least one image');
+        if (imageFiles.length === 0 && imagePreviews.length === 0) throw new Error('Please upload at least one image');
         const fd = new FormData();
         imageFiles.forEach((file) => fd.append('images', file));
         fd.append('name', form.name);
@@ -123,6 +151,7 @@ export default function Products({ token }) {
       }
 
       setOpen(false);
+      setStep('form');
       await fetchProducts();
     } catch (err) {
       setError(err.message || 'Save failed');
@@ -172,6 +201,15 @@ export default function Products({ token }) {
     } catch (err) {
       setError(err.message || 'Visibility update failed');
     }
+  };
+
+  const previewCardStyle = {
+    background: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    maxWidth: 280,
+    margin: '0 auto',
   };
 
   return (
@@ -249,48 +287,101 @@ export default function Products({ token }) {
 
       {open && (
         <div className="admin-modal-overlay">
-          <form onSubmit={submit} className="admin-modal-card">
+          <div className="admin-modal-card" style={{ maxWidth: 600 }}>
             <h2>{editing ? 'Edit Product' : 'Add Product'}</h2>
-
-            {!editing && (
-              <label className="admin-file-upload">
-                <span>Image Upload (Multiple)</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
-                />
-                {imageFiles.length > 0 && (
-                  <small className="admin-subtext">{imageFiles.length} image(s) selected</small>
+            
+            {step === 'form' && (
+              <>
+                {!editing && (
+                  <label className="admin-file-upload">
+                    <span>Image Upload (Multiple)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageSelect}
+                    />
+                    {imagePreviews.length > 0 && (
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                        {imagePreviews.map((src, i) => (
+                          <img key={i} src={src} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }} />
+                        ))}
+                      </div>
+                    )}
+                  </label>
                 )}
-              </label>
+
+                <div className="admin-product-form-grid">
+                  <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="search-input" />
+                  <input required type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="search-input" />
+                  <select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="search-input">
+                    <option value="Jackets">Jackets</option>
+                    <option value="Shirts">Shirts</option>
+                    <option value="Pants">Pants</option>
+                  </select>
+                  <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
+                  <input placeholder="Fit" value={form.fit} onChange={(e) => setForm({ ...form, fit: e.target.value })} className="search-input" />
+                  <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
+                  <input placeholder="e.g. 42 inches" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
+                  <input placeholder="e.g. 18 inches" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
+                  <select value={form.show_on_main ? 'true' : 'false'} onChange={(e) => setForm({ ...form, show_on_main: e.target.value === 'true' })} className="search-input">
+                    <option value="true">Show on Main Website</option>
+                    <option value="false">Keep Hidden from Main Website</option>
+                  </select>
+                </div>
+
+                <div className="admin-modal-actions">
+                  <button type="button" className="btn-admin ghost" onClick={() => setOpen(false)}>Cancel</button>
+                  <button type="button" className="btn-admin primary" onClick={goToPreview}>Preview</button>
+                </div>
+              </>
             )}
 
-            <div className="admin-product-form-grid">
-              <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="search-input" />
-              <input required type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="search-input" />
-              <select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="search-input">
-                <option value="Jackets">Jackets</option>
-                <option value="Shirts">Shirts</option>
-                <option value="Pants">Pants</option>
-              </select>
-              <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
-              <input placeholder="Fit" value={form.fit} onChange={(e) => setForm({ ...form, fit: e.target.value })} className="search-input" />
-              <input placeholder="Condition" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} className="search-input" />
-              <input placeholder="e.g. 42 inches" value={form.chest_length} onChange={(e) => setForm({ ...form, chest_length: e.target.value })} className="search-input" />
-              <input placeholder="e.g. 18 inches" value={form.shoulder_length} onChange={(e) => setForm({ ...form, shoulder_length: e.target.value })} className="search-input" />
-              <select value={form.show_on_main ? 'true' : 'false'} onChange={(e) => setForm({ ...form, show_on_main: e.target.value === 'true' })} className="search-input">
-                <option value="true">Show on Main Website</option>
-                <option value="false">Keep Hidden from Main Website</option>
-              </select>
-            </div>
+            {step === 'preview' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <h3 style={{ color: '#1a1a2e', marginBottom: 4 }}>Preview How It Will Look</h3>
+                  <p style={{ color: '#666', fontSize: '0.9rem' }}>This is how customers will see your product</p>
+                </div>
 
-            <div className="admin-modal-actions">
-              <button type="button" className="btn-admin ghost" onClick={() => setOpen(false)}>Cancel</button>
-              <button type="submit" className="btn-admin primary" disabled={saving}>{saving ? 'Saving...' : 'Save Product'}</button>
-            </div>
-          </form>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                  <div style={previewCardStyle}>
+                    <div style={{ position: 'relative', height: 200, background: '#f5f5f5' }}>
+                      {imagePreviews.length > 0 ? (
+                        <img src={imagePreviews[0]} alt={form.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#999' }}>
+                          No Image
+                        </div>
+                      )}
+                      <span style={{ position: 'absolute', top: 8, right: 8, background: '#1a1a2e', color: '#fff', padding: '4px 8px', borderRadius: 4, fontSize: '0.8rem' }}>
+                        {form.category}
+                      </span>
+                    </div>
+                    <div style={{ padding: 16 }}>
+                      <h4 style={{ margin: '0 0 8px', color: '#1a1a2e', fontSize: '1rem' }}>{form.name || 'Product Name'}</h4>
+                      <p style={{ margin: '0 0 8px', color: '#f97316', fontWeight: 700, fontSize: '1.2rem' }}>₹{form.price || 0}</p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                        {form.size && <span style={{ background: '#f3f4f6', padding: '2px 8px', borderRadius: 4, fontSize: '0.75rem' }}>Size: {form.size}</span>}
+                        {form.fit && <span style={{ background: '#f3f4f6', padding: '2px 8px', borderRadius: 4, fontSize: '0.75rem' }}>Fit: {form.fit}</span>}
+                        {form.condition && <span style={{ background: '#f3f4f6', padding: '2px 8px', borderRadius: 4, fontSize: '0.75rem' }}>{form.condition}</span>}
+                      </div>
+                      <button style={{ width: '100%', background: '#1a1a2e', color: '#fff', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-modal-actions">
+                  <button type="button" className="btn-admin ghost" onClick={goBackToForm}>← Back to Edit</button>
+                  <button type="button" className="btn-admin primary" onClick={submit} disabled={saving}>
+                    {saving ? 'Publishing...' : '✅ Publish to Website'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>

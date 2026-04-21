@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { default as X } from 'lucide-react/dist/esm/icons/x';
 import { default as Send } from 'lucide-react/dist/esm/icons/send';
-import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
 import BASE_URL from '../config/api';
 import '../styles/Chatbot.css';
@@ -61,7 +60,7 @@ const UFOIcon = () => (
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi, I am Alien, your Wearhouse assistant! 🛸\n\nAsk me anything about:\n• Products & prices\n• Track your order\n• Shipping & returns", sender: 'bot', type: 'text' }
+        { id: 1, text: "Hi, I am Alien, your Wearhouse assistant! 🛸\n\nAsk me anything about:\n• Products & prices\n• How to order\n• Track your order\n• Shipping & returns", sender: 'bot', type: 'text' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -92,7 +91,7 @@ const Chatbot = () => {
                 })
             });
             const data = await response.json();
-            return data.reply;
+            return data;
         } catch (error) {
             console.error("Chatbot API Error:", error);
             throw error;
@@ -172,11 +171,11 @@ const Chatbot = () => {
         setInputValue('');
         setIsTyping(true);
 
-        if (/track.*order|order.*status|where.*order|my order/i.test(currentInput)) {
+        if (/track.*order|order.*status|where.*order|my order|check order/i.test(currentInput)) {
             setPendingOrderLookup({ step: 'orderId' });
             const botMsg = { 
                 id: Date.now() + 1, 
-                text: "Sure! Let's track your order 📦\n\nPlease enter your Order ID (e.g., ORD-123456) or your registered phone number.", 
+                text: "Sure! Let's track your order 📦\n\nPlease enter your Order ID or your registered phone number.", 
                 sender: 'bot',
                 type: 'text'
             };
@@ -187,15 +186,26 @@ const Chatbot = () => {
 
         try {
             const history = messages.slice(-10).map(msg => ({ sender: msg.sender, text: msg.text }));
-            const replyText = await sendMessage(currentInput, history);
+            const response = await sendMessage(currentInput, history);
             
-            const botMsg = { 
-                id: Date.now() + 1, 
-                text: replyText || "Oops, my fashion brain lagged. Try again in a sec 😅", 
-                sender: 'bot',
-                type: 'text'
-            };
-            setMessages(prev => [...prev, botMsg]);
+            if (response.type === 'products' && response.products) {
+                const botMsg = { 
+                    id: Date.now() + 1, 
+                    text: response.text || 'Here are some products!', 
+                    sender: 'bot',
+                    type: 'products',
+                    products: response.products
+                };
+                setMessages(prev => [...prev, botMsg]);
+            } else {
+                const botMsg = { 
+                    id: Date.now() + 1, 
+                    text: response.text || "Oops, my fashion brain lagged. Try again in a sec 😅", 
+                    sender: 'bot',
+                    type: 'text'
+                };
+                setMessages(prev => [...prev, botMsg]);
+            }
         } catch (error) {
             const fallbackMsg = {
                 id: Date.now() + 1,
@@ -209,29 +219,55 @@ const Chatbot = () => {
         }
     };
 
+    const handleProductClick = (product, event) => {
+        const formattedProduct = {
+            ...product,
+            images: product.image ? [product.image] : product.images,
+            image_url: product.image || product.image_url
+        };
+        addToCart(formattedProduct, event);
+        const msg = { 
+            id: Date.now(), 
+            text: `Added "${product.name}" to cart! 🛒`, 
+            sender: 'bot',
+            type: 'text'
+        };
+        setMessages(prev => [...prev, msg]);
+    };
+
     const renderProductMessage = (msg) => {
+        const validProducts = (msg.products || []).filter(p => p.image || p.name);
+        
         return (
             <div className="chat-message bot message-format-products">
                 <div className="message-text">{msg.text}</div>
                 <div className="chat-product-carousel">
-                    {msg.products.slice(0, 5).map(product => (
-                        <div key={product.id} className="chat-product-card">
-                            <img src={product.images[0]} alt={product.name} />
+                    {validProducts.map((product, idx) => (
+                        <div 
+                            key={product.id || idx} 
+                            className="chat-product-card"
+                            onClick={(e) => handleProductClick(product, e)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <img 
+                                src={product.image || 'https://via.placeholder.com/150'} 
+                                alt={product.name} 
+                            />
                             <div className="chat-product-info">
                                 <h6>{product.name}</h6>
                                 <p>₹{product.price}</p>
-                                <button
-                                    className="chat-add-btn"
-                                    onClick={(e) => addToCart(product, e)}
-                                >
-                                    Add
+                                <button className="chat-add-btn" onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleProductClick(product, e);
+                                }}>
+                                    Add to Cart
                                 </button>
                             </div>
                         </div>
                     ))}
-                    {msg.products.length > 5 && (
+                    {msg.products && msg.products.length > 6 && (
                         <div className="chat-product-more">
-                            +{msg.products.length - 5} more. Head to the Shop to see all.
+                            +{msg.products.length - 6} more. Head to Shop for all.
                         </div>
                     )}
                 </div>
@@ -282,7 +318,7 @@ const Chatbot = () => {
                                         renderProductMessage(msg)
                                     ) : (
                                         <div className={`chat-message ${msg.sender}`}>
-                                            <div className="message-content">{msg.text}</div>
+                                            <div className="message-content" style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
                                         </div>
                                     )}
                                 </React.Fragment>
