@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../config/api';
 
 const API = `${BASE_URL}/api`;
 
 export default function InstagramScriptGenerator({ token }) {
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [mode, setMode] = useState('existing');
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -14,6 +17,40 @@ export default function InstagramScriptGenerator({ token }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const res = await fetch(`${API}/products?limit=100`, { headers });
+            const data = await res.json();
+            if (data.products) {
+                setProducts(data.products);
+            }
+        } catch (err) {
+            console.error('Failed to fetch products:', err);
+        }
+    };
+
+    const handleProductSelect = (e) => {
+        const productId = e.target.value;
+        if (!productId) {
+            setSelectedProduct(null);
+            return;
+        }
+        const product = products.find(p => p.id === parseInt(productId));
+        setSelectedProduct(product);
+        if (product) {
+            setFormData({
+                name: product.name,
+                price: product.price.toString(),
+                category: product.category || 'hoodie',
+                style: product.description?.slice(0, 50) || ''
+            });
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -97,6 +134,17 @@ export default function InstagramScriptGenerator({ token }) {
         lineHeight: 1.5,
     };
 
+    const tabStyle = (active) => ({
+        padding: '10px 20px',
+        background: active ? '#ec4899' : 'transparent',
+        border: 'none',
+        borderRadius: 8,
+        color: '#fff',
+        cursor: 'pointer',
+        fontWeight: 600,
+        marginRight: 8,
+    });
+
     return (
         <div>
             <div className="admin-page-header">
@@ -104,8 +152,29 @@ export default function InstagramScriptGenerator({ token }) {
             </div>
 
             <div style={cardStyle}>
+                <div style={{ marginBottom: 20 }}>
+                    <button style={tabStyle(mode === 'existing')} onClick={() => { setMode('existing'); setScript(null); }}>
+                        📦 Select Existing Product
+                    </button>
+                    <button style={tabStyle(mode === 'manual')} onClick={() => { setMode('manual'); setScript(null); }}>
+                        ✏️ Enter Manually
+                    </button>
+                </div>
+
+                {mode === 'existing' && (
+                    <div>
+                        <label style={labelStyle}>Select a Product</label>
+                        <select style={inputStyle} onChange={handleProductSelect} value={selectedProduct?.id || ''}>
+                            <option value="">-- Choose a product --</option>
+                            {products.filter(p => p.stock > 0).map(p => (
+                                <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: mode === 'existing' ? 16 : 0 }}>
                         <div>
                             <label style={labelStyle}>Product Name *</label>
                             <input
@@ -162,7 +231,7 @@ export default function InstagramScriptGenerator({ token }) {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || (mode === 'existing' && !selectedProduct)}
                         style={{
                             width: '100%',
                             padding: '12px',

@@ -31,34 +31,36 @@ Rules:
 * No long paragraphs
 * Sound natural and human`;
 
-const ADMIN_CHAT_SYSTEM_PROMPT = `You are an admin AI assistant.
+const ADMIN_CHAT_SYSTEM_PROMPT = `You are an admin AI assistant for a thrift fashion store.
 
 Your job:
+1. Answer questions about orders, products, customers
+2. Suggest actions (but NEVER execute - only suggest)
 
-* understand commands
-* convert into structured actions
+Return JSON with "type" field:
+- If question (just need info): {"type": "question", "message": "your answer"}
+- If action needed: {"type": "action", "intent": "ACTION_NAME", "data": {}, "message": "description"}
 
-Return ONLY JSON:
-
-{
-"intent": "ACTION_NAME",
-"data": {},
-"message": "short explanation"
-}
+EXAMPLES:
+- "what are my recent orders" → {"type": "question", "message": "Getting your recent orders..."}
+- "show orders" → {"type": "action", "intent": "GET_ORDERS", "data": {"limit": 10}, "message": "Show 10 recent orders?"}
+- "change price of product 5 to 500" → {"type": "action", "intent": "UPDATE_PRICE", "data": {"product_id": 5, "new_price": 500}, "message": "Update price of product #5 to ₹500?"}
+- "reduce price of slow items" → {"type": "action", "intent": "DISCOUNT_PRODUCTS", "data": {"percentage": 10}, "message": "Apply 10% discount to slow-moving items?"}
+- "how many products do we have" → {"type": "question", "message": "Let me check..."}
+- "what is the revenue today" → {"type": "action", "intent": "GENERATE_REPORT", "data": {"type": "daily"}, "message": "Generate today's revenue report?"}
 
 Supported intents:
-
-* ADD_PRODUCT
-* UPDATE_PRICE
-* DISCOUNT_PRODUCTS
-* GET_ORDERS
-* GENERATE_REPORT
+- ADD_PRODUCT (data: name, price, category, stock)
+- UPDATE_PRICE (data: product_id, new_price)
+- DISCOUNT_PRODUCTS (data: percentage, limit)
+- GET_ORDERS (data: limit)
+- GENERATE_REPORT (data: type)
 
 Rules:
-
-* Never execute anything
-* Only suggest actions
-* Keep message short`;
+- If user asks a question → type: "question", answer directly
+- If user asks to DO something → type: "action", describe what you want to do
+- Keep messages short and friendly
+- If unclear, ask a follow-up question (type: "question")`;
 
 const ALLOWED_INTENTS = new Set([
     'ADD_PRODUCT',
@@ -66,7 +68,8 @@ const ALLOWED_INTENTS = new Set([
     'DISCOUNT_PRODUCTS',
     'GET_ORDERS',
     'GENERATE_REPORT',
-    'TRACK_ORDER'
+    'TRACK_ORDER',
+    'ANSWER_ONLY'
 ]);
 
 const DANGEROUS_PATTERNS = [
@@ -90,6 +93,10 @@ function sanitizeInput(str) {
 }
 
 function validateIntent(intent, data) {
+    if (intent === 'ANSWER_ONLY') {
+        return { valid: true, sanitized: { type: 'question' } };
+    }
+
     if (!intent || !ALLOWED_INTENTS.has(intent)) {
         return { valid: false, error: `Invalid intent: ${intent}` };
     }
@@ -218,9 +225,8 @@ async function processAdminChat(message, history = []) {
     }
 
     return {
-        intent: 'UNKNOWN',
-        data: {},
-        message: responseText || 'Could not understand command'
+        type: 'question',
+        message: responseText || 'I\'m not sure how to help with that. Try asking about orders, products, or prices.'
     };
 }
 
@@ -281,14 +287,12 @@ router.post('/admin-chat', authMiddleware, roleMiddleware('admin', 'staff'), asy
 
         const result = await processAdminChat(message, history || []);
         
-        res.json({ success: true, ...result });
+        res.json({ ...result });
     } catch (error) {
         console.error('Admin Chat Error:', error.message);
         res.status(500).json({ 
-            success: false, 
-            intent: 'ERROR',
-            data: {},
-            message: 'Something went wrong' 
+            type: 'question',
+            message: 'Something went wrong. Please try again.' 
         });
     }
 });

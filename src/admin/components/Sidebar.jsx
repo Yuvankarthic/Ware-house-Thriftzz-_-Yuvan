@@ -32,6 +32,7 @@ export default function Sidebar({ user, isOpen, onClose }) {
 
     if (isStaff) {
         links.push({ to: '/admin/instagram', label: 'IG Script AI', icon: '📸' });
+        links.push({ to: '/admin/reels', label: 'Reels Ideas', icon: '🎬' });
         links.push({ to: '/admin/chatbot', label: 'Admin Chatbot', icon: '🧠' });
     }
 

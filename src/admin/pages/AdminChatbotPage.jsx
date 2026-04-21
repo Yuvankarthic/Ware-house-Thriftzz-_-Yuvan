@@ -5,7 +5,7 @@ const API = `${BASE_URL}/api`;
 
 export default function AdminChatbot({ token }) {
     const [messages, setMessages] = useState([
-        { id: 1, sender: 'ai', text: 'Hey! I\'m your admin assistant. Try commands like "reduce price of slow items" or "show recent orders". What would you like to do?' }
+        { id: 1, sender: 'ai', text: 'Hey! I\'m your admin assistant. Ask me anything:\n\n• "how many orders today"\n• "show my recent orders"\n• "change price of hoodie to 799"\n• "apply discount on slow items"\n• Or just ask questions!' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,14 +41,23 @@ export default function AdminChatbot({ token }) {
             });
             const data = await res.json();
 
-            if (data.success && data.intent && data.intent !== 'UNKNOWN') {
+            if (data.type === 'question') {
+                const aiMsg = { 
+                    id: Date.now() + 1, 
+                    sender: 'ai', 
+                    text: data.message,
+                    type: 'question'
+                };
+                setMessages(prev => [...prev, aiMsg]);
+            } else if (data.type === 'action' && data.intent && data.intent !== 'UNKNOWN') {
                 const aiMsg = { 
                     id: Date.now() + 1, 
                     sender: 'ai', 
                     text: data.message,
                     intent: data.intent,
                     data: data.data,
-                    needsApproval: true
+                    needsApproval: true,
+                    type: 'action'
                 };
                 setMessages(prev => [...prev, aiMsg]);
                 setPendingAction({ intent: data.intent, data: data.data, messageId: aiMsg.id });
@@ -56,7 +65,7 @@ export default function AdminChatbot({ token }) {
                 const aiMsg = { 
                     id: Date.now() + 1, 
                     sender: 'ai', 
-                    text: data.message || "Couldn't understand that. Try commands like 'show orders' or 'add new hoodie 999'" 
+                    text: data.message || "I didn't understand that. Try asking about orders, products, or prices!" 
                 };
                 setMessages(prev => [...prev, aiMsg]);
             }
@@ -172,7 +181,7 @@ export default function AdminChatbot({ token }) {
                 <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
                     {messages.map(msg => (
                         <div key={msg.id} style={messageStyle(msg.sender)}>
-                            <div style={{ marginBottom: msg.needsApproval ? 12 : 0 }}>{msg.text}</div>
+                            <div style={{ marginBottom: msg.needsApproval ? 12 : 0, whiteSpace: 'pre-wrap' }}>{msg.text}</div>
                             
                             {msg.needsApproval && (
                                 <div style={{ display: 'flex', gap: 8 }}>
@@ -214,7 +223,7 @@ export default function AdminChatbot({ token }) {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Try: reduce price of slow items, show orders, add new hoodie 999..."
+                        placeholder="Ask: how many orders, show orders, change price of product 5 to 500..."
                     />
                     <button
                         onClick={handleSend}
