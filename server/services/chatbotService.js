@@ -3,241 +3,364 @@ import pool from '../db.js';
 
 const SYSTEM_PROMPT_BASE = `You are an AI stylist and sales assistant for thrift fashion brand "Wearhouse".
 
-Job:
-* Help users find products
-* Answer business questions (contact, shipping, returns, order process)
-* Answer questions about HOW TO ORDER
-* Fun, Gen-Z, witty tone
-* 1-2 sentences max
+Role:
+- Help users find products they love
+- Answer business questions (contact, shipping, returns, order process)
+- Guide users through ordering
+- Fun, Gen-Z, witty tone
+- 1-2 sentences max
 
 BUSINESS INFO:
-* Brand: Wearhouse (thrift fashion - affordable, vintage, streetwear)
-* Instagram: @wearhouse_thriftxzz
-* Phone: +91 75300 39915
-* Email: payments.wht@gmail.com
-* Shipping: 3-5 days, NO COD available
-* Returns: No returns
+- Brand: Wearhouse (thrift fashion - affordable vintage streetwear)
+- Instagram: @wearhouse_thriftxzz  
+- Phone: +91 75300 39915
+- Email: payments.wht@gmail.com
+- Shipping: 3-5 days
+- COD: NOT available
+- Returns: No returns
 
-HOW TO ORDER (always explain when asked):
+HOW TO ORDER:
 1. Browse products on website
 2. Add to cart
 3. Checkout with address
 4. Pay via Razorpay (UPI/Card/Netbanking)
 5. Order confirmed via email
 
-PRODUCT SEARCH:
-When user asks for products, search the database and return products with images.
-
 RULES:
-* NEVER say "I don't know" for contact/shipping/returns/order process - use provided info
-* NEVER make up products
-* If no product found → say "Nothing matching that vibe rn 👀"
-* Keep tone friendly, playful, modern
-* No long paragraphs
-* Focus on helping user buy or explore
+- NEVER say "I don't know" or "let me check" - give direct answers
+- NEVER invent products - ONLY use products provided to you
+- NEVER say "no products found" - show popular items instead
+- Keep tone playful and helpful
+- Focus on helping user buy
+
+PRODUCT DISPLAY FORMAT:
+When showing products, use format:
+"[Product Name] – ₹[Price]"
+Example: "Vintage Brown Summer Shirt – ₹599"
 
 START.`;
 
-const FALLBACK_DB_ERROR = "No products found, try increasing budget or different style";
-const FALLBACK_AI_ERROR = "Oops 👽 something broke, try again!";
+const FALLBACK_GREETINGS = [
+    "Hey! 👋 Welcome to Wearhouse! I'm here to help you find your vibe. What are you looking for?",
+    "Hi there! 🛸 Need anything? I can help you find products, track orders, or answer questions!",
+    "Yo! 🔥 Let's find you something fresh. What style are you into?"
+];
 
-const CATEGORIES = ['shirt', 'hoodie', 'jeans', 'pant', 'jacket', 'sweater', 'joggers', 'tshirt', 't-shirt', 'coat', 'kurta'];
+const ORDER_PROCESS_TEXT = `🛒 HOW TO ORDER:
+
+1. Browse our pieces
+2. Add to cart  
+3. Enter delivery address
+4. Pay via Razorpay (UPI/Card/Netbanking)
+5. Done! 📧 Confirmation sent
+
+⚠️ No COD available`;
+
+const PRODUCT_CATEGORIES = ['shirt', 'hoodie', 'jeans', 'pant', 'jacket', 'sweater', 'joggers', 'tshirt', 't-shirt', 'coat', 'kurta', 'saree', 'leggings', 'shorts', 'cargo', 'jacket', 'blazer'];
+
+function detectIntent(text) {
+    const normalized = text.toLowerCase().trim();
+    
+    const greetingPatterns = /^(hi|hey|hello|hiya|yo|sup|what's up|hey there|hi there|good morning|good evening|good afternoon|greetings)$/i;
+    if (greetingPatterns.test(normalized) || normalized === 'hi' || normalized === 'hey' || normalized === 'hello') {
+        return 'greeting';
+    }
+    
+    const productPatterns = /(show|give|what|find|looking|browse|available|list|products?|hoodie|shirt|jacket|jeans|pant|tshirt|sweater|joggers|coat|kurta|saree|leggings|shorts|cargo|blazer|style|vibe|fresh|pieces)/i;
+    if (productPatterns.test(normalized)) {
+        return 'product_query';
+    }
+    
+    const orderPatterns = /(track|order status|where is my order|my order|check order|order.*id|order.*number|order.*#)/i;
+    if (orderPatterns.test(normalized)) {
+        return 'order_query';
+    }
+    
+    return 'fallback';
+}
+
+function extractSearchTerms(text) {
+    const terms = text.toLowerCase();
+    const found = [];
+    
+    PRODUCT_CATEGORIES.forEach(cat => {
+        if (terms.includes(cat)) {
+            found.push(cat);
+        }
+    });
+    
+    if (found.length > 0) {
+        return found.join(' ');
+    }
+    
+    const words = terms.split(/\s+/).filter(w => w.length > 2);
+    return words.slice(0, 2).join(' ');
+}
 
 function extractPriceFilter(text) {
-  const priceMatch = text.match(/under\s*(\d+)/i) || text.match(/less than\s*(\d+)/i) || text.match(/below\s*(\d+)/i) || text.match(/(\d+)\s*rupees/i);
-  if (priceMatch) return parseInt(priceMatch[1], 10);
-  
-  const budgetMatch = text.match(/budget\s*(\d+)/i) || text.match(/(\d+)\s*rs/i);
-  if (budgetMatch) return parseInt(budgetMatch[1], 10);
-  
-  return null;
-}
-
-function extractCategory(text) {
-  return CATEGORIES.find(cat => text.includes(cat)) || null;
-}
-
-async function searchProductsDB(message) {
-  try {
-    const text = message.toLowerCase();
-    const priceLimit = extractPriceFilter(text);
-    const category = extractCategory(text);
+    const priceMatch = text.match(/under\s*(\d+)/i) || text.match(/less than\s*(\d+)/i) || text.match(/below\s*(\d+)/i) || text.match(/(\d+)\s*(rs|rupees)/i);
+    if (priceMatch) return parseInt(priceMatch[1], 10);
     
-    let query = 'SELECT id, name, price, category, image_urls, images FROM products WHERE stock > 0';
-    const params = [];
+    const budgetMatch = text.match(/budget\s*(\d+)/i);
+    if (budgetMatch) return parseInt(budgetMatch[1], 10);
     
-    if (priceLimit) {
-      params.push(priceLimit);
-      query += ` AND price <= $${params.length}`;
-    }
-    
-    if (category) {
-      params.push(`%${category}%`);
-      query += ` AND category ILIKE $${params.length}`;
-    }
-    
-    query += ' ORDER BY created_at DESC LIMIT 10';
-    
-    if (params.length === 0) {
-      const { rows } = await pool.query(`SELECT id, name, price, category, image_urls, images FROM products WHERE stock > 0 ORDER BY created_at DESC LIMIT 10`);
-      return rows;
-    }
-    
-    const { rows } = await pool.query(query, params);
-    return rows;
-  } catch (e) {
-    console.error('Product search error:', e);
     return null;
-  }
+}
+
+async function searchProductsDB(searchTerm, priceLimit = null) {
+    try {
+        const searchPattern = `%${searchTerm}%`;
+        let query = `
+            SELECT id, name, price, category, image_urls, images, chest_length, shoulder_length, size, condition
+            FROM products 
+            WHERE stock > 0 
+              AND (name ILIKE $1 OR category ILIKE $1)
+        `;
+        const params = [searchPattern];
+        
+        if (priceLimit) {
+            params.push(priceLimit);
+            query += ` AND price <= $${params.length}`;
+        }
+        
+        query += ' ORDER BY created_at DESC LIMIT 5';
+        
+        const { rows } = await pool.query(query, params);
+        
+        if (rows.length === 0) {
+            const fallbackQuery = `
+                SELECT id, name, price, category, image_urls, images, chest_length, shoulder_length, size, condition
+                FROM products 
+                WHERE stock > 0 
+                ORDER BY created_at DESC LIMIT 5
+            `;
+            const fallback = await pool.query(fallbackQuery);
+            return { products: fallback.rows, isFallback: true };
+        }
+        
+        return { products: rows, isFallback: false };
+    } catch (e) {
+        console.error('Product search error:', e);
+        return { products: [], isFallback: false };
+    }
 }
 
 function getProductImageUrl(product) {
-  if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
-    return product.image_urls[0];
-  }
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    return product.images[0];
-  }
-  return null;
-}
-
-const ORDER_PROCESS_TEXT = `🛒 HOW TO ORDER FROM WEARHOUSE:
-
-1. **Browse** - Visit our shop and find your vibe
-2. **Add to Cart** - Click "Add to Cart" on any product
-3. **Checkout** - Enter your delivery address
-4. **Pay** - Pay securely via Razorpay (UPI/Card/Netbanking)
-5. **Done!** - You'll get confirmation via email 📧
-
-⚠️ Note: We don't offer Cash on Delivery. Full payment required.`;
-
-async function lookupOrderDB(message) {
-  try {
-    const orderIdMatch = message.match(/order\s*#?\s*([a-zA-Z0-9-]+)/i) || message.match(/\b([A-Z0-9]{6,})\b/i);
-    if (orderIdMatch && orderIdMatch[1]) {
-      const orderId = orderIdMatch[1].trim();
-      const { rows } = await pool.query(
-        `SELECT id, payment_status, shipping_status, total, created_at, name as product_name, phone FROM orders WHERE id::text = $1 OR payment_id = $1 OR phone = $1 LIMIT 1`, 
-        [orderId]
-      );
-      return rows.length > 0 ? rows[0] : { error: "not_found" };
+    if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+        return product.image_urls[0];
     }
-    return { promptUser: true };
-  } catch (e) {
-    console.error('Order lookup error:', e);
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        return product.images[0];
+    }
     return null;
-  }
 }
 
-async function detectOrderIntent(text) {
-  if (/(track order|order status|where is my order|my order|check order)/i.test(text)) {
-    const orderData = await lookupOrderDB(text);
-    if (orderData?.promptUser) {
-      return { type: "prompt", message: "Ask user for Order ID or Phone Number" };
-    } else if (orderData && !orderData.error) {
-      return { 
-        type: "order_found",
-        message: `📦 Order #${orderData.id}\n\nStatus: ${orderData.shipping_status || orderData.payment_status}\nTotal: ₹${orderData.total}\nDate: ${new Date(orderData.created_at).toLocaleDateString()}`
-      };
-    } else if (orderData?.error === "not_found") {
-      return { type: "not_found", message: "😕 Order not found. Please check your Order ID or registered phone number." };
+function formatProductForLLM(products) {
+    return products.map(p => {
+        const desc = [];
+        if (p.chest_length) desc.push(`Chest: ${p.chest_length}`);
+        if (p.shoulder_length) desc.push(`Shoulder: ${p.shoulder_length}`);
+        if (p.size) desc.push(`Size: ${p.size}`);
+        
+        const descStr = desc.length > 0 ? ` (${desc.join(', ')})` : '';
+        return `${p.name} – ₹${p.price}${descStr}`;
+    }).join('\n');
+}
+
+function formatProductDisplay(products) {
+    return products.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        category: p.category,
+        size: p.size || null,
+        condition: p.condition || null,
+        image: getProductImageUrl(p),
+        description: p.chest_length || p.shoulder_length ? `Chest: ${p.chest_length || '-'} | Shoulder: ${p.shoulder_length || '-'}` : null
+    }));
+}
+
+async function searchOrderDB(input) {
+    try {
+        const trimmed = String(input).trim();
+        
+        const orderIdMatch = trimmed.match(/^(\d{6,})$/);
+        if (orderIdMatch) {
+            const orderId = parseInt(orderIdMatch[1], 10);
+            const { rows } = await pool.query(
+                `SELECT id, product_name, order_status, order_value, created_at, phone 
+                 FROM orders WHERE id = $1 LIMIT 1`,
+                [orderId]
+            );
+            if (rows.length > 0) {
+                return { found: true, order: rows[0] };
+            }
+        }
+        
+        const phoneMatch = trimmed.match(/^(\d{10,})$/);
+        if (phoneMatch) {
+            const phone = phoneMatch[1];
+            const { rows } = await pool.query(
+                `SELECT id, product_name, order_status, order_value, created_at, phone 
+                 FROM orders WHERE phone = $1 ORDER BY created_at DESC LIMIT 1`,
+                [phone]
+            );
+            if (rows.length > 0) {
+                return { found: true, order: rows[0] };
+            }
+        }
+        
+        return { found: false };
+    } catch (e) {
+        console.error('Order search error:', e);
+        return { found: false, error: true };
     }
-  }
-  return null;
+}
+
+function formatOrderStatus(status) {
+    const statusEmoji = {
+        'New Order': '📦 Received',
+        'Accepted': '✅ Accepted',
+        'Packing': '📋 Packing',
+        'Packed': '📦 Packed',
+        'Out for Delivery': '🚚 Out for Delivery',
+        'Delivered': '✅ Delivered',
+        'Cancelled': '❌ Cancelled'
+    };
+    return statusEmoji[status] || status;
+}
+
+function getRandomGreeting() {
+    return FALLBACK_GREETINGS[Math.floor(Math.random() * FALLBACK_GREETINGS.length)];
 }
 
 export async function getChatbotResponse(userMessage, history = []) {
-  try {
-    const text = userMessage.toLowerCase();
-    const formattedHistory = history.slice(-10).map(msg => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
-      content: msg.text
-    }));
-
-    if (/(how to order|order process|how do i order|procedure to buy|steps to buy|buy.*how)/i.test(text)) {
-      return { 
-        type: "text", 
-        text: ORDER_PROCESS_TEXT,
-        quickReply: "Browse Products"
-      };
-    }
-
-    const orderIntent = await detectOrderIntent(text);
-    if (orderIntent) {
-      if (orderIntent.type === "prompt") {
-        return {
-          type: "text",
-          text: "Sure! Let's track your order 📦\n\nPlease enter your Order ID or your registered phone number.",
-        };
-      } else if (orderIntent.type === "order_found" || orderIntent.type === "not_found") {
-        return {
-          type: "text",
-          text: orderIntent.message
-        };
-      }
-    }
-
-    const wantsProducts = /show|give|what.*available|list|products|hoodie|shirt| jacket|jeans|pant|tshirt|sweater|find|looking/i.test(text);
-    
-    if (wantsProducts) {
-      const products = await searchProductsDB(userMessage);
-      
-      if (products && products.length > 0) {
-        const productData = products.slice(0, 6).map(p => ({
-          id: p.id,
-          name: p.name,
-          price: p.price,
-          category: p.category,
-          image: getProductImageUrl(p)
+    try {
+        const text = userMessage.trim();
+        const intent = detectIntent(text);
+        
+        console.log(`[Chatbot] Intent: ${intent}, Message: ${text.substring(0, 50)}`);
+        
+        if (intent === 'greeting') {
+            return {
+                type: "text",
+                text: getRandomGreeting(),
+                quickReply: "Browse Products"
+            };
+        }
+        
+        if (intent === 'order_query') {
+            const searchValue = text.replace(/^(track|order status|where is my order|my order|check order)\s*/i, '').trim();
+            
+            if (!searchValue || searchValue.length < 3) {
+                return {
+                    type: "text",
+                    text: "Sure! 📦 Enter your Order ID (like 181001) or your registered phone number to track your order.",
+                    promptOrderLookup: true
+                };
+            }
+            
+            const result = await searchOrderDB(searchValue);
+            
+            if (result.found && result.order) {
+                const o = result.order;
+                return {
+                    type: "text",
+                    text: `📦 *Order #${o.id}*\n\n*Product:* ${o.product_name}\n*Status:* ${formatOrderStatus(o.order_status)}\n*Total:* ₹${o.order_value}\n*Date:* ${new Date(o.created_at).toLocaleDateString()}`
+                };
+            } else {
+                return {
+                    type: "text",
+                    text: "😕 Couldn't find that order. Please check your Order ID (like 181001) or your registered phone number and try again."
+                };
+            }
+        }
+        
+        if (intent === 'product_query') {
+            const searchTerms = extractSearchTerms(text);
+            const priceLimit = extractPriceFilter(text);
+            
+            const { products, isFallback } = await searchProductsDB(searchTerms, priceLimit);
+            
+            if (products && products.length > 0) {
+                const productData = formatProductDisplay(products);
+                
+                const intro = isFallback 
+                    ? "Couldn't find exactly what you wanted, but here are some fresh pieces 👇"
+                    : `Found ${products.length} pieces! Tap any to add to cart 👇`;
+                
+                return {
+                    type: "products",
+                    text: intro,
+                    products: productData,
+                    isFallback
+                };
+            }
+            
+            return {
+                type: "text",
+                text: "Nothing matching that vibe right now 👀 Try a different style or browse our latest arrivals!",
+                quickReply: "Browse Products"
+            };
+        }
+        
+        const searchTerm = extractSearchTerms(text);
+        if (searchTerm && searchTerm.length > 2) {
+            const { products, isFallback } = await searchProductsDB(searchTerm);
+            
+            if (products && products.length > 0) {
+                const productData = formatProductDisplay(products);
+                return {
+                    type: "products",
+                    text: `Found these! 👇`,
+                    products: productData,
+                    isFallback
+                };
+            }
+        }
+        
+        const formattedHistory = history.slice(-5).map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
         }));
         
+        const { products } = await searchProductsDB('');
+        const productSection = products && products.length > 0 
+            ? '\n\n📦 AVAILABLE PRODUCTS:\n' + formatProductForLLM(products.slice(0, 4))
+            : '';
+        
+        const systemPrompt = `${SYSTEM_PROMPT_BASE}${productSection}`;
+        
+        const messages = [
+            { role: "system", content: systemPrompt },
+            ...formattedHistory,
+            { role: "user", content: userMessage }
+        ];
+        
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+        const chatCompletion = await groq.chat.completions.create({
+            model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+            messages: messages,
+            temperature: 0.8,
+            max_tokens: 150,
+        });
+        
+        const reply = chatCompletion.choices[0]?.message?.content?.trim();
+        
+        if (!reply) {
+            return {
+                type: "text",
+                text: "Hmm, I'm a bit stuck 😅 Try asking about products or how to order!",
+                quickReply: "Browse Products"
+            };
+        }
+        
+        return { type: "text", text: reply };
+    } catch (error) {
+        console.error("Chatbot Error:", error);
         return {
-          type: "products",
-          text: `Found ${products.length} items! Tap any to add to cart 👇`,
-          products: productData
+            type: "text",
+            text: "Oops! Something glitched 😅 Try again in a sec!"
         };
-      } else {
-        return {
-          type: "text",
-          text: "Nothing matching that vibe rn 👀 Try a different style or increase your budget!"
-        };
-      }
     }
-
-    const products = await searchProductsDB(userMessage);
-    
-    let productSection = "";
-    if (products && products.length > 0) {
-      productSection = "\n\n" + products.slice(0, 5).map(p => `${p.name} - ₹${p.price}`).join("\n");
-    } else {
-      productSection = "\n\n(No products available for this search)";
-    }
-
-    const systemPrompt = `${SYSTEM_PROMPT_BASE}${productSection}`;
-
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...formattedHistory,
-      { role: "user", content: userMessage }
-    ];
-
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const chatCompletion = await groq.chat.completions.create({
-      model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 200,
-    });
-
-    const reply = chatCompletion.choices[0]?.message?.content?.trim();
-    
-    if (!reply || products === null) {
-      return { type: "text", text: FALLBACK_DB_ERROR };
-    }
-    
-    return { type: "text", text: reply };
-  } catch (error) {
-    console.error("Groq API Error:", error);
-    return { type: "text", text: FALLBACK_AI_ERROR };
-  }
 }

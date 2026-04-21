@@ -349,6 +349,7 @@
         width: calc(100% - 40px);
         right: 20px;
         bottom: 90px;
+        max-height: calc(100vh - 120px);
     }
 
     .chatbot-toggle {
@@ -361,5 +362,28 @@
     .ufo-icon {
         width: 55px;
         height: 55px;
+    }
+    
+    .chatbot-messages {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .chat-message {
+        max-width: 90%;
+    }
+    
+    .chat-product-card {
+        min-height: 70px;
+    }
+    
+    .chat-product-card img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .chat-add-btn {
+        padding: 6px 10px;
+        font-size: 0.7rem;
     }
 }

@@ -172,6 +172,23 @@
     color: var(--text-main);
 }
 
+.urgency-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background: #e63946;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    animation: urgencyPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes urgencyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
 .btn-add-to-cart {
     display: block;
     width: 100%;
