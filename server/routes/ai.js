@@ -261,7 +261,7 @@ router.post('/instagram-script', authMiddleware, roleMiddleware('admin', 'staff'
     }
 });
 
-router.post('/admin-chat', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.post('/admin-chat', authMiddleware, roleMiddleware('admin', 'staff'), async (req, res) => {
     try {
         const { message, history } = req.body;
 
@@ -293,7 +293,7 @@ router.post('/admin-chat', authMiddleware, roleMiddleware('admin'), async (req, 
     }
 });
 
-router.post('/action', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.post('/action', authMiddleware, roleMiddleware('admin', 'staff'), async (req, res) => {
     const client = await pool.connect();
     const userId = req.user?.id;
     
@@ -507,7 +507,7 @@ router.post('/action', authMiddleware, roleMiddleware('admin'), async (req, res)
     }
 });
 
-router.get('/actions', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.get('/actions', authMiddleware, roleMiddleware('admin', 'staff'), async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 20, 50);
         

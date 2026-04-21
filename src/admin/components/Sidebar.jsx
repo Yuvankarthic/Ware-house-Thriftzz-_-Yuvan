@@ -12,6 +12,7 @@ export default function Sidebar({ user, isOpen, onClose }) {
     };
 
     const isAdmin = user?.role === 'admin';
+    const isStaff = user?.role === 'staff' || user?.role === 'admin';
 
     const links = [
         { to: '/admin', label: 'Dashboard', icon: '📊', exact: true },
@@ -27,6 +28,9 @@ export default function Sidebar({ user, isOpen, onClose }) {
     if (isAdmin) {
         links.push({ to: '/admin/analytics', label: 'Analytics', icon: '📈' });
         links.push({ to: '/admin/team', label: 'Team', icon: '👥' });
+    }
+
+    if (isStaff) {
         links.push({ to: '/admin/instagram', label: 'IG Script AI', icon: '📸' });
         links.push({ to: '/admin/chatbot', label: 'Admin Chatbot', icon: '🧠' });
     }
