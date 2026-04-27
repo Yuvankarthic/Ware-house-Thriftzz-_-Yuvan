@@ -20,6 +20,7 @@ import WelcomeOverlay from './components/WelcomeOverlay';
 
 import AdminRoot from './admin/AdminRoot';
 import { trackVisit, trackEvent } from './utils/activityTracker';
+import AddProductExample from './components/AddProductExample';
 
 function HomeAndShopPage() {
   return (
@@ -70,6 +71,8 @@ function App() {
         <Route path="/thank-you" component={ThankYouPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/product/:id" component={ProductPage} />
+        <Route path="/add-product" component={AddProductExample} />
+        <Route path="/edit-product" component={() => <AddProductExample isEdit={true} />} />
       </Switch>
       <Chatbot />
       <Footer />
