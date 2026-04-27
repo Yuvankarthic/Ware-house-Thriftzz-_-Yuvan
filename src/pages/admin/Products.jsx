@@ -80,9 +80,48 @@ export default function Products({ token }) {
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files || []);
-    setImageFiles(files);
+    setImageFiles(prev => [...prev, ...files]);
     
     const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...previews]);
+    
+    // Reset file input so selecting the same file again works
+    e.target.value = '';
+  };
+
+  const removeImage = (indexToRemove) => {
+    setImageFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const moveImage = (index, direction) => {
+    if (direction === -1 && index === 0) return;
+    if (direction === 1 && index === imageFiles.length - 1) return;
+    
+    const newFiles = [...imageFiles];
+    const newPreviews = [...imagePreviews];
+    
+    const tempFile = newFiles[index];
+    newFiles[index] = newFiles[index + direction];
+    newFiles[index + direction] = tempFile;
+    
+    const tempPreview = newPreviews[index];
+    newPreviews[index] = newPreviews[index + direction];
+    newPreviews[index + direction] = tempPreview;
+    
+    setImageFiles(newFiles);
+    setImagePreviews(newPreviews);
+  };
+
+  const shuffleImages = () => {
+    const files = [...imageFiles];
+    const previews = [...imagePreviews];
+    for (let i = files.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [files[i], files[j]] = [files[j], files[i]];
+      [previews[i], previews[j]] = [previews[j], previews[i]];
+    }
+    setImageFiles(files);
     setImagePreviews(previews);
   };
 
@@ -293,22 +332,50 @@ export default function Products({ token }) {
             {step === 'form' && (
               <>
                 {!editing && (
-                  <label className="admin-file-upload">
-                    <span>Image Upload (Multiple)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageSelect}
-                    />
+                  <div className="admin-file-upload">
+                    <label style={{ display: 'block', width: '100%' }}>
+                      <span style={{ display: 'block', marginBottom: 8 }}>Image Upload (Multiple)</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageSelect}
+                        style={{ width: '100%', padding: '8px', border: '1px dashed #ccc', borderRadius: '4px' }}
+                      />
+                    </label>
                     {imagePreviews.length > 0 && (
-                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                        {imagePreviews.map((src, i) => (
-                          <img key={i} src={src} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }} />
-                        ))}
+                      <div style={{ marginTop: 12 }}>
+                        <button type="button" onClick={shuffleImages} style={{ padding: '6px 12px', fontSize: 13, borderRadius: 4, cursor: 'pointer', marginBottom: 12, background: '#f0f0f0', border: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          🔀 Shuffle / Randomize Images
+                        </button>
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                          {imagePreviews.map((src, i) => (
+                            <div key={i} style={{ position: 'relative', width: 90, height: 90, border: '1px solid #eee', borderRadius: 8, overflow: 'hidden' }}>
+                              <img src={src} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              
+                              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', opacity: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 4, transition: 'opacity 0.2s' }}
+                                   onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                   onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}>
+                                
+                                <button type="button" onClick={(e) => { e.preventDefault(); removeImage(i); }} style={{ alignSelf: 'flex-end', background: '#ff4444', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, padding: 0 }}>
+                                  ×
+                                </button>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <button type="button" onClick={(e) => { e.preventDefault(); moveImage(i, -1); }} disabled={i === 0} style={{ background: 'white', border: 'none', borderRadius: 4, cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.5 : 1, padding: '2px 8px', fontSize: 14 }}>
+                                    &lt;
+                                  </button>
+                                  <button type="button" onClick={(e) => { e.preventDefault(); moveImage(i, 1); }} disabled={i === imagePreviews.length - 1} style={{ background: 'white', border: 'none', borderRadius: 4, cursor: i === imagePreviews.length - 1 ? 'not-allowed' : 'pointer', opacity: i === imagePreviews.length - 1 ? 0.5 : 1, padding: '2px 8px', fontSize: 14 }}>
+                                    &gt;
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
-                  </label>
+                  </div>
                 )}
 
                 <div className="admin-product-form-grid">
