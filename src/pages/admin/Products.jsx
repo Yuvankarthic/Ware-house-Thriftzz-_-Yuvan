@@ -316,10 +316,9 @@ export default function Products({ token }) {
                 <div className="admin-product-form-grid">
                   <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="search-input" />
                   <input required type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="search-input" />
-                  <select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="search-input">
+<select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="search-input">
                     <option value="Jackets">Jackets</option>
                     <option value="Shirts">Shirts</option>
-                    <option value="Pants">Pants</option>
                   </select>
                   <input placeholder="Size" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="search-input" />
                   <input placeholder="Fit" value={form.fit} onChange={(e) => setForm({ ...form, fit: e.target.value })} className="search-input" />

@@ -2868,11 +2868,14 @@
 .admin-modal-card {
     width: 100%;
     max-width: 540px;
+    max-height: 90vh;
     padding: 20px;
     border-radius: 16px;
     background: rgba(248, 244, 238, 0.98);
     border: 1px solid rgba(98, 72, 53, 0.2);
     box-shadow: 0 30px 60px rgba(31, 22, 18, 0.3);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .admin-modal-card h2 {
