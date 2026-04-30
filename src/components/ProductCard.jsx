@@ -168,9 +168,6 @@ const ProductCard = ({ product, onSelect }) => {
                 )}
                 <div className="card-price-row">
                     <p className="card-price">₹{product.price}</p>
-                    {product.stock === 1 && (
-                        <span className="urgency-badge">Only 1 left!</span>
-                    )}
 
                     {/* Mobile-only plus button next to price */}
                     {!product.soldOut && (
