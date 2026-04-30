@@ -108,23 +108,27 @@ export default function Products({ token }) {
 
     try {
       if (editing) {
+        const newImageFiles = productImages.filter((img) => img.file && !img.isExisting);
+        const existingImageUrls = productImages.filter((img) => img.isExisting).map(img => img.url);
+        
+        // If there are new images, send FormData, otherwise we could just send JSON, but to be consistent let's use FormData
+        const fd = new FormData();
+        newImageFiles.forEach((img) => fd.append('images', img.file));
+        fd.append('name', form.name);
+        fd.append('price', form.price);
+        fd.append('category', form.category);
+        fd.append('size', form.size);
+        fd.append('fit', form.fit);
+        fd.append('condition', form.condition);
+        fd.append('chest_length', form.chest_length);
+        fd.append('shoulder_length', form.shoulder_length);
+        fd.append('show_on_main', String(form.show_on_main));
+        fd.append('existing_image_urls', JSON.stringify(existingImageUrls));
+
         const res = await fetch(`${API}/products/${editing.id}`, {
           method: 'PUT',
-          headers: {
-            ...authHeaders,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: form.name,
-            price: Number(form.price),
-            category: form.category,
-            size: form.size,
-            fit: form.fit,
-            condition: form.condition,
-            chest_length: form.chest_length,
-            shoulder_length: form.shoulder_length,
-            show_on_main: form.show_on_main,
-          }),
+          headers: authHeaders,
+          body: fd,
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed to update product');

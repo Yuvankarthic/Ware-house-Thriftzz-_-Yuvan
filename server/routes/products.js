@@ -205,24 +205,56 @@ router.post('/', authMiddleware, upload.fields([
 router.get('/:id', async (req, res) => { try { const { rows } = await pool.query('SELECT * FROM products WHERE id = ', [req.params.id]); if (rows.length === 0) return res.status(404).json({error: 'Not found'}); res.json(rows[0]); } catch(e) { res.status(500).json({error: e.message}); } });
 
 // PUT /api/products/:id - edit product details
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'images[]', maxCount: 10 },
+]), async (req, res) => {
   try {
     await ensureProductColumns();
 
-    const { name, price, size, fit, condition, image_url, image_urls, category, chest_length, shoulder_length, show_on_main } = req.body;
+    const { name, price, size, fit, condition, image_url, image_urls, category, chest_length, shoulder_length, show_on_main, existing_image_urls } = req.body;
     const showOnMain = parseBoolean(show_on_main);
 
     let parsedImageUrls = null;
-    if (Array.isArray(image_urls)) {
+    if (existing_image_urls) {
+      try {
+        parsedImageUrls = JSON.parse(existing_image_urls);
+      } catch {}
+    } else if (Array.isArray(image_urls)) {
       parsedImageUrls = image_urls;
     } else if (typeof image_urls === 'string' && image_urls.trim()) {
       try {
         const maybeArray = JSON.parse(image_urls);
         if (Array.isArray(maybeArray)) parsedImageUrls = maybeArray;
       } catch {
-        parsedImageUrls = null;
+        // fallback
       }
     }
+
+    const imageFiles = [
+      ...((req.files && Array.isArray(req.files.images)) ? req.files.images : []),
+      ...((req.files && Array.isArray(req.files['images[]'])) ? req.files['images[]'] : []),
+    ];
+
+    let uploadedImageUrls = [];
+    if (imageFiles.length > 0) {
+      const uploadResults = await Promise.allSettled(
+        imageFiles.map((file) => uploadToCloudinary(file.buffer))
+      );
+      uploadedImageUrls = uploadResults
+        .filter((item) => item.status === 'fulfilled')
+        .map((item) => item.value?.secure_url)
+        .filter(Boolean);
+    }
+
+    if (parsedImageUrls || uploadedImageUrls.length > 0) {
+      parsedImageUrls = [...(parsedImageUrls || []), ...uploadedImageUrls];
+    }
+    
+    // image_url is usually the first image
+    const finalImageUrl = (parsedImageUrls && parsedImageUrls.length > 0) 
+      ? parsedImageUrls[0] 
+      : image_url;
 
     const result = await query(
       `UPDATE products
@@ -239,7 +271,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
            image_urls = COALESCE($11::jsonb, image_urls)
          WHERE id = $12
          RETURNING *`,
-        [name, price, size, fit, condition, image_url, category, chest_length, shoulder_length, showOnMain, parsedImageUrls ? JSON.stringify(parsedImageUrls) : null, req.params.id]
+        [name, price, size, fit, condition, finalImageUrl, category, chest_length, shoulder_length, showOnMain, parsedImageUrls ? JSON.stringify(parsedImageUrls) : null, req.params.id]
     );
 
     if (result.rows.length === 0) {
