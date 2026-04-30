@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -17,6 +17,7 @@ import CategoryPage from './pages/CategoryPage';
 import TrackOrderPage from './pages/TrackOrderPage';
 import ThankYouPage from './pages/ThankYouPage';
 import WelcomeOverlay from './components/WelcomeOverlay';
+import SplashScreen from './components/SplashScreen';
 
 import AdminRoot from './admin/AdminRoot';
 import { trackVisit, trackEvent } from './utils/activityTracker';
@@ -38,6 +39,25 @@ function HomeAndShopPage() {
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashComplete, setSplashComplete] = useState(false);
+
+  const handleSplashComplete = () => {
+    setSplashComplete(true);
+  };
+
+  useEffect(() => {
+    const hasSeenSplash = sessionStorage.getItem('wht_splash_seen');
+    if (hasSeenSplash) {
+      setShowSplash(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (splashComplete) {
+      sessionStorage.setItem('wht_splash_seen', 'true');
+    }
+  }, [splashComplete]);
 
   useEffect(() => {
     const page = location.pathname === '/' ? 'welcome' : location.pathname.replace(/^\//, '') || 'homepage';
@@ -51,6 +71,10 @@ function App() {
         <Route path="/admin" component={AdminRoot} />
       </Switch>
     );
+  }
+
+  if (showSplash && !splashComplete && location.pathname === '/') {
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   if (location.pathname === '/') {
