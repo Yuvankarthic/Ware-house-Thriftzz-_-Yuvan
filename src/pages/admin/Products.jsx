@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { ProductImageUpload, useExistingImages } from '../../components/AddProductReact';
 import BASE_URL from '../../config/api';
-import { useSiteSettings } from '../../context/SiteSettingsContext';
 
 const API = `${BASE_URL}/api`;
 
@@ -19,7 +18,6 @@ const initialForm = {
 };
 
 export default function Products({ token }) {
-  const { settings, updateSettings } = useSiteSettings();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -229,13 +227,12 @@ export default function Products({ token }) {
           <span className="admin-subtext">{products.length} total items</span>
         </div>
         <div className="header-actions">
-            <button
-              type="button"
-              className={`btn-admin ${settings.show_pants ? 'primary' : 'ghost'}`}
-              onClick={() => updateSettings('show_pants', !settings.show_pants, token)}
-            >
-              {settings.show_pants ? 'Hide Pants Category' : 'Show Pants Category'}
-            </button>
+          <button type="button" className="btn-admin ghost" onClick={fetchProducts}>Refresh</button>
+          <button type="button" className="btn-admin primary" onClick={openAdd}>Add Product</button>
+        </div>
+      </div>
+
+      {error && <div className="admin-alert error">{error}</div>}
 
       {loading ? (
         <p className="admin-subtext">Loading products...</p>

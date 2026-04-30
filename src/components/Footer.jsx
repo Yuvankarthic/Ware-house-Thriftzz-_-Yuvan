@@ -22,6 +22,7 @@ const Footer = () => {
                         <a href="/#latest-drop">Latest Drop</a>
                         <Link to="/track-order">Track Order</Link>
                         <Link to="/about">About WHT</Link>
+                        <Link to="/admin">Admin</Link>
                     </nav>
                 </div>
 

@@ -26,13 +26,13 @@ const mapApiProductToCard = (product) => ({
     shoulder_length: product.shoulder_length || '',
 });
 
-const CATEGORY_OPTIONS = ['All', 'Jackets', 'Shirts', 'Pants'];
+const CATEGORY_OPTIONS = ['All', 'Jackets', 'Shirts'];
 const normalizeCategory = (value = '') => {
     const normalized = String(value).trim().toLowerCase();
     if (!normalized) return '';
     if (['jacket', 'jackets'].includes(normalized)) return 'Jackets';
     if (['shirt', 'shirts'].includes(normalized)) return 'Shirts';
-    if (['pant', 'pants', 'trouser', 'trousers'].includes(normalized)) return 'Pants';
+    
     return '';
 };
 
@@ -76,8 +76,8 @@ const ProductGrid = () => {
         return apiProducts
             .map(mapApiProductToCard)
             .filter((p) => p.show_on_main && p.stock > 0)
-            .filter((p) => settings.show_pants || normalizeCategory(p.category) !== 'Pants');
-    }, [apiProducts, settings.show_pants]);
+            
+    }, [apiProducts]);
 
     const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
@@ -116,7 +116,7 @@ const ProductGrid = () => {
                     {isFilterOpen && (
                         <div className="filter-panel" role="dialog" aria-label="Filter products panel">
                             <p className="filter-section-label">CATEGORY</p>
-                            {CATEGORY_OPTIONS.filter(cat => settings.show_pants ? true : cat !== 'Pants').map((category) => (
+                            {CATEGORY_OPTIONS.map((category) => (
                                 <button
                                     key={category}
                                     type="button"

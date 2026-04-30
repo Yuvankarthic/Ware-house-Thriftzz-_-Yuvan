@@ -2859,23 +2859,24 @@
     background: rgba(28, 22, 18, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     z-index: 1200;
-    padding: 14px;
+    padding: 40px 14px;
+    overflow-y: auto;
 }
 
 .admin-modal-card {
     width: 100%;
     max-width: 540px;
-    max-height: 90vh;
     padding: 20px;
     border-radius: 16px;
     background: rgba(248, 244, 238, 0.98);
     border: 1px solid rgba(98, 72, 53, 0.2);
     box-shadow: 0 30px 60px rgba(31, 22, 18, 0.3);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    margin: auto;
+    position: relative;
+    flex-shrink: 0;
 }
 
 .admin-modal-card h2 {
