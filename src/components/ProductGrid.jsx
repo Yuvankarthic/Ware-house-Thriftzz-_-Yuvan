@@ -6,6 +6,7 @@ import ProductViewer from './ProductViewer';
 import '../styles/ProductGrid.css';
 import BASE_URL from '../config/api';
 import { sanitizeImageList, sanitizeImageUrl } from '../utils/imageUrl';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 const API = `${BASE_URL}/api`;
 
@@ -36,6 +37,7 @@ const normalizeCategory = (value = '') => {
 };
 
 const ProductGrid = () => {
+    const { settings } = useSiteSettings();
     const panelRef = useRef(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState('All');
@@ -73,8 +75,9 @@ const ProductGrid = () => {
     const liveProducts = useMemo(() => {
         return apiProducts
             .map(mapApiProductToCard)
-            .filter((p) => p.show_on_main && p.stock > 0);
-    }, [apiProducts]);
+            .filter((p) => p.show_on_main && p.stock > 0)
+            .filter((p) => settings.show_pants || normalizeCategory(p.category) !== 'Pants');
+    }, [apiProducts, settings.show_pants]);
 
     const allSizes = useMemo(() => ['All', ...Array.from(new Set(liveProducts.map((p) => p.size)))], [liveProducts]);
 
@@ -113,7 +116,7 @@ const ProductGrid = () => {
                     {isFilterOpen && (
                         <div className="filter-panel" role="dialog" aria-label="Filter products panel">
                             <p className="filter-section-label">CATEGORY</p>
-                            {CATEGORY_OPTIONS.map((category) => (
+                            {CATEGORY_OPTIONS.filter(cat => settings.show_pants ? true : cat !== 'Pants').map((category) => (
                                 <button
                                     key={category}
                                     type="button"

@@ -3,6 +3,7 @@ import { Check, Heart, Plus, ArrowLeft } from 'lucide-react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import BASE_URL from '../config/api';
 import '../styles/ProductGrid.css';
 
@@ -44,10 +45,11 @@ export default function CategoryPage() {
   const history = useHistory();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { settings } = useSiteSettings();
 
   const selectedCategoryKey = useMemo(() => toCanonicalCategoryKey(category), [category]);
   const selectedCategory = selectedCategoryKey ? CATEGORY_META[selectedCategoryKey].label : '';
-  const selectedCategoryIcon = selectedCategoryKey ? CATEGORY_META[selectedCategoryKey].icon : '🏷️';
+  const selectedCategoryIcon = selectedCategoryKey ? CATEGORY_META[selectedCategoryKey].icon : '👕';
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +57,10 @@ export default function CategoryPage() {
   const [heartPopProductId, setHeartPopProductId] = useState(null);
 
   useEffect(() => {
+    if (selectedCategoryKey === 'pants' && !settings.show_pants) {
+      history.push('/shop');
+      return;
+    }
     if (!selectedCategoryKey) {
       setProducts([]);
       setLoading(false);

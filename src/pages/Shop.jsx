@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import '../styles/ProductGrid.css';
 
 const CATEGORY_BANNERS = {
@@ -10,6 +11,7 @@ const CATEGORY_BANNERS = {
 
 export default function Shop() {
   const history = useHistory();
+  const { settings } = useSiteSettings();
 
   const openCategory = (category) => {
     history.push(`/shop/${category.toLowerCase()}`);
@@ -21,7 +23,7 @@ export default function Shop() {
         <button
           type="button"
           className="category-banner category-banner-jackets"
-          style={{ backgroundImage: `url(${CATEGORY_BANNERS.Jackets})` }}
+          style={{ backgroundImage: `url()` }}
           onClick={() => openCategory('Jackets')}
         >
           <span className="category-banner-title">JACKETS</span>
@@ -31,22 +33,24 @@ export default function Shop() {
         <button
           type="button"
           className="category-banner category-banner-shirts"
-          style={{ backgroundImage: `url(${CATEGORY_BANNERS.Shirts})` }}
+          style={{ backgroundImage: `url()` }}
           onClick={() => openCategory('Shirts')}
         >
           <span className="category-banner-title">SHIRTS</span>
           <span className="category-banner-button">Explore Shirts →</span>
         </button>
 
-        <button
-          type="button"
-          className="category-banner category-banner-pants"
-          style={{ backgroundImage: `url(${CATEGORY_BANNERS.Pants})` }}
-          onClick={() => openCategory('Pants')}
-        >
-          <span className="category-banner-title">PANTS</span>
-          <span className="category-banner-button">Explore Pants →</span>
-        </button>
+        {settings.show_pants && (
+          <button
+            type="button"
+            className="category-banner category-banner-pants"
+            style={{ backgroundImage: `url()` }}
+            onClick={() => openCategory('Pants')}
+          >
+            <span className="category-banner-title">PANTS</span>
+            <span className="category-banner-button">Explore Pants →</span>
+          </button>
+        )}
       </div>
     </section>
   );
