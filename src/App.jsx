@@ -16,7 +16,6 @@ import Shop from './pages/Shop';
 import CategoryPage from './pages/CategoryPage';
 import TrackOrderPage from './pages/TrackOrderPage';
 import ThankYouPage from './pages/ThankYouPage';
-import WelcomeOverlay from './components/WelcomeOverlay';
 import SplashScreen from './components/SplashScreen';
 
 import AdminRoot from './admin/AdminRoot';
@@ -75,10 +74,6 @@ function App() {
 
   if (showSplash && !splashComplete && location.pathname === '/') {
     return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
-  if (location.pathname === '/') {
-    return <WelcomeOverlay />;
   }
 
   return (
