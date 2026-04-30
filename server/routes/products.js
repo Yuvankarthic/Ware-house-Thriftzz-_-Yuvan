@@ -247,9 +247,14 @@ router.put('/:id', authMiddleware, upload.fields([
         .filter(Boolean);
     }
 
-    if (parsedImageUrls || uploadedImageUrls.length > 0) {
+if (parsedImageUrls || uploadedImageUrls.length > 0) {
       parsedImageUrls = [...(parsedImageUrls || []), ...uploadedImageUrls];
     }
+    
+    // Check if we have images to update - if new images are being added or existing_image_urls was explicitly provided
+    const hasNewImages = uploadedImageUrls.length > 0;
+    const hasExistingImages = parsedImageUrls && parsedImageUrls.length > 0;
+    const shouldUpdateImages = hasNewImages || hasExistingImages;
     
     // image_url is usually the first image
     const finalImageUrl = (parsedImageUrls && parsedImageUrls.length > 0) 
@@ -263,15 +268,16 @@ router.put('/:id', authMiddleware, upload.fields([
            size = COALESCE($3, size),
            fit = COALESCE($4, fit),
            condition = COALESCE($5, condition),
-           image_url = COALESCE($6, image_url),
+           ${shouldUpdateImages ? 'image_url = $6, image_urls = $11::jsonb,' : ''}
            category = COALESCE($7, category),
            chest_length = COALESCE($8, chest_length),
            shoulder_length = COALESCE($9, shoulder_length),
-           show_on_main = COALESCE($10, show_on_main),
-           image_urls = COALESCE($11::jsonb, image_urls)
+           show_on_main = COALESCE($10, show_on_main)
          WHERE id = $12
          RETURNING *`,
-        [name, price, size, fit, condition, finalImageUrl, category, chest_length, shoulder_length, showOnMain, parsedImageUrls ? JSON.stringify(parsedImageUrls) : null, req.params.id]
+         shouldUpdateImages 
+           ? [name, price, size, fit, condition, finalImageUrl, category, chest_length, shoulder_length, showOnMain, JSON.stringify(parsedImageUrls), req.params.id]
+           : [name, price, size, fit, condition, category, chest_length, shoulder_length, showOnMain, req.params.id]
     );
 
     if (result.rows.length === 0) {
