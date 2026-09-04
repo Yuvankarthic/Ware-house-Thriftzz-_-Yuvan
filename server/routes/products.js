@@ -48,30 +48,34 @@ const normalizePublicAssetUrl = (value) => {
   return raw;
 };
 
-const sanitizeProduct = (row = {}) => ({
-  ...row,
-  image_urls: (() => {
-    const rawList = Array.isArray(row.image_urls) ? row.image_urls : [];
-    const normalizedList = rawList
-      .map((item) => normalizePublicAssetUrl(item))
-      .filter(Boolean);
+const sanitizeProduct = (row = {}) => {
+  let rawList = [];
+  if (Array.isArray(row.image_urls)) {
+    rawList = row.image_urls;
+  } else if (typeof row.image_urls === 'string' && row.image_urls.trim()) {
+    try {
+      const parsed = JSON.parse(row.image_urls);
+      if (Array.isArray(parsed)) rawList = parsed;
+    } catch {}
+  }
 
-    const primary = normalizePublicAssetUrl(row.image_url);
-    if (primary && !normalizedList.includes(primary)) {
-      normalizedList.unshift(primary);
-    }
+  const normalizedList = rawList
+    .map((item) => normalizePublicAssetUrl(item))
+    .filter(Boolean);
 
-    return normalizedList;
-  })(),
-  image_url: (() => {
-    const primary = normalizePublicAssetUrl(row.image_url);
-    if (primary) return primary;
-    if (Array.isArray(row.image_urls) && row.image_urls.length > 0) {
-      return normalizePublicAssetUrl(row.image_urls[0]);
-    }
-    return null;
-  })(),
-});
+  const legacyPrimary = normalizePublicAssetUrl(row.image_url);
+  if (legacyPrimary && !normalizedList.includes(legacyPrimary)) {
+    normalizedList.unshift(legacyPrimary);
+  }
+
+  const primary = normalizedList[0] || null;
+
+  return {
+    ...row,
+    image_urls: normalizedList,
+    image_url: primary,
+  };
+};
 
 const ensureProductColumns = async () => {
   if (productColumnsReady) return;
@@ -183,16 +187,25 @@ router.post('/', authMiddleware, upload.fields([
       .map((item) => item?.secure_url)
       .filter(Boolean);
 
-    const image_url = imageUrls[0] || null;
-
     const showOnMain = parseBoolean(show_on_main, true);
     const productCategory = category?.trim() || 'Jackets';
 
     const result = await query(
-      `INSERT INTO products (name, price, stock, size, fit, condition, image_url, image_urls, category, chest_length, shoulder_length, show_on_main)
-       VALUES ($1, $2, 1, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11)
+      `INSERT INTO products (name, price, stock, size, fit, condition, image_urls, category, chest_length, shoulder_length, show_on_main)
+       VALUES ($1, $2, 1, $3, $4, $5, $6::jsonb, $7, $8, $9, $10)
        RETURNING *`,
-      [name, price, size || null, fit || null, condition || null, image_url, JSON.stringify(imageUrls), productCategory, chest_length || null, shoulder_length || null, showOnMain]
+      [
+        name,
+        price,
+        size || null,
+        fit || null,
+        condition || null,
+        JSON.stringify(imageUrls),
+        productCategory,
+        chest_length || null,
+        shoulder_length || null,
+        showOnMain,
+      ]
     );
 
     return res.status(201).json({ success: true, product: sanitizeProduct(result.rows[0]) });
@@ -202,7 +215,17 @@ router.post('/', authMiddleware, upload.fields([
   }
 });
 
-router.get('/:id', async (req, res) => { try { const { rows } = await pool.query('SELECT * FROM products WHERE id = ', [req.params.id]); if (rows.length === 0) return res.status(404).json({error: 'Not found'}); res.json(rows[0]); } catch(e) { res.status(500).json({error: e.message}); } });
+router.get('/:id', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+    return res.json({ success: true, product: sanitizeProduct(rows[0]) });
+  } catch (e) {
+    return res.status(500).json({ success: false, error: e.message });
+  }
+});
 
 // PUT /api/products/:id - edit product details
 router.put('/:id', authMiddleware, upload.fields([
@@ -255,30 +278,64 @@ if (parsedImageUrls || uploadedImageUrls.length > 0) {
     const hasNewImages = uploadedImageUrls.length > 0;
     const hasExistingImages = parsedImageUrls && parsedImageUrls.length > 0;
     const shouldUpdateImages = hasNewImages || hasExistingImages;
-    
-    // image_url is usually the first image
-    const finalImageUrl = (parsedImageUrls && parsedImageUrls.length > 0) 
-      ? parsedImageUrls[0] 
-      : image_url;
-
-    const result = await query(
-      `UPDATE products
-       SET name = COALESCE($1, name),
-           price = COALESCE($2, price),
-           size = COALESCE($3, size),
-           fit = COALESCE($4, fit),
-           condition = COALESCE($5, condition),
-           ${shouldUpdateImages ? 'image_url = $6, image_urls = $11::jsonb,' : ''}
-           category = COALESCE($7, category),
-           chest_length = COALESCE($8, chest_length),
-           shoulder_length = COALESCE($9, shoulder_length),
-           show_on_main = COALESCE($10, show_on_main)
-         WHERE id = $12
+    let result;
+    if (shouldUpdateImages) {
+      result = await query(
+        `UPDATE products
+         SET name = COALESCE($1, name),
+             price = COALESCE($2, price),
+             size = COALESCE($3, size),
+             fit = COALESCE($4, fit),
+             condition = COALESCE($5, condition),
+             image_urls = $6::jsonb,
+             category = COALESCE($7, category),
+             chest_length = COALESCE($8, chest_length),
+             shoulder_length = COALESCE($9, shoulder_length),
+             show_on_main = COALESCE($10, show_on_main)
+         WHERE id = $11
          RETURNING *`,
-         shouldUpdateImages 
-           ? [name, price, size, fit, condition, finalImageUrl, category, chest_length, shoulder_length, showOnMain, JSON.stringify(parsedImageUrls), req.params.id]
-           : [name, price, size, fit, condition, category, chest_length, shoulder_length, showOnMain, req.params.id]
-    );
+        [
+          name,
+          price,
+          size,
+          fit,
+          condition,
+          JSON.stringify(parsedImageUrls || []),
+          category,
+          chest_length,
+          shoulder_length,
+          showOnMain,
+          req.params.id,
+        ]
+      );
+    } else {
+      result = await query(
+        `UPDATE products
+         SET name = COALESCE($1, name),
+             price = COALESCE($2, price),
+             size = COALESCE($3, size),
+             fit = COALESCE($4, fit),
+             condition = COALESCE($5, condition),
+             category = COALESCE($6, category),
+             chest_length = COALESCE($7, chest_length),
+             shoulder_length = COALESCE($8, shoulder_length),
+             show_on_main = COALESCE($9, show_on_main)
+         WHERE id = $10
+         RETURNING *`,
+        [
+          name,
+          price,
+          size,
+          fit,
+          condition,
+          category,
+          chest_length,
+          shoulder_length,
+          showOnMain,
+          req.params.id,
+        ]
+      );
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Product not found' });

@@ -25,7 +25,6 @@ async function migrate() {
             created_at  TIMESTAMPTZ DEFAULT NOW()
         );
     `);
-    await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT;`);
     await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb;`);
     await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS chest_length VARCHAR(50);`);
     await query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS shoulder_length VARCHAR(50);`);
