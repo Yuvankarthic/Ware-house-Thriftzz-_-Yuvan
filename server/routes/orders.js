@@ -27,6 +27,24 @@ const STATUS_EMAIL_EVENTS = ['packed', 'out_for_delivery', 'delivered'];
 
 const PICKER_NAMES = ['akash', 'vishwa', 'yuvan'];
 
+const ensureOrderEmailEventsTable = async () => {
+    await query(`
+        CREATE TABLE IF NOT EXISTS order_email_events (
+            id              SERIAL PRIMARY KEY,
+            order_id        INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+            event_type      VARCHAR(50) NOT NULL,
+            delivery_status VARCHAR(20) NOT NULL,
+            reason          TEXT,
+            recipient       VARCHAR(255),
+            created_at      TIMESTAMPTZ DEFAULT NOW()
+        );
+    `);
+    await query(`
+        CREATE INDEX IF NOT EXISTS idx_order_email_events_order_id_created_at
+        ON order_email_events(order_id, created_at DESC);
+    `);
+};
+
 const ensureOrderIdSequence = async () => {
     // Keep order IDs in the requested 181001+ range while preserving higher existing IDs.
     await query(
@@ -400,6 +418,8 @@ router.get('/track/:id', async (req, res) => {
 // ────────────────────────────────────────────────────────────
 router.get('/email-dashboard', authMiddleware, async (req, res) => {
     try {
+        await ensureOrderEmailEventsTable();
+
         const parsedLimit = Number.parseInt(String(req.query.limit || '100'), 10);
         const limit = Number.isInteger(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 300) : 100;
         const search = String(req.query.search || '').trim();
@@ -462,7 +482,11 @@ router.get('/email-dashboard', authMiddleware, async (req, res) => {
         return res.json({ success: true, rows: result.rows });
     } catch (err) {
         console.error('❌ GET /api/orders/email-dashboard error:', err);
-        return res.status(500).json({ success: false, error: 'Internal server error' });
+        return res.status(500).json({
+            success: false,
+            error: 'Internal server error',
+            detail: err?.message || 'Unknown error',
+        });
     }
 });
 
