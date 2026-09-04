@@ -26,6 +26,7 @@ import aiRoutes from './routes/ai.js';
 import reelsRoutes from './routes/reels.js';
 import pool from './db.js';
 import { getMailerHealth, sendOrderConfirmationEmail } from './services/mailer.js';
+import { authMiddleware } from './auth.js';
 import sgMail from '@sendgrid/mail';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -354,6 +355,42 @@ app.get('/health', async (_req, res) => {
             timestamp: new Date().toISOString()
         });
     }
+});
+
+// ── SendGrid Diagnostic Endpoint (TEMPORARY) ──
+app.get('/api/admin/sendgrid-test', authMiddleware, async (_req, res) => {
+    const raw = process.env.SENDGRID_API_KEY || '';
+    const trimmed = raw.trim();
+
+    const result = {
+        exists: raw.length > 0,
+        startsWithSG: trimmed.startsWith('SG.'),
+        length: raw.length,
+        hasWhitespace: raw !== trimmed,
+        hasSurroundingQuotes: /^["']|["']$/.test(trimmed),
+        EMAIL_SERVICE: process.env.EMAIL_SERVICE || '',
+        sendgrid: {},
+    };
+
+    try {
+        const sgResponse = await fetch('https://api.sendgrid.com/v3/user/profile', {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${trimmed}` },
+        });
+        const body = await sgResponse.text();
+        result.sendgrid.status = sgResponse.status;
+        const capped = body.length > 500 ? `${body.slice(0, 500)}...` : body;
+        const scrubbed = trimmed ? capped.split(trimmed).join('[REDACTED]') : capped;
+        try {
+            result.sendgrid.body = JSON.parse(scrubbed);
+        } catch {
+            result.sendgrid.body = scrubbed;
+        }
+    } catch (err) {
+        result.sendgrid.error = err?.message || 'Network error reaching SendGrid';
+    }
+
+    return res.json(result);
 });
 
 // ── Test Email Endpoint ──
