@@ -9,7 +9,7 @@ const isSendGrid = useService === 'sendgrid' && hasSendGrid;
 const isBrevo = useService === 'brevo' && hasBrevo;
 
 if (isSendGrid) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    sgMail.setApiKey((process.env.SENDGRID_API_KEY || '').trim());
     console.log('✅ SendGrid email service initialized');
 } else if (isBrevo) {
   console.log('✅ Brevo email service initialized');

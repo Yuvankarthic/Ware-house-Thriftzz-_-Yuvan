@@ -386,7 +386,7 @@ app.get('/test-email', async (_req, res) => {
         
         if (isSendGrid) {
             // Send via SendGrid
-            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+            sgMail.setApiKey((process.env.SENDGRID_API_KEY || '').trim());
             const msg = {
                 to: recipient,
                 from: process.env.MAIL_FROM,
