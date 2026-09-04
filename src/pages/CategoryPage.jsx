@@ -25,6 +25,7 @@ const mapApiProductToCard = (product) => ({
   category: product.category || 'Jackets',
   image_url: (Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : product.image_url) || PLACEHOLDER_IMAGE,
   stock: Number(product.stock) || 0,
+  show_on_main: product.show_on_main !== false,
   chest_length: product.chest_length || '',
   shoulder_length: product.shoulder_length || '',
 });
@@ -65,13 +66,13 @@ export default function CategoryPage() {
     }
 
     setLoading(true);
-    fetch(`${API}/products`)
+    fetch(`${API}/products?visible=true`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : data?.products || [];
         const filtered = list
           .map(mapApiProductToCard)
-          .filter((product) => product.stock > 0 && toCanonicalCategoryKey(product.category) === selectedCategoryKey);
+          .filter((product) => product.stock > 0 && product.show_on_main !== false && toCanonicalCategoryKey(product.category) === selectedCategoryKey);
         setProducts(filtered);
       })
       .catch(() => setProducts([]))

@@ -120,19 +120,31 @@ const uploadToCloudinary = (buffer) => {
   });
 };
 
-// GET /api/products - all products (optional category filter)
+// GET /api/products - all products (optional category filter, optional visibility filter)
 router.get('/', async (req, res) => {
   try {
     await ensureProductColumns();
 
     const category = typeof req.query.category === 'string' ? req.query.category.trim() : '';
+    const visibleOnly = req.query.visible === 'true';
 
-    const baseQuery = 'SELECT * FROM products';
-    const whereClause = category ? ' WHERE category = $1' : '';
-    const params = category ? [category] : [];
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (category) {
+      conditions.push(`category = $${paramIndex++}`);
+      params.push(category);
+    }
+
+    if (visibleOnly) {
+      conditions.push(`show_on_main = true`);
+    }
+
+    const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
 
     const result = await query(
-      `${baseQuery}${whereClause} ORDER BY created_at DESC`,
+      `SELECT * FROM products${whereClause} ORDER BY created_at DESC`,
       params
     );
     return res.json({ success: true, products: result.rows.map(sanitizeProduct) });
@@ -401,7 +413,13 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     await ensureProductColumns();
 
-    const result = await query('DELETE FROM products WHERE id = $1 RETURNING id', [req.params.id]);
+    const productId = req.params.id;
+
+    // Nullify product_id on any orders that reference this product
+    // before deleting, so the FK constraint (RESTRICT) doesn't block the delete.
+    await query('UPDATE orders SET product_id = NULL WHERE product_id = $1', [productId]);
+
+    const result = await query('DELETE FROM products WHERE id = $1 RETURNING id', [productId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Product not found' });

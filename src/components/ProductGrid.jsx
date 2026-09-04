@@ -47,7 +47,7 @@ const ProductGrid = () => {
 
     useEffect(() => {
         const fetchProducts = () => {
-            fetch(`${API}/products`)
+            fetch(`${API}/products?visible=true`)
                 .then((res) => res.json())
                 .then((data) => {
                     const list = Array.isArray(data) ? data : data?.products || [];

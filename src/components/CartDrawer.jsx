@@ -83,14 +83,14 @@ const CartDrawer = () => {
         const fetchRecommendation = async () => {
             setIsLoadingRecommended(true);
             try {
-                const res = await fetch(`${BASE_URL}/api/products`);
+                const res = await fetch(`${BASE_URL}/api/products?visible=true`);
                 const data = await res.json();
                 const products = Array.isArray(data) ? data : data?.products || [];
                 const cartIds = new Set(cartItems.map((item) => String(item.id)));
 
                 const suggestion = products.find((item) => {
                     const cardId = `api-${item.id}`;
-                    return Number(item.stock) > 0 && !cartIds.has(cardId) && !cartIds.has(String(item.id));
+                    return Number(item.stock) > 0 && item.show_on_main !== false && !cartIds.has(cardId) && !cartIds.has(String(item.id));
                 });
 
                 if (isMounted) {
