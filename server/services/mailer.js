@@ -361,6 +361,9 @@ export const sendOrderConfirmationEmail = async (order) => {
           return { sent: true, messageId, provider: 'sendgrid' };
         } catch (sgErr) {
           console.error(`❌ SendGrid failed for ${order.email}:`, sgErr?.message || sgErr);
+          const sgBody = sgErr?.response?.body;
+          const safeBody = typeof sgBody === 'string' ? sgBody : JSON.stringify(sgBody || {});
+          console.error(`⚠️ SendGrid response for ${order.email} -> status: ${sgErr?.response?.statusCode ?? sgErr?.code ?? 'n/a'}, body: ${safeBody}`);
           if (!hasBrevo && !(process.env.SMTP_USER && process.env.SMTP_PASS)) throw sgErr;
         }
       }
@@ -444,6 +447,9 @@ export const sendOrderStatusUpdateEmail = async (order, status) => {
         return { sent: true, messageId, provider: 'sendgrid' };
       } catch (sgErr) {
         console.error(`❌ SendGrid status email failed for ${order.email}:`, sgErr?.message || sgErr);
+        const sgBody2 = sgErr?.response?.body;
+        const safeBody2 = typeof sgBody2 === 'string' ? sgBody2 : JSON.stringify(sgBody2 || {});
+        console.error(`⚠️ SendGrid response for status email ${order.email} -> status: ${sgErr?.response?.statusCode ?? sgErr?.code ?? 'n/a'}, body: ${safeBody2}`);
         if (!hasBrevo && !(process.env.SMTP_USER && process.env.SMTP_PASS)) throw sgErr;
       }
     }
